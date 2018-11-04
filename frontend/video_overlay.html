@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Ship Vote</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<link href="dist/main.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div id="root"></div>
+
+	<script id="ship" type="text/mvl">
+		<div class="ship" @click={emit('vote',name)} data-voteable={canBeVoted}>
+			<div If={canBeVoted} class='vote-button'>Vote</div>
+			<div class="progress-bar">
+				<div class="progress" style={style()}></div>
+			</div>
+			<img src={img} />
+			<span class="typography--headline2">{name} ({votes})</span>
+		</div>
+	</script>
+
+	<script id="view" type="text/mvl">
+	    <div class="vote-notice" data-active={displayNote} data-initial={isInitial} data-dismissed={dismissNote}>
+			<div class="cta raised" @click={showSelection()}>
+				<i class="material-icons">error_outline</i>
+				<span>Vote for a Ship now!</span>
+			</div>
+	    </div>
+
+	    <div class="selection" data-active={displaySelection}>
+		<div class="card raised">
+		    <span class="typography--headline1">Ship Vote</span>
+		    <span class="typography--subtitle">Currently voting for Tiers VIII, IX, X</span>
+			<div class="card__divider"></div>
+
+			<div class="ships">
+				<div For={$ship in ships}>
+					<Ship img={$ship.img} name={$ship.name} votes={$ship.votes} @vote={vote($ship)} canBeVoted={!didVote} />
+				</div>
+			</div>
+		</div>
+	    </div>
+	</script>
+
+	<script src="//unpkg.com/moon"></script>
+	<script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+	<script src="dist/main.js"></script>
+	<script>
+		Moon.extend('Ship', () => {
+			return {
+				view: document.getElementById('ship').innerHTML,
+				votes: 0,
+				style() {
+					return `min-width: ${this.votes}%;`;
+
+					this.onUpdated();
+				}
+			};
+		});
+
+		Moon({
+			root: '#root',
+			view: document.getElementById('view').innerHTML,
+			displayNote: false,
+			dismissNote: false,
+			displaySelection: true,
+			didVote: false,
+			isInitial: false,
+			ships: [
+				{
+					tier: 10,
+					name: 'Minotaur',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Hindenburg',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Montana',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Stalingrad',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Moskva',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Daring',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+				{
+					tier: 10,
+					name: 'Gearing',
+					img: 'minotaur.png',
+					votes: 0,
+				},
+			],
+			onCreate() {
+				let socket;
+
+				window.Twitch.ext.onAuthorized(jwt => {
+					if (socket) {
+						socket.disconnect();
+					}
+
+					socket = new window.Socket('ws://localhost:4000/socket', { params: { token: jwt.token } });
+					socket.connect();
+					// Now that you are connected, you can join channels with a topic:
+					let channel = socket.channel('stream:flamuu', {})
+					channel.join()
+						.receive('ok', resp => {
+							console.log('Joined successfully', resp);
+
+							channel.push('get_status');
+						})
+						.receive('error', resp => { console.log('Unable to join', resp) });
+
+					channel.on('status', status => {
+						if (status.voting) {
+							this.update({
+								dismissNote: false,
+								displayNote: true,
+								displaySelection: false,
+								didVote: false,
+								isInitial: true,
+							});
+
+							setTimeout(() => { this.update('isInitial', false); }, 10000);
+						} else {
+							console.log(status);
+							console.log('not voting');
+							this.update({
+								dismissNote: false,
+								displayNote: false,
+								displaySelection: false,
+								didVote: false,
+								isInitial: false,
+							})
+						}
+					});
+				});
+			},
+			showSelection() {
+				this.update({
+					displayNote: false,
+					displaySelection: true,
+					dismissNote: true,
+				});
+			},
+			vote(ship) {
+				ship.votes++;
+
+				this.update({
+					didVote: true,
+					ships: this.ships,
+				});
+			}
+		});
+	</script>
+</body>
+
+</html>
