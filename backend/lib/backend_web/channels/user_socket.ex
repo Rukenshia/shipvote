@@ -22,11 +22,27 @@ defmodule BackendWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"token" => jwt} = params, socket) do
-    Logger.debug(inspect(jwt))
+    decoded =
+      jwt
+      |> Joken.token()
+      |> Joken.with_signer(
+        Joken.hs256(
+          Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+          |> Base.decode64!()
+        )
+      )
+      |> Joken.verify()
+
+    claims = Joken.get_claims(decoded)
 
     socket =
       socket
       |> assign(:token, jwt)
+      |> assign(:user_data, %{
+        channel_id: claims["channel_id"],
+        user_id: claims["user_id"],
+        role: claims["role"]
+      })
 
     {:ok, socket}
   end

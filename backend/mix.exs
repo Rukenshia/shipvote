@@ -41,7 +41,9 @@ defmodule Backend.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 1.0"},
-      {:httpoison, "~> 1.4"}
+      {:httpoison, "~> 1.4"},
+      {:joken, "~> 1.5.0"},
+      {:cors_plug, "~> 2.0"}
     ]
   end
 
