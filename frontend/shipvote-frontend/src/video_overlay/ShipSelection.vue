@@ -1,0 +1,40 @@
+<template>
+<div class="card raised">
+		    <span class="typography--headline1">Ship Vote</span>
+		    <span class="typography--subtitle">Currently voting for Tiers VIII, IX, X</span>
+			<div class="card__divider"></div>
+
+			<div class="ships">
+				<template v-for="ship in ships">
+					<Ship :key="ship.id" :image="ship.image" :name="ship.name" :votes="ship.votes" @vote="vote(ship)" :canBeVoted="enableVoting && !voted" />
+				</template>
+			</div>
+		</div>
+</template>
+
+<script>
+import Ship from './Ship';
+
+export default {
+  props: ['ships', 'enableVoting', 'voted'],
+  components: { Ship },
+  data() {
+    return {};
+  },
+  methods: {
+    vote(ship) {
+      this.$emit('vote', ship);
+    }
+  }
+};
+</script>
+
+<style lang="scss">
+@import '../card';
+
+.ships {
+  display: flex;
+  flex-flow: row wrap;
+  margin-right: -12px;
+}
+</style>

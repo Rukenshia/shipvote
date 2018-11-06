@@ -54,6 +54,8 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
+config :joken, allow_none_algorithm: true
+
 # Configure your database
 config :backend, Backend.Repo,
   adapter: Ecto.Adapters.Postgres,

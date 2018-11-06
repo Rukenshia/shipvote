@@ -11,9 +11,14 @@ defmodule BackendWeb.WarshipView do
   end
 
   def render("warship.json", %{warship: warship}) do
-    %{id: warship.id,
+    %{
+      id: warship.id,
       name: warship.name,
+      nation: warship.nation,
+      type: warship.type,
       tier: warship.tier,
-      premium: warship.premium}
+      premium: warship.premium,
+      image: warship.image
+    }
   end
 end
