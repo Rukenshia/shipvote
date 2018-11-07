@@ -110,7 +110,6 @@ export default {
     get('http://localhost:4000/api/warships', {
       headers: { 'Content-Type': 'application/json' }
     }).then(res => {
-      console.log(res);
       this.ships = res.data['data'];
     });
     onAuthorized(data => {
@@ -141,20 +140,46 @@ export default {
       channel.on('status', data => {
         this.voting = data.voting;
         this.voteStarted = data.voting;
-        this.noteDismissed = false;
 
-        setTimeout(() => {
-          this.voteStarted = false;
-        }, 5000);
+        if (data.votes) {
+          this.ships = this.ships.map(s => {
+            if (typeof data['votes'][s.id] === 'undefined') {
+              return { ...s, votes: 0 };
+            }
+            return { ...s, votes: data['votes'][s.id] };
+          });
+        } else {
+          this.ships = this.ships.map(s => {
+            return { ...s, votes: 0 };
+          });
+        }
+
+        if (this.voting) {
+          this.noteDismissed = false;
+
+          setTimeout(() => {
+            this.voteStarted = false;
+          }, 5000);
+        } else {
+          this.voted = false;
+          this.selecting = false;
+        }
+      });
+
+      channel.on('new_vote', data => {
+        const ship = this.ships.find(s => s.id === data['ship_id']);
+
+        ship.votes += 1;
       });
     });
   },
   methods: {
     vote(ship) {
-      this.voted = true;
-      this.selecting = false;
+      if (this.voted) {
+        return;
+      }
 
-      console.log(ship);
+      this.voted = true;
 
       if (this.channel) {
         this.channel.push('vote', { ship_id: ship.id });
@@ -225,10 +250,12 @@ export default {
   .card {
     height: 0;
     max-height: 0;
+    opacity: 0;
     visibility: hidden;
     overflow-y: scroll;
 
-    transition: max-height 0.5s;
+    transition: visibility 0s linear 0.5s, max-height 0.5s, height 0.5s,
+      opacity 0.45s;
   }
 
   &[data-active='true'] {
@@ -236,6 +263,8 @@ export default {
       visibility: visible;
       height: 20%;
       max-height: 260px;
+      transition-delay: 0s;
+      opacity: 1;
     }
   }
 }

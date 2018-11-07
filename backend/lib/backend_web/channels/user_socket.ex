@@ -41,6 +41,7 @@ defmodule BackendWeb.UserSocket do
       |> assign(:user_data, %{
         channel_id: claims["channel_id"],
         user_id: claims["user_id"],
+        opaque_user_id: claims["opaque_user_id"],
         role: claims["role"]
       })
 

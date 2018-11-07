@@ -2,11 +2,12 @@ defmodule Backend.Stream.Vote do
   use Ecto.Schema
   import Ecto.Changeset
 
-
   schema "stream_votes" do
-    field :channel_id, :integer
-    field :ships, {:array, :integer}
-    field :status, :string
+    field(:channel_id, :integer)
+    field(:ships, {:array, :integer})
+    field(:status, :string)
+
+    has_many(:votes, Backend.Stream.VotedShip)
 
     timestamps()
   end
