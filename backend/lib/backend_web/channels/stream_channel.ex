@@ -23,9 +23,30 @@ defmodule BackendWeb.StreamChannel do
         where: v.status == "open" and v.channel_id == ^channel_id
       )
       |> Repo.one()
+      |> Repo.preload(:votes)
 
     if !is_nil(vote) do
-      push(socket, "status", %{voting: true, ships: vote.ships})
+      # count ship votes
+      votes =
+        vote.votes
+        |> Enum.reduce(%{}, fn v, acc ->
+          if Map.has_key?(acc, v.ship_id) do
+            acc
+            |> Map.get_and_update!(v.ship_id, fn v -> {v, v + 1} end)
+            |> elem(1)
+          else
+            acc
+            |> Map.put(v.ship_id, 1)
+          end
+        end)
+
+      Logger.debug(inspect(votes))
+
+      push(socket, "status", %{
+        voting: true,
+        ships: [],
+        votes: votes
+      })
     else
       push(socket, "status", %{voting: false})
     end
@@ -79,7 +100,40 @@ defmodule BackendWeb.StreamChannel do
     {:noreply, socket}
   end
 
-  def handle_in("vote", _params, socket) do
+  def handle_in(
+        "vote",
+        %{"ship_id" => ship_id},
+        %{assigns: %{user_data: %{opaque_user_id: user_id, channel_id: channel_id}}} = socket
+      ) do
+    vote = Backend.Stream.get_open_vote_by_channel(channel_id)
+    Logger.debug(inspect(vote))
+    Logger.debug("checking user vote")
+
+    if !is_nil(vote) do
+      Logger.debug("checking user vote")
+      Logger.debug(inspect(vote))
+
+      user_vote =
+        from(v in Backend.Stream.VotedShip,
+          where: v.user_id == ^user_id and v.vote_id == ^vote.id
+        )
+        |> Repo.one()
+
+      if is_nil(user_vote) do
+        Logger.debug("do stuff")
+
+        %Backend.Stream.VotedShip{}
+        |> Backend.Stream.VotedShip.changeset(%{
+          vote_id: vote.id,
+          user_id: user_id,
+          ship_id: ship_id
+        })
+        |> Repo.insert!()
+
+        broadcast!(socket, "new_vote", %{ship_id: ship_id})
+      end
+    end
+
     {:noreply, socket}
   end
 
