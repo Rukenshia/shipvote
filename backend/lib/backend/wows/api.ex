@@ -10,7 +10,7 @@ defmodule Backend.Wows.Api do
         params: %{application_id: @application, fields: @ship_fields, page_no: page}
       )
 
-    data = Poison.decode!(response.body)
+    data = Jason.decode!(response.body)
 
     new_ships = data["data"]
 
@@ -31,7 +31,7 @@ defmodule Backend.Wows.Api do
         params: %{application_id: @application, fields: @ship_fields}
       )
 
-    data = Poison.decode!(response.body)
+    data = Jason.decode!(response.body)
 
     ships = data["data"]
 

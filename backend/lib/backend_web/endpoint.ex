@@ -1,7 +1,7 @@
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
 
-  socket("/socket", BackendWeb.UserSocket)
+  socket("/socket", BackendWeb.UserSocket, websocket: true)
 
   plug(CORSPlug, origin: ["*"])
 
@@ -29,7 +29,7 @@ defmodule BackendWeb.Endpoint do
   plug(Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
-    json_decoder: Poison
+    json_decoder: Jason
   )
 
   plug(Plug.MethodOverride)
