@@ -5,6 +5,8 @@
 # is restricted to this project.
 use Mix.Config
 
+config :phoenix, :json_library, Jason
+
 # General application configuration
 config :backend,
   ecto_repos: [Backend.Repo]
@@ -14,8 +16,7 @@ config :backend, BackendWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "SXGmFxy6zcy0csSKhKkORSf8c0/f0fljUa5jxfN45yPABRptNBj0ie4e9KbJHKpP",
   render_errors: [view: BackendWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Backend.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Backend.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -24,4 +25,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"
