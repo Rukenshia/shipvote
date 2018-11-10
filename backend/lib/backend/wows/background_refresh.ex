@@ -4,6 +4,8 @@ defmodule Backend.Wows.BackgroundRefresh do
 
   alias Backend.Repo
 
+  import Ecto.Query, only: [from: 2]
+
   def start_link do
     GenServer.start_link(__MODULE__, %{})
   end
@@ -20,7 +22,7 @@ defmodule Backend.Wows.BackgroundRefresh do
     #   Backend.Wows.Api.get_warships()
     #   |> Map.values()
     #   |> Enum.map(fn data ->
-    #     case Backend.Wows.get_warship!(data["ship_id"]) do
+    #     case from(s in Backend.Wows.Warship, where: s.id == ^data["ship_id"]) |> Repo.one() do
     #       %Backend.Wows.Warship{} = ship ->
     #         ship
 

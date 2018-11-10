@@ -17,12 +17,18 @@
     <a class="button raised" v-if="!voting" @click="openVote">Open vote</a>
     <a class="button raised" v-if="voting" @click="closeVote">Close vote</a>
 
+    <div v-for="(v,key) in settings.tiers" :key="key">
+      <label :for="`tier_${key}`">Tier {{key + 1}}</label>
+      <input :name="`tier_${key}`" type="checkbox" v-model="settings.tiers[key]" />
+    </div>
+
 
   </div>
 </template>
 
 <script>
 import { Socket } from 'phoenix';
+import { get } from 'axios';
 
 export default {
   name: 'app',
@@ -33,10 +39,22 @@ export default {
 
       connecting: true,
       connected: false,
-      voting: false
+      voting: false,
+
+      settings: {
+        tiers: [true, true, true, true, true, true, true, true, true, true]
+      },
+
+      ships: []
     };
   },
   created() {
+    get('http://localhost:4000/api/warships', {
+      headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+      this.ships = res.data['data'];
+    });
+
     window.Twitch.ext.onAuthorized(data => {
       if (this.socket) {
         this.socket.disconnect();
@@ -73,7 +91,11 @@ export default {
   methods: {
     openVote() {
       if (this.channel) {
-        this.channel.push('open_vote');
+        this.channel.push('open_vote', {
+          ships: this.ships
+            .filter(s => this.settings.tiers[s.tier - 1] === true)
+            .map(s => s.id)
+        });
       }
     },
     closeVote() {
