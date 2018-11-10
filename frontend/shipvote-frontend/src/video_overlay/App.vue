@@ -107,11 +107,6 @@ export default {
     };
   },
   created() {
-    get('http://localhost:4000/api/warships', {
-      headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-      this.ships = res.data['data'];
-    });
     onAuthorized(data => {
       if (this.socket) {
         this.socket.disconnect();
@@ -141,20 +136,31 @@ export default {
         this.voting = data.voting;
         this.voteStarted = data.voting;
 
-        if (data.votes) {
-          this.ships = this.ships.map(s => {
-            if (typeof data['votes'][s.id] === 'undefined') {
-              return { ...s, votes: 0 };
-            }
-            return { ...s, votes: data['votes'][s.id] };
-          });
-        } else {
-          this.ships = this.ships.map(s => {
-            return { ...s, votes: 0 };
-          });
-        }
-
         if (this.voting) {
+          get('http://localhost:4000/api/warships', {
+            headers: { 'Content-Type': 'application/json' }
+          }).then(res => {
+            let ships = res.data['data'];
+
+            if (data.ships) {
+              ships = ships.filter(s => data['ships'].find(s.id) !== null);
+            }
+
+            if (data.votes) {
+              ships = ships.map(s => {
+                if (typeof data['votes'][s.id] === 'undefined') {
+                  return { ...s, votes: 0 };
+                }
+                return { ...s, votes: data['votes'][s.id] };
+              });
+            } else {
+              ships = ships.map(s => {
+                return { ...s, votes: 0 };
+              });
+            }
+
+            this.ships = ships;
+          });
           this.noteDismissed = false;
 
           setTimeout(() => {

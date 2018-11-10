@@ -3,12 +3,11 @@ defmodule Backend.Repo.Migrations.CreateStreamVotes do
 
   def change do
     create table(:stream_votes) do
-      add :channel_id, :integer
-      add :ships, {:array, :integer}
-      add :status, :string
+      add(:channel_id, :integer)
+      add(:ships, {:array, :bigint})
+      add(:status, :string)
 
       timestamps()
     end
-
   end
 end

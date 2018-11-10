@@ -44,7 +44,7 @@ defmodule BackendWeb.StreamChannel do
 
       push(socket, "status", %{
         voting: true,
-        ships: [],
+        ships: vote.ships,
         votes: votes
       })
     else
@@ -56,7 +56,7 @@ defmodule BackendWeb.StreamChannel do
 
   def handle_in(
         "open_vote",
-        _params,
+        %{"ships" => ships},
         %{assigns: %{user_data: %{role: "broadcaster", channel_id: channel_id}}} = socket
       ) do
     vote =
@@ -69,11 +69,16 @@ defmodule BackendWeb.StreamChannel do
 
         nil ->
           %Backend.Stream.Vote{}
-          |> Backend.Stream.Vote.changeset(%{channel_id: channel_id, status: "open", ships: []})
+          |> Backend.Stream.Vote.changeset(%{channel_id: channel_id, status: "open", ships: ships})
           |> Repo.insert!()
       end
 
-    broadcast!(socket, "status", %{voting: vote.status == "open"})
+    push(socket, "status", %{
+      voting: true,
+      ships: vote.ships,
+      votes: %{}
+    })
+
     {:noreply, socket}
   end
 
