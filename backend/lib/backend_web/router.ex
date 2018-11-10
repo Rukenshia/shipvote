@@ -5,6 +5,10 @@ defmodule BackendWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  scope "/", BackendWeb do
+    get("/privacy-policy", NoticeController, :privacy_policy)
+  end
+
   scope "/api", BackendWeb do
     pipe_through(:api)
 
