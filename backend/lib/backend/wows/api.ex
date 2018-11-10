@@ -5,7 +5,8 @@ defmodule Backend.Wows.Api do
   @ship_fields "is_premium,images.small,nation,ship_id,tier,type,name,description,is_special,next_ships"
 
   def get_warships(page, ships) do
-    response =
+    %{status_code: 200} =
+      response =
       HTTPoison.get!("https://api.worldofwarships.eu/wows/encyclopedia/ships/", [],
         params: %{application_id: @application, fields: @ship_fields, page_no: page}
       )
@@ -31,6 +32,8 @@ defmodule Backend.Wows.Api do
       HTTPoison.get!("https://api.worldofwarships.eu/wows/encyclopedia/ships/", [],
         params: %{application_id: @application, fields: @ship_fields}
       )
+
+    Logger.debug(inspect(response))
 
     data = Jason.decode!(response.body)
 
