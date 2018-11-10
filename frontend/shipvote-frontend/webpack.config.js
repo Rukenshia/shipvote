@@ -25,7 +25,12 @@ module.exports = {
         use: [
           'vue-style-loader',
           'css-loader',
-          'sass-loader'
+          {
+            loader: 'sass-loader',
+            options: {
+              includePaths: [path.resolve(__dirname, 'node_modules')],
+            }
+          },
         ],
       },
       {
@@ -33,7 +38,11 @@ module.exports = {
         use: [
           'vue-style-loader',
           'css-loader',
-          'sass-loader?indentedSyntax'
+          {
+            loader: 'sass-loader', options: {
+              includePaths: [path.resolve(__dirname, 'node_modules')],
+            }
+          },
         ],
       },
       {
@@ -47,12 +56,12 @@ module.exports = {
             'scss': [
               'vue-style-loader',
               'css-loader',
-              'sass-loader'
+              { loader: 'sass-loader', options: { includePaths: [path.resolve(__dirname, 'node_modules')] } },
             ],
             'sass': [
               'vue-style-loader',
               'css-loader',
-              'sass-loader?indentedSyntax'
+              { loader: 'sass-loader', options: { indentedSyntax: true, includePaths: [path.resolve(__dirname, 'node_modules')] } },
             ]
           }
           // other vue-loader options go here
@@ -74,7 +83,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.esm.js'
+      'vue$': 'vue/dist/vue.esm.js',
     },
     extensions: ['*', '.js', '.vue', '.json']
   },

@@ -25,7 +25,9 @@ defmodule Backend.Wows.Warship do
     |> changeset(%{
       name: data["name"],
       tier: data["tier"],
-      premium: data["is_premium"],
+      premium:
+        data["is_premium"] || data["is_special"] ||
+          (data["tier"] != 10 && Map.size(data["next_ships"]) == 0),
       nation: data["nation"],
       type: data["type"],
       image: data["images"]["small"]

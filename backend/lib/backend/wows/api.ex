@@ -2,7 +2,7 @@ defmodule Backend.Wows.Api do
   require Logger
 
   @application Application.get_env(:backend, Backend.Wows.Api)[:application]
-  @ship_fields "is_premium,images.small,nation,ship_id,tier,type,name"
+  @ship_fields "is_premium,images.small,nation,ship_id,tier,type,name,description,is_special,next_ships"
 
   def get_warships(page, ships) do
     response =
@@ -26,7 +26,8 @@ defmodule Backend.Wows.Api do
   end
 
   def get_warships() do
-    response =
+    %{status_code: 200} =
+      response =
       HTTPoison.get!("https://api.worldofwarships.eu/wows/encyclopedia/ships/", [],
         params: %{application_id: @application, fields: @ship_fields}
       )

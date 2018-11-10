@@ -112,7 +112,7 @@ export default {
         this.socket.disconnect();
       }
 
-      this.socket = new SocketImpl('ws://localhost:4000/socket', {
+      this.socket = new SocketImpl('ws://shipvote.in.fkn.space/socket', {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -137,13 +137,15 @@ export default {
         this.voteStarted = data.voting;
 
         if (this.voting) {
-          get('http://localhost:4000/api/warships', {
+          get('http://shipvote.in.fkn.space/api/warships', {
             headers: { 'Content-Type': 'application/json' }
           }).then(res => {
             let ships = res.data['data'];
 
             if (data.ships) {
-              ships = ships.filter(s => data['ships'].find(s.id) !== null);
+              ships = ships.filter(
+                s => data['ships'].find(v => v === s.id) !== undefined
+              );
             }
 
             if (data.votes) {
