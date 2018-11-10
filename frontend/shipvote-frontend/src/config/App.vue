@@ -183,8 +183,6 @@ export default {
           [data['ship_id']]: this.stats.ship_votes[data['ship_id']] + 1
         };
 
-        console.log(this.stats);
-
         this.stats.votes++;
         this.$forceUpdate();
       });
