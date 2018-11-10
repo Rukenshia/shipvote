@@ -73,7 +73,7 @@ defmodule BackendWeb.StreamChannel do
           |> Repo.insert!()
       end
 
-    push(socket, "status", %{
+    broadcast!(socket, "status", %{
       voting: true,
       ships: vote.ships,
       votes: %{}

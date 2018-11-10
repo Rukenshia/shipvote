@@ -14,15 +14,65 @@
       </strong>
     </p>
 
-    <a class="button raised" v-if="!voting" @click="openVote">Open vote</a>
-    <a class="button raised" v-if="voting" @click="closeVote">Close vote</a>
+    <mdc-button :raised=true v-if="!voting" @click="openVote">Open vote</mdc-button>
+    <mdc-button :raised=true v-if="voting" @click="closeVote">Close vote</mdc-button>
 
-    <div v-for="(v,key) in settings.tiers" :key="key">
-      <label :for="`tier_${key}`">Tier {{key + 1}}</label>
-      <input :name="`tier_${key}`" type="checkbox" v-model="settings.tiers[key]" />
+    <div v-show="voting">
+      <mdc-headline>Voting stats</mdc-headline>
+      <mdc-layout-grid>
+        <mdc-layout-cell>
+          <mdc-card>
+            <mdc-card-header
+              :title="`${stats.votes}`"
+              subtitle="votes">
+            </mdc-card-header>
+          </mdc-card>
+        </mdc-layout-cell>
+        <mdc-layout-cell>
+          <mdc-card>
+            <mdc-card-header
+              :title="`${mostVoted}`"
+              subtitle="Top pick">
+            </mdc-card-header>
+          </mdc-card>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
     </div>
+    <div v-show="!voting">
+      <mdc-headline>General</mdc-headline>
+      <mdc-layout-grid>
+        <mdc-layout-cell>
+          <mdc-checkbox  label="Premium Ships" v-model="settings.premium"/>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
 
+      <mdc-headline>Tiers</mdc-headline>
+      <mdc-layout-grid>
+        <template v-for="(v,key) in settings.tiers">
+          <mdc-layout-cell :key="key">
+            <mdc-checkbox  :label="`Tier ${key + 1}`" v-model="settings.tiers[key]"/>
+          </mdc-layout-cell>
+        </template>
+      </mdc-layout-grid>
 
+      <mdc-headline>Classes</mdc-headline>
+      <mdc-layout-grid>
+        <template v-for="key in Object.keys(settings.types)">
+          <mdc-layout-cell :key="key">
+            <mdc-checkbox  :label="key" v-model="settings.types[key]"/>
+          </mdc-layout-cell>
+        </template>
+      </mdc-layout-grid>
+
+      <mdc-headline>Nations</mdc-headline>
+      <mdc-layout-grid>
+        <template v-for="key in Object.keys(settings.nations)">
+          <mdc-layout-cell :key="key">
+            <mdc-checkbox  :label="key" v-model="settings.nations[key]"/>
+          </mdc-layout-cell>
+        </template>
+      </mdc-layout-grid>
+    </div>
   </div>
 </template>
 
@@ -42,14 +92,40 @@ export default {
       voting: false,
 
       settings: {
-        tiers: [true, true, true, true, true, true, true, true, true, true]
+        premium: true,
+        tiers: [true, true, true, true, true, true, true, true, true, true],
+        types: {
+          Battleship: true,
+          Cruiser: true,
+          Destroyer: true,
+          AirCarrier: true
+        },
+        nations: {
+          commonwealth: true,
+          france: true,
+          germany: true,
+          italy: true,
+          japan: true,
+          pan_america: true,
+          pan_asia: true,
+          poland: true,
+          uk: true,
+          usa: true,
+          ussr: true
+        }
+      },
+
+      stats: {
+        votes: 0,
+
+        ship_votes: {}
       },
 
       ships: []
     };
   },
   created() {
-    get('http://localhost:4000/api/warships', {
+    get('http://shipvote.in.fkn.space/api/warships', {
       headers: { 'Content-Type': 'application/json' }
     }).then(res => {
       this.ships = res.data['data'];
@@ -62,7 +138,7 @@ export default {
 
       console.log(data);
 
-      this.socket = new Socket('ws://localhost:4000/socket', {
+      this.socket = new Socket('ws://shipvote.in.fkn.space/socket', {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -85,8 +161,57 @@ export default {
 
       channel.on('status', data => {
         this.voting = data.voting;
+
+        if (data.votes) {
+          this.stats.votes = Object.values(data.votes).reduce((p, c) => p + c);
+          this.stats.ship_votes = data.votes;
+          this.$forceUpdate();
+        }
+      });
+
+      channel.on('new_vote', data => {
+        if (this.stats.ship_votes[data['ship_id']] === 'undefined') {
+          this.stats.ship_votes[data['ship_id']] = 1;
+        }
+        this.stats.ship_votes[data['ship_id']] += 1;
+
+        this.stats.votes++;
+        this.$forceUpdate();
       });
     });
+  },
+  computed: {
+    mostVoted() {
+      if (this.ships.length === 0) {
+        return 'none';
+      }
+
+      const sorted = Object.keys(this.stats.ship_votes).map(v => ({
+        ...this.ships.find(s => s.id === parseInt(v, 10)),
+        votes: this.stats.ship_votes[v]
+      }));
+
+      sorted.sort((a, b) => {
+        const av = this.stats.ship_votes[a.id] || 0;
+        const bv = this.stats.ship_votes[b.id] || 0;
+
+        console.log(a.name, av, b.name, bv);
+
+        if (av < bv) {
+          return 1;
+        } else if (av === bv) {
+          return 0;
+        }
+        return -1;
+      });
+
+      const max = this.stats.ship_votes[sorted[0].id];
+
+      return sorted
+        .filter(s => s.votes === max)
+        .map(s => s.name)
+        .join(', ');
+    }
   },
   methods: {
     openVote() {
@@ -94,6 +219,13 @@ export default {
         this.channel.push('open_vote', {
           ships: this.ships
             .filter(s => this.settings.tiers[s.tier - 1] === true)
+            .filter(s => this.settings.types[s.type] === true)
+            .filter(
+              s =>
+                this.settings.premium ||
+                (!this.settings.premium && s.premium === false)
+            )
+            .filter(s => this.settings.nations[s.nation] === true)
             .map(s => s.id)
         });
       }
@@ -110,6 +242,7 @@ export default {
 <style lang="scss">
 @import '../typography';
 @import '../card';
+@import '../mdc.scss';
 
 .button {
   border-radius: 4px;
