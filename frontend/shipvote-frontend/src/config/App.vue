@@ -17,7 +17,7 @@
     <mdc-button :raised=true v-if="!voting" @click="openVote">Open vote</mdc-button>
     <mdc-button :raised=true v-if="voting" @click="closeVote">Close vote</mdc-button>
 
-    <div v-show="voting">
+    <div v-if="voting">
       <mdc-headline>Voting stats</mdc-headline>
       <mdc-layout-grid>
         <mdc-layout-cell>
@@ -125,7 +125,7 @@ export default {
     };
   },
   created() {
-    get('http://shipvote.in.fkn.space/api/warships', {
+    get('https://shipvote.in.fkn.space/api/warships', {
       headers: { 'Content-Type': 'application/json' }
     }).then(res => {
       this.ships = res.data['data'];
@@ -138,7 +138,7 @@ export default {
 
       console.log(data);
 
-      this.socket = new Socket('ws://shipvote.in.fkn.space/socket', {
+      this.socket = new Socket('wss://shipvote.in.fkn.space/socket', {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -163,17 +163,27 @@ export default {
         this.voting = data.voting;
 
         if (data.votes) {
-          this.stats.votes = Object.values(data.votes).reduce((p, c) => p + c);
+          const values = Object.values(data.votes);
+          if (values.length === 0) {
+            this.stats.votes = 0;
+          } else {
+            this.stats.votes = values.reduce((p, c) => p + c);
+          }
           this.stats.ship_votes = data.votes;
           this.$forceUpdate();
         }
       });
 
       channel.on('new_vote', data => {
-        if (this.stats.ship_votes[data['ship_id']] === 'undefined') {
-          this.stats.ship_votes[data['ship_id']] = 1;
+        if (typeof this.stats.ship_votes[data['ship_id']] === 'undefined') {
+          this.stats.ship_votes[data['ship_id']] = 0;
         }
-        this.stats.ship_votes[data['ship_id']] += 1;
+        this.stats.ship_votes = {
+          ...this.stats.ship_votes,
+          [data['ship_id']]: this.stats.ship_votes[data['ship_id']] + 1
+        };
+
+        console.log(this.stats);
 
         this.stats.votes++;
         this.$forceUpdate();
@@ -204,6 +214,12 @@ export default {
         }
         return -1;
       });
+
+      console.log(sorted);
+
+      if (sorted.length === 0 || typeof sorted[0] === 'undefined') {
+        return 'none';
+      }
 
       const max = this.stats.ship_votes[sorted[0].id];
 
