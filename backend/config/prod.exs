@@ -15,7 +15,8 @@ use Mix.Config
 # which you typically run after static files are built.
 config :backend, BackendWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "example.com", port: 80],
+  url: [host: "shipvote.in.fkn.space", port: 80],
+  check_origin: ["//eke6vam83fi9dkfrgh4y28l48wz363.ext-twitch.tv", "//localhost.rig.twitch.tv"]
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
