@@ -112,7 +112,7 @@ export default {
         this.socket.disconnect();
       }
 
-      this.socket = new SocketImpl('ws://shipvote.in.fkn.space/socket', {
+      this.socket = new SocketImpl('wss://shipvote.in.fkn.space/socket', {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -137,7 +137,7 @@ export default {
         this.voteStarted = data.voting;
 
         if (this.voting) {
-          get('http://shipvote.in.fkn.space/api/warships', {
+          get('https://shipvote.in.fkn.space/api/warships', {
             headers: { 'Content-Type': 'application/json' }
           }).then(res => {
             let ships = res.data['data'];
