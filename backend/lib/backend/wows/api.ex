@@ -11,7 +11,7 @@ defmodule Backend.Wows.Api do
         params: %{application_id: @application, fields: @ship_fields, page_no: page}
       )
 
-    %{status: "ok"} = data = Jason.decode!(response.body)
+    %{"status" => "ok"} = data = Jason.decode!(response.body)
 
     new_ships = data["data"]
 
@@ -33,7 +33,7 @@ defmodule Backend.Wows.Api do
         params: %{application_id: @application, fields: @ship_fields}
       )
 
-    %{status: "ok"} = data = Jason.decode!(response.body)
+    %{"status" => "ok"} = data = Jason.decode!(response.body)
 
     ships = data["data"]
 
