@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="selection" v-bind:data-active="selecting">
-      <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" />
+      <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" :maxHeight="maxHeight"/>
     </div>
 
-    <div class="vote-notice" v-bind:data-active="voting && !selecting" v-bind:data-initial="voteStarted" v-bind:data-dismissed="selecting">
+    <div class="vote-notice" v-bind:data-active="voting && !selecting && !voted" v-bind:data-initial="voteStarted" v-bind:data-dismissed="selecting || voted">
 			<div class="cta raised" @click="selecting = true">
 				<i class="material-icons">error_outline</i>
 				<span>Vote for a Ship now!</span>
@@ -22,6 +22,7 @@ const mockSocket = false;
 
 let SocketImpl = Socket;
 let onAuthorized = window.Twitch.ext.onAuthorized;
+let onContext = window.Twitch.ext.onContext;
 
 if (mockSocket) {
   onAuthorized = fn => {
@@ -89,6 +90,9 @@ export default {
       socket: undefined,
       channel: undefined,
 
+      // Max window height
+      maxHeight: 200,
+
       // Socket is connected
       connected: false,
       // Vote is enabled
@@ -107,6 +111,15 @@ export default {
     };
   },
   created() {
+    onContext(data => {
+      this.maxHeight =
+        parseInt(
+          data['displayResolution'].slice(
+            data['displayResolution'].indexOf('x') + 1
+          ),
+          10
+        ) - 160;
+    });
     onAuthorized(data => {
       if (this.socket) {
         this.socket.disconnect();
@@ -188,6 +201,7 @@ export default {
       }
 
       this.voted = true;
+      this.selecting = false;
 
       if (this.channel) {
         this.channel.push('vote', { ship_id: ship.id });
@@ -252,25 +266,21 @@ export default {
 .selection {
   position: fixed;
   left: 8px;
-  top: 110px;
+  top: 80px;
   width: 386px;
 
   .card {
     height: 0;
-    max-height: 0;
     opacity: 0;
     visibility: hidden;
     overflow-y: scroll;
 
-    transition: visibility 0s linear 0.5s, max-height 0.5s, height 0.5s,
-      opacity 0.45s;
+    transition: visibility 0s linear 0.5s, height 0.5s, opacity 0.45s;
   }
 
   &[data-active='true'] {
     .card {
       visibility: visible;
-      height: 20%;
-      max-height: 260px;
       transition-delay: 0s;
       opacity: 1;
     }

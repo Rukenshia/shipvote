@@ -1,5 +1,5 @@
 <template>
-<div class="card raised">
+<div class="card raised" :style="{height: `${maxHeight}px`}">
 		    <span class="typography--headline1">Ship Vote</span>
 		    <span class="typography--subtitle">Currently voting for Tiers VIII, IX, X</span>
 			<div class="card__divider"></div>
@@ -16,7 +16,7 @@
 import Ship from './Ship';
 
 export default {
-  props: ['ships', 'enableVoting', 'voted'],
+  props: ['ships', 'enableVoting', 'voted', 'maxHeight'],
   components: { Ship },
   data() {
     return {};
