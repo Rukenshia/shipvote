@@ -1,7 +1,6 @@
 <template>
 <div class="card raised" :style="{height: `${maxHeight}px`}">
-		    <span class="typography--headline1">Ship Vote</span>
-		    <span class="typography--subtitle">Currently voting for Tiers VIII, IX, X</span>
+		    <span class="typography--headline1">Pick a Ship</span>
 			<div class="card__divider"></div>
 
 			<div class="ships">
