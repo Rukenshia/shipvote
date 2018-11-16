@@ -1,53 +1,42 @@
 <template>
-  <div class="status">
-    <p>Status:
-      <strong>
-        <span v-if="connected" class="typography__color--success">connected</span>
-        <span v-if="connecting" class="typography__color--warning">connecting</span>
-        <span v-if="!connecting && !connected" class="typography__color--error">failed to connect</span>
-      </strong>
-    </p>
-    <p>Vote status:
-      <strong>
-        <span v-if="voting" class="typography__color--success">open</span>
-        <span v-if="!voting" class="typography__color--error">closed</span>
-      </strong>
-    </p>
+<mdc-layout-grid>
+  <mdc-layout-cell :span=12>
+    <mdc-headline>Vote Status</mdc-headline>
 
-    <mdc-button :raised=true v-if="!voting" @click="openVote">Open vote</mdc-button>
-    <mdc-button :raised=true v-if="voting" @click="closeVote">Close vote</mdc-button>
+    <span v-if="voting" class="typography__color--success">open</span>
+    <span v-if="!voting" class="typography__color--error">closed</span>
 
-    <div v-if="voting">
-      <mdc-headline>Voting stats</mdc-headline>
-      <mdc-layout-grid>
-        <mdc-layout-cell>
-          <mdc-card>
-            <mdc-card-header
-              :title="`${stats.votes}`"
-              subtitle="votes">
-            </mdc-card-header>
-          </mdc-card>
-        </mdc-layout-cell>
-        <mdc-layout-cell>
-          <mdc-card>
-            <mdc-card-header
-              :title="`${mostVoted}`"
-              subtitle="Top pick">
-            </mdc-card-header>
-          </mdc-card>
-        </mdc-layout-cell>
-      </mdc-layout-grid>
+    <mdc-button :raised=true v-if="!voting" @click="openVote">Open</mdc-button>
+    <mdc-button :raised=true v-if="voting" @click="closeVote">Close</mdc-button>
+
+    <div v-if="!voting">
+      <mdc-list two-line bordered>
+        <mdc-list-item>
+          <span>{{stats.votes}}</span>
+          <span slot="secondary">Participants</span>
+        </mdc-list-item>
+        <mdc-list-item>
+          <span>{{mostVoted}}</span>
+          <span slot="secondary">Most Votes</span>
+        </mdc-list-item>
+      </mdc-list>
     </div>
     <div v-show="!voting">
-      <mdc-headline>General</mdc-headline>
-      <mdc-layout-grid>
+      <mdc-headline :tag="h2">Settings</mdc-headline>
+      <mdc-tab-bar @change="(i) => this.viewSetting = i">
+        <mdc-tab>General</mdc-tab>
+        <mdc-tab>Tiers</mdc-tab>
+        <mdc-tab>Classes</mdc-tab>
+        <mdc-tab>Nations</mdc-tab>
+      </mdc-tab-bar>
+
+      <mdc-layout-grid v-if="viewSetting === 0">
         <mdc-layout-cell>
           <mdc-checkbox  label="Premium Ships" v-model="settings.premium"/>
         </mdc-layout-cell>
       </mdc-layout-grid>
 
-      <mdc-headline>Tiers</mdc-headline>
-      <mdc-layout-grid>
+      <mdc-layout-grid v-if="viewSetting === 1">
         <template v-for="(v,key) in settings.tiers">
           <mdc-layout-cell :key="key">
             <mdc-checkbox  :label="`Tier ${key + 1}`" v-model="settings.tiers[key]"/>
@@ -55,8 +44,7 @@
         </template>
       </mdc-layout-grid>
 
-      <mdc-headline>Classes</mdc-headline>
-      <mdc-layout-grid>
+      <mdc-layout-grid v-if="viewSetting === 2">
         <template v-for="key in Object.keys(settings.types)">
           <mdc-layout-cell :key="key">
             <mdc-checkbox  :label="key" v-model="settings.types[key]"/>
@@ -64,8 +52,7 @@
         </template>
       </mdc-layout-grid>
 
-      <mdc-headline>Nations</mdc-headline>
-      <mdc-layout-grid>
+      <mdc-layout-grid v-if="viewSetting === 3">
         <template v-for="key in Object.keys(settings.nations)">
           <mdc-layout-cell :key="key">
             <mdc-checkbox  :label="key" v-model="settings.nations[key]"/>
@@ -73,19 +60,22 @@
         </template>
       </mdc-layout-grid>
     </div>
-  </div>
+  </mdc-layout-cell>
+</mdc-layout-grid>
 </template>
 
 <script>
-import { Socket } from 'phoenix';
-import { get } from 'axios';
+import { Socket } from "phoenix";
+import { get } from "axios";
 
 export default {
-  name: 'app',
+  name: "app",
   data() {
     return {
       socket: undefined,
       channel: undefined,
+
+      viewSetting: 0,
 
       connecting: true,
       connected: false,
@@ -125,10 +115,10 @@ export default {
     };
   },
   created() {
-    get('https://shipvote.in.fkn.space/api/warships', {
-      headers: { 'Content-Type': 'application/json' }
+    get("https://shipvote.in.fkn.space/api/warships", {
+      headers: { "Content-Type": "application/json" }
     }).then(res => {
-      this.ships = res.data['data'];
+      this.ships = res.data["data"];
     });
 
     window.Twitch.ext.onAuthorized(data => {
@@ -136,9 +126,7 @@ export default {
         this.socket.disconnect();
       }
 
-      console.log(data);
-
-      this.socket = new Socket('wss://shipvote.in.fkn.space/socket', {
+      this.socket = new Socket("wss://shipvote.in.fkn.space/socket", {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -149,17 +137,17 @@ export default {
       ));
       channel
         .join()
-        .receive('ok', resp => {
+        .receive("ok", resp => {
           this.connected = true;
           this.connecting = false;
 
-          channel.push('get_status');
+          channel.push("get_status");
         })
-        .receive('error', resp => {
+        .receive("error", resp => {
           this.connecting = false;
         });
 
-      channel.on('status', data => {
+      channel.on("status", data => {
         this.voting = data.voting;
 
         if (data.votes) {
@@ -174,13 +162,13 @@ export default {
         }
       });
 
-      channel.on('new_vote', data => {
-        if (typeof this.stats.ship_votes[data['ship_id']] === 'undefined') {
-          this.stats.ship_votes[data['ship_id']] = 0;
+      channel.on("new_vote", data => {
+        if (typeof this.stats.ship_votes[data["ship_id"]] === "undefined") {
+          this.stats.ship_votes[data["ship_id"]] = 0;
         }
         this.stats.ship_votes = {
           ...this.stats.ship_votes,
-          [data['ship_id']]: this.stats.ship_votes[data['ship_id']] + 1
+          [data["ship_id"]]: this.stats.ship_votes[data["ship_id"]] + 1
         };
 
         this.stats.votes++;
@@ -191,7 +179,7 @@ export default {
   computed: {
     mostVoted() {
       if (this.ships.length === 0) {
-        return 'none';
+        return "none";
       }
 
       const sorted = Object.keys(this.stats.ship_votes).map(v => ({
@@ -215,8 +203,8 @@ export default {
 
       console.log(sorted);
 
-      if (sorted.length === 0 || typeof sorted[0] === 'undefined') {
-        return 'none';
+      if (sorted.length === 0 || typeof sorted[0] === "undefined") {
+        return "none";
       }
 
       const max = this.stats.ship_votes[sorted[0].id];
@@ -224,13 +212,13 @@ export default {
       return sorted
         .filter(s => s.votes === max)
         .map(s => s.name)
-        .join(', ');
+        .join(", ");
     }
   },
   methods: {
     openVote() {
       if (this.channel) {
-        this.channel.push('open_vote', {
+        this.channel.push("open_vote", {
           ships: this.ships
             .filter(s => this.settings.tiers[s.tier - 1] === true)
             .filter(s => this.settings.types[s.type] === true)
@@ -246,7 +234,7 @@ export default {
     },
     closeVote() {
       if (this.channel) {
-        this.channel.push('close_vote');
+        this.channel.push("close_vote");
       }
     }
   }
@@ -254,9 +242,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../typography';
-@import '../card';
-@import '../mdc.scss';
+@import "../typography";
+@import "../card";
+@import "../mdc.scss";
 
 .button {
   border-radius: 4px;
@@ -273,4 +261,18 @@ export default {
     background-color: lighten(#6441a4, 5%);
   }
 }
+
+.mdc-list.mdc-list--bordered li:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.mdc-list.mdc-list--bordered li:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+// :root {
+//   // TODO: mdc primary
+// }
 </style>
