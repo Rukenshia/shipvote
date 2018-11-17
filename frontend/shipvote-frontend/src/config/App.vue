@@ -1,6 +1,6 @@
 <template>
 <mdc-layout-grid>
-  <mdc-layout-cell :span=4 style="overflow: hidden">
+  <mdc-layout-cell :span=12>
     <mdc-card class="mdc-card--flat" style="text-align: center">
       <mdc-card-header>
         <mdc-headline>
