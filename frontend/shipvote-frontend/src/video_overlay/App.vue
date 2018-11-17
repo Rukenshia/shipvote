@@ -1,7 +1,8 @@
 <template>
   <div>
+    <VoteProgress v-if="voting" :ships="ships" :voting="voting" :totalVotes="totalVotes" />
     <div class="selection" v-bind:data-active="selecting">
-      <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" :maxHeight="maxHeight"/>
+      <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" :maxHeight="maxHeight" :totalVotes="totalVotes" />
     </div>
 
     <div class="vote-notice" v-bind:data-active="voting && !selecting && !voted" v-bind:data-initial="voteStarted" v-bind:data-dismissed="selecting || voted">
@@ -17,6 +18,7 @@
 import { Socket } from 'phoenix';
 import { get } from 'axios';
 import ShipSelection from './ShipSelection';
+import VoteProgress from './VoteProgress';
 
 const mockSocket = false;
 
@@ -84,7 +86,7 @@ if (mockSocket) {
 
 export default {
   name: 'app',
-  components: { ShipSelection },
+  components: { ShipSelection, VoteProgress },
   data() {
     return {
       socket: undefined,
@@ -105,6 +107,9 @@ export default {
       selecting: false,
       // User has voted
       voted: false,
+
+      // total votes
+      totalVotes: 0,
 
       // Ships available to vote
       ships: []
@@ -168,6 +173,10 @@ export default {
                 }
                 return { ...s, votes: data['votes'][s.id] };
               });
+
+              this.totalVotes = Object.values(data['votes']).reduce(
+                (p, c) => p + c
+              );
             } else {
               ships = ships.map(s => {
                 return { ...s, votes: 0 };
@@ -184,6 +193,7 @@ export default {
         } else {
           this.voted = false;
           this.selecting = false;
+          this.totalVotes = 0;
         }
       });
 
@@ -191,6 +201,7 @@ export default {
         const ship = this.ships.find(s => s.id === data['ship_id']);
 
         ship.votes += 1;
+        this.totalVotes++;
       });
     });
   },
@@ -285,5 +296,10 @@ export default {
       opacity: 1;
     }
   }
+}
+
+:root {
+  --mdc-theme-secondary: #6441a4;
+  --mdc-theme-primary: #6441a4;
 }
 </style>

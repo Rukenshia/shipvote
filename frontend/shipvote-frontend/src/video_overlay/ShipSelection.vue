@@ -5,7 +5,7 @@
 
 			<div class="ships">
 				<template v-for="ship in ships">
-					<Ship :key="ship.id" :image="ship.image" :name="ship.name" :votes="ship.votes" @vote="vote(ship)" :canBeVoted="enableVoting && !voted" />
+					<Ship :key="ship.id" :image="ship.image" :name="ship.name" :votes="ship.votes" @vote="vote(ship)" :canBeVoted="enableVoting && !voted" :totalVotes="totalVotes" />
 				</template>
 			</div>
 		</div>
@@ -15,7 +15,7 @@
 import Ship from './Ship';
 
 export default {
-  props: ['ships', 'enableVoting', 'voted', 'maxHeight'],
+  props: ['ships', 'enableVoting', 'voted', 'maxHeight', 'totalVotes'],
   components: { Ship },
   data() {
     return {};

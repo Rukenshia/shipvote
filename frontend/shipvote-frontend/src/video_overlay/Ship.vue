@@ -2,7 +2,7 @@
   <div class="ship" @click="vote" :data-voteable="canBeVoted">
     <div v-if="canBeVoted" class='vote-button'>Vote</div>
     <div class="progress-bar">
-      <div class="progress" :style="{minWidth: `${votes}%`}"></div>
+      <div class="progress" :style="{minWidth: `${votes / totalVotes * 100}%`}"></div>
     </div>
     <img :src="image" />
     <span class="typography--headline2">{{name}} ({{votes}})</span>
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  props: ['name', 'image', 'votes', 'canBeVoted'],
+  props: ['name', 'image', 'votes', 'canBeVoted', 'totalVotes'],
   data() {
     return {};
   },
@@ -88,7 +88,7 @@ export default {
 }
 
 .progress-bar .progress {
-  background-color: rgba(107, 185, 240, 1);
+  background-color: rgba(100, 65, 164, 0.2);
   position: absolute;
   top: 0;
   left: 0;
