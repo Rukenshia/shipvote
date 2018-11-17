@@ -120,6 +120,14 @@
         </template>
       </mdc-layout-grid>
     </div>
+
+    <mdc-card class="mdc-card--flat">
+      <mdc-card-text>
+        <mdc-body typo="body2">
+          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or <a href="mailto:jan@ruken.pw">via mail</a>
+        </mdc-body>
+      </mdc-card-text>
+    </mdc-card>
   </mdc-layout-cell>
 </mdc-layout-grid>
 </template>
@@ -359,13 +367,13 @@ export default {
 }
 
 .mdc-card.mdc-card--flat {
+  padding: 4px;
+
   box-shadow: none;
   border-radius: 8px;
   background-color: #f8f9fa;
 
-  h3 {
-    color: #5f6368;
-  }
+  color: #5f6368;
 }
 
 .mdc-button.mdc-button--danger {
