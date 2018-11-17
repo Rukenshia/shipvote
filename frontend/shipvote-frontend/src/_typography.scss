@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
+$color--success: rgba(63, 195, 128, 1);
+$color--danger: rgba(210, 77, 87, 1);
+
 .typography {
     font-family: Roboto, sans-serif;
 }
@@ -9,11 +12,11 @@
 }
 
 .typography__color--success {
-  color: green;
+  color: $color--success;
 }
 
 .typography__color--error {
-    color: red;
+    color: $color--danger;
 }
 
 .typography--headline1 {

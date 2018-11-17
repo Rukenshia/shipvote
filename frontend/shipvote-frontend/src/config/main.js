@@ -3,6 +3,7 @@ import { Socket } from 'phoenix'
 import App from './App.vue'
 import VueMDCAdapter from 'vue-mdc-adapter'
 Vue.use(VueMDCAdapter)
+Vue.use(require('vue-moment'))
 
 new Vue({
   el: '#app',
