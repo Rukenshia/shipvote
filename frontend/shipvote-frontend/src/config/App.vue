@@ -10,8 +10,14 @@
       </mdc-layout-cell>
     </mdc-layout-grid>
 
+    <mdc-layout-grid v-if="loadingError">
+      <mdc-layout-cell :span=4>
+        <mdc-body typo="body1">Configuration could not be loaded. Please contact rukenshia for support.</mdc-body>
+      </mdc-layout-cell>
+    </mdc-layout-grid>
 
-    <mdc-layout-grid v-if="!loading">
+
+    <mdc-layout-grid v-if="!loading && !loadingError">
       <mdc-layout-cell :span=12>
         <mdc-layout-grid>
           <mdc-layout-cell :phone=4 :desktop=4 :tablet=4>
@@ -64,6 +70,7 @@ export default {
   data() {
     return {
       loading: true,
+      loadingError: false,
 
       error: undefined,
       validations: {
@@ -72,16 +79,23 @@ export default {
       },
 
       configured: false,
+      token: '',
       config: {}
     };
   },
   created() {
     window.Twitch.ext.onAuthorized(data => {
       this.config.id = data.channelId;
+      this.token = data.token;
 
-      get(`${BASE_URL}/api/channels/${data.channelId}`)
+      get(`${BASE_URL}/api/settings/channels/${data.channelId}`, {
+        headers: {
+          authorization: `Bearer ${data.token}`
+        }
+      })
         .then(res => {
           this.loading = false;
+          this.configured = true;
 
           this.config = res.data['data'];
         })
@@ -94,6 +108,9 @@ export default {
               wows_realm: 'eu',
               ships: []
             };
+          } else {
+            this.loadingError = true;
+            this.loading = false;
           }
         });
     });
@@ -104,9 +121,17 @@ export default {
       this.validations.username = true;
       this.validations.realm = true;
 
-      put(`${BASE_URL}/api/channels/${this.config.id}`, {
-        channel: this.config
-      })
+      put(
+        `${BASE_URL}/api/settings/channels/${this.config.id}`,
+        {
+          channel: this.config
+        },
+        {
+          headers: {
+            authorization: `Bearer ${this.token}`
+          }
+        }
+      )
         .then(res => {
           this.loading = false;
 
@@ -127,7 +152,11 @@ export default {
       this.validations.username = true;
       this.validations.realm = true;
 
-      post(`${BASE_URL}/api/channels`, this.config)
+      post(`${BASE_URL}/api/settings/channels`, this.config, {
+        headers: {
+          authorization: `Bearer ${this.token}`
+        }
+      })
         .then(res => {
           this.loading = false;
 
