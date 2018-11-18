@@ -43,4 +43,64 @@ defmodule Backend.Wows.Api do
       ships
     end
   end
+
+  def find_account_id(username, realm) do
+    response =
+      HTTPoison.get!("#{realm_url(realm)}/wows/account/list/", [],
+        params: %{application_id: @application, search: username, type: "exact", limit: 1}
+      )
+
+    with %{"status" => "ok"} = data <- Jason.decode!(response.body) do
+      if data["data"] |> length == 0 do
+        {:error, "Player not found"}
+      else
+        {:ok, (data["data"] |> Enum.at(0))["account_id"]}
+      end
+    else
+      %{"error" => %{"message" => message}} ->
+        Logger.error("Warships API error: #{message}")
+        {:error, "Warships API returned an error"}
+
+      e ->
+        Logger.error("Warships API unknown error: #{inspect(e)}")
+        {:error, "e_unknown"}
+    end
+  end
+
+  def get_account_ships(account_id, realm) do
+    # https://api.worldofwarships.eu/wows/ships/stats/?application_id=daa70fec1b570097a4da2af6fae354a3&account_id=503857807&in_garage=1&fields=ship_id
+    response =
+      HTTPoison.get!("#{realm_url(realm)}/wows/ships/stats/", [],
+        params: %{
+          application_id: @application,
+          account_id: account_id,
+          fields: "ship_id",
+          in_garage: 1
+        }
+      )
+
+    with %{"status" => "ok"} = data <- Jason.decode!(response.body) do
+      if data["meta"]["count"] != 1 do
+        {:error, "Player not found"}
+      else
+        {:ok, data["data"]["#{account_id}"] |> Enum.map(fn e -> e["ship_id"] end)}
+      end
+    else
+      %{"error" => %{"message" => message}} ->
+        Logger.error("Warships API error: #{message}")
+        {:error, "Warships API returned an error"}
+
+      e ->
+        Logger.error("Warships API unknown error: #{inspect(e)}")
+        {:error, "e_unknown"}
+    end
+  end
+
+  defp realm_url("na") do
+    "https://api.worldofwarships.com"
+  end
+
+  defp realm_url(realm) do
+    "https://api.worldofwarships.#{realm}"
+  end
 end
