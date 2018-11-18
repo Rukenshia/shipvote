@@ -18,28 +18,28 @@ defmodule Backend.Wows.BackgroundRefresh do
   def handle_info(:work, state) do
     Logger.info("BackgroundRefresh.handle_info")
 
-    ships =
-      Backend.Wows.Api.get_warships()
-      |> Map.values()
-      |> filter_clan_battle_ships()
-      |> filter_testing_ships()
-      |> Enum.map(fn data ->
-        case from(s in Backend.Wows.Warship, where: s.id == ^data["ship_id"]) |> Repo.one() do
-          %Backend.Wows.Warship{} = ship ->
-            ship
+    # ships =
+    #   Backend.Wows.Api.get_warships()
+    #   |> Map.values()
+    #   |> filter_clan_battle_ships()
+    #   |> filter_testing_ships()
+    #   |> Enum.map(fn data ->
+    #     case from(s in Backend.Wows.Warship, where: s.id == ^data["ship_id"]) |> Repo.one() do
+    #       %Backend.Wows.Warship{} = ship ->
+    #         ship
 
-          nil ->
-            %Backend.Wows.Warship{id: data["ship_id"]}
-        end
-        |> Backend.Wows.Warship.changeset_from_api(data)
-      end)
+    #       nil ->
+    #         %Backend.Wows.Warship{id: data["ship_id"]}
+    #     end
+    #     |> Backend.Wows.Warship.changeset_from_api(data)
+    #   end)
 
-    Logger.debug("BackgroundRefresh.handle_info.ships_count=#{length(ships)}")
+    # Logger.debug("BackgroundRefresh.handle_info.ships_count=#{length(ships)}")
 
-    for ship <- ships do
-      ship
-      |> Repo.insert_or_update!()
-    end
+    # for ship <- ships do
+    #   ship
+    #   |> Repo.insert_or_update!()
+    # end
 
     Logger.debug("BackgroundRefresh.handle_info.ships_updated")
 

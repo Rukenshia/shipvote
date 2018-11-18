@@ -4,6 +4,7 @@ var webpack = require('webpack')
 module.exports = {
   entry: {
     'config': './src/config/main.js',
+    'live_config': './src/live_config/main.js',
     'video_overlay': './src/video_overlay/main.js',
   },
   output: {

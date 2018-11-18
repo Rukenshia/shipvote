@@ -3,7 +3,11 @@ defmodule BackendWeb.WarshipView do
   alias BackendWeb.WarshipView
 
   def render("index.json", %{warships: warships}) do
-    %{data: render_many(warships, WarshipView, "warship.json")}
+    %{data: render("warships.json", %{warships: warships})}
+  end
+
+  def render("warships.json", %{warships: warships}) do
+    render_many(warships, WarshipView, "warship.json")
   end
 
   def render("show.json", %{warship: warship}) do

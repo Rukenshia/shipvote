@@ -13,5 +13,9 @@ defmodule BackendWeb.Router do
     pipe_through(:api)
 
     resources("/warships", WarshipController, except: [:new, :edit])
+
+    resources("/channels", ChannelController, except: [:new, :edit]) do
+      get("/ships", ChannelShipController, :get_channel_ships)
+    end
   end
 end
