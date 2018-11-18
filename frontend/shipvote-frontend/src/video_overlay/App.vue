@@ -16,6 +16,7 @@
 
 <script>
 import { Socket } from 'phoenix';
+import { BASE_WS_URL, BASE_URL } from '../shipvote';
 import { get } from 'axios';
 import ShipSelection from './ShipSelection';
 import VoteProgress from './VoteProgress';
@@ -125,18 +126,18 @@ export default {
           10
         ) - 160;
     });
-    onAuthorized(data => {
+    onAuthorized(authData => {
       if (this.socket) {
         this.socket.disconnect();
       }
 
-      this.socket = new SocketImpl('wss://shipvote.in.fkn.space/socket', {
-        params: { token: data.token }
+      this.socket = new SocketImpl(`${BASE_WS_URL}/socket`, {
+        params: { token: authData.token }
       });
       this.socket.connect();
       // Now that you are connected, you can join channels with a topic:
       const channel = (this.channel = this.socket.channel(
-        `stream:${data.channelId}`,
+        `stream:${authData.channelId}`,
         {}
       ));
       channel
@@ -155,7 +156,8 @@ export default {
         this.voteStarted = data.voting;
 
         if (this.voting) {
-          get('https://shipvote.in.fkn.space/api/warships', {
+          get(`${BASE_URL}/api/warships`, {
+            params: { ids: data.ships },
             headers: { 'Content-Type': 'application/json' }
           }).then(res => {
             let ships = res.data['data'];
@@ -175,7 +177,8 @@ export default {
               });
 
               this.totalVotes = Object.values(data['votes']).reduce(
-                (p, c) => p + c
+                (p, c) => p + c,
+                0
               );
             } else {
               ships = ships.map(s => {

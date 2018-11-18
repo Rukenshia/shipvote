@@ -1,6 +1,25 @@
 <template>
 <mdc-layout-grid>
-  <mdc-layout-cell :span=12>
+  <mdc-layout-cell :span=12 v-if="error">
+    <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
+  </mdc-layout-cell>
+  <mdc-layout-cell :span=12 v-if="!loaded_configuration">
+    <mdc-linear-progress indeterminate></mdc-linear-progress>
+  </mdc-layout-cell>
+  <mdc-layout-cell :span=12 v-if="!configured && loaded_configuration">
+    <mdc-card outlined>
+      <mdc-card-header style="padding: 8px" class="typography__color--error">
+        No personal configuration
+      </mdc-card-header>
+      <mdc-card-text style="padding: 8px">
+          <mdc-body>You did not configure this extension yet. Head over to your twitch dashboard, then go to "Extensions", "My Extensions"
+          and Click on the cog icon to configure this extension.</mdc-body>
+
+          <mdc-button outlined @click="loadChannelConfig">Reload</mdc-button>
+      </mdc-card-text>
+    </mdc-card>
+  </mdc-layout-cell>
+  <mdc-layout-cell :span=12 v-if="configured && loaded_configuration">
     <mdc-card class="mdc-card--flat" style="text-align: center">
       <mdc-card-header>
         <mdc-headline>
@@ -8,6 +27,8 @@
           <span v-if="voting" class="typography__color--success">open</span>
           <span v-if="!voting" class="typography__color--error">closed</span>
         </mdc-headline>
+
+        <mdc-body v-if="!voting">Based on the current filter, the vote will include {{filteredShips.length}} ships.</mdc-body>
 
         <mdc-button :unelevated=true v-if="!voting" @click="openVote" class="mdc-button--primary">Open</mdc-button>
         <mdc-button :unelevated=true v-if="voting" @click="closeVote" class="mdc-button--danger">Close</mdc-button>
@@ -134,6 +155,7 @@
 
 <script>
 import { Socket } from 'phoenix';
+import { BASE_WS_URL, BASE_URL } from '../shipvote';
 import { get } from 'axios';
 
 export default {
@@ -142,11 +164,15 @@ export default {
     return {
       socket: undefined,
       channel: undefined,
+      channelId: undefined,
 
       viewSetting: 0,
 
       connecting: true,
       connected: false,
+      configured: false,
+      loaded_configuration: false,
+      error: false,
       voting: false,
 
       settings: {
@@ -184,18 +210,16 @@ export default {
     };
   },
   created() {
-    get('https://shipvote.in.fkn.space/api/warships', {
-      headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-      this.ships = res.data['data'];
-    });
-
     window.Twitch.ext.onAuthorized(data => {
       if (this.socket) {
         this.socket.disconnect();
       }
 
-      this.socket = new Socket('wss://shipvote.in.fkn.space/socket', {
+      this.channelId = data.channelId;
+
+      this.loadChannelConfig();
+
+      this.socket = new Socket(`${BASE_WS_URL}/socket`, {
         params: { token: data.token }
       });
       this.socket.connect();
@@ -246,6 +270,18 @@ export default {
     });
   },
   computed: {
+    filteredShips() {
+      return this.ships
+        .filter(s => this.settings.tiers[s.tier - 1] === true)
+        .filter(s => this.settings.types[s.type] === true)
+        .filter(
+          s =>
+            this.settings.premium ||
+            (!this.settings.premium && s.premium === false)
+        )
+        .filter(s => this.settings.nations[s.nation] === true)
+        .map(s => s.id);
+    },
     sortedVotes() {
       if (this.ships.length === 0) {
         return [];
@@ -258,8 +294,6 @@ export default {
       sorted.sort((a, b) => {
         const av = this.stats.ship_votes[a.id] || 0;
         const bv = this.stats.ship_votes[b.id] || 0;
-
-        console.log(a.name, av, b.name, bv);
 
         if (av < bv) {
           return 1;
@@ -285,8 +319,6 @@ export default {
         const av = this.stats.ship_votes[a.id] || 0;
         const bv = this.stats.ship_votes[b.id] || 0;
 
-        console.log(a.name, av, b.name, bv);
-
         if (av < bv) {
           return 1;
         } else if (av === bv) {
@@ -294,8 +326,6 @@ export default {
         }
         return -1;
       });
-
-      console.log(sorted);
 
       if (sorted.length === 0 || typeof sorted[0] === 'undefined') {
         return 'none';
@@ -310,19 +340,30 @@ export default {
     }
   },
   methods: {
+    loadChannelConfig() {
+      get(`${BASE_URL}/api/channels/${this.channelId}`, {
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(res => {
+          this.ships = res.data['data']['ships'];
+          this.configured = true;
+        })
+        .catch(e => {
+          if (e.response.status === 404) {
+            this.configured = false;
+          } else {
+            console.error(e);
+            this.error = true;
+          }
+        })
+        .then(() => {
+          this.loaded_configuration = true;
+        });
+    },
     openVote() {
       if (this.channel) {
         this.channel.push('open_vote', {
-          ships: this.ships
-            .filter(s => this.settings.tiers[s.tier - 1] === true)
-            .filter(s => this.settings.types[s.type] === true)
-            .filter(
-              s =>
-                this.settings.premium ||
-                (!this.settings.premium && s.premium === false)
-            )
-            .filter(s => this.settings.nations[s.nation] === true)
-            .map(s => s.id)
+          ships: this.filteredShips
         });
       }
     },

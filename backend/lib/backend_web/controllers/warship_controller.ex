@@ -1,10 +1,23 @@
 defmodule BackendWeb.WarshipController do
   use BackendWeb, :controller
+  require Logger
 
+  alias Backend.Repo
   alias Backend.Wows
   alias Backend.Wows.Warship
+  import Ecto.Query, only: [from: 2]
 
   action_fallback(BackendWeb.FallbackController)
+
+  def index(conn, %{"ids" => ids}) do
+    Logger.error(inspect(ids))
+
+    warships =
+      from(s in Warship, where: s.id in ^ids)
+      |> Repo.all()
+
+    render(conn, "index.json", warships: warships)
+  end
 
   def index(conn, _params) do
     warships = Wows.list_warships()

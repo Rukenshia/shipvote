@@ -40,8 +40,6 @@ defmodule BackendWeb.StreamChannel do
           end
         end)
 
-      Logger.debug(inspect(votes))
-
       push(socket, "status", %{
         voting: true,
         ships: vote.ships,
@@ -65,6 +63,7 @@ defmodule BackendWeb.StreamChannel do
            )
            |> Repo.one() do
         %Backend.Stream.Vote{} = v ->
+          Logger.info("vote.opened.channel=#{v.channel_id}")
           v
 
         nil ->
@@ -94,6 +93,8 @@ defmodule BackendWeb.StreamChannel do
       |> Repo.one()
 
     if !is_nil(vote) do
+      Logger.info("vote.closed.channel=#{vote.channel_id}")
+
       vote =
         vote
         |> Backend.Stream.Vote.changeset(%{status: "closed"})
@@ -111,13 +112,8 @@ defmodule BackendWeb.StreamChannel do
         %{assigns: %{user_data: %{opaque_user_id: user_id, channel_id: channel_id}}} = socket
       ) do
     vote = Backend.Stream.get_open_vote_by_channel(channel_id)
-    Logger.debug(inspect(vote))
-    Logger.debug("checking user vote")
 
     if !is_nil(vote) do
-      Logger.debug("checking user vote")
-      Logger.debug(inspect(vote))
-
       user_vote =
         from(v in Backend.Stream.VotedShip,
           where: v.user_id == ^user_id and v.vote_id == ^vote.id
@@ -125,7 +121,9 @@ defmodule BackendWeb.StreamChannel do
         |> Repo.one()
 
       if is_nil(user_vote) do
-        Logger.debug("do stuff")
+        Logger.info(
+          "vote.user_vote.channel=#{vote.channel_id},user_id=#{user_id},ship_id=#{ship_id}"
+        )
 
         %Backend.Stream.VotedShip{}
         |> Backend.Stream.VotedShip.changeset(%{
@@ -136,6 +134,12 @@ defmodule BackendWeb.StreamChannel do
         |> Repo.insert!()
 
         broadcast!(socket, "new_vote", %{ship_id: ship_id})
+      else
+        Logger.info(
+          "vote.user_vote.duplicate.channel=#{vote.channel_id},user_id=#{user_id},ship_id=#{
+            ship_id
+          }"
+        )
       end
     end
 
