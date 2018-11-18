@@ -57,6 +57,7 @@
 
 <script>
 import { get, post, put } from 'axios';
+import { BASE_URL } from '../shipvote';
 
 export default {
   name: 'app',
@@ -75,24 +76,27 @@ export default {
     };
   },
   created() {
-    get('http://localhost:4000/api/channels/1237')
-      .then(res => {
-        this.loading = false;
+    window.Twitch.ext.onAuthorized(data => {
+      this.config.id = data.channelId;
 
-        this.config = res.data['data'];
-      })
-      .catch(e => {
-        if (e.response.status === 404) {
+      get(`${BASE_URL}/api/channels/${data.channelId}`)
+        .then(res => {
           this.loading = false;
-          this.config = {
-            id: '1237',
-            wows_username: '',
-            wows_realm: 'eu',
-            ships: []
-          };
-        }
-      });
-    window.Twitch.ext.onAuthorized(data => {});
+
+          this.config = res.data['data'];
+        })
+        .catch(e => {
+          if (e.response.status === 404) {
+            this.loading = false;
+            this.config = {
+              id: data.channelId,
+              wows_username: '',
+              wows_realm: 'eu',
+              ships: []
+            };
+          }
+        });
+    });
   },
   methods: {
     updateInfo() {
@@ -100,7 +104,9 @@ export default {
       this.validations.username = true;
       this.validations.realm = true;
 
-      put('http://localhost:4000/api/channels/1237', { channel: this.config })
+      put(`${BASE_URL}/api/channels/${this.config.id}`, {
+        channel: this.config
+      })
         .then(res => {
           this.loading = false;
 
@@ -121,7 +127,7 @@ export default {
       this.validations.username = true;
       this.validations.realm = true;
 
-      post('http://localhost:4000/api/channels', this.config)
+      post(`${BASE_URL}/api/channels`, this.config)
         .then(res => {
           this.loading = false;
 

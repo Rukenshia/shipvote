@@ -95,8 +95,6 @@ defmodule BackendWeb.ChannelController do
       channel
       |> Map.put(:ships, Enum.map(channel.ships, fn s -> Repo.preload(s, :ship) end))
 
-    Logger.debug(inspect(channel.ships))
-
     channel
   end
 
