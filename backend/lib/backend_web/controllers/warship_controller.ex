@@ -10,8 +10,6 @@ defmodule BackendWeb.WarshipController do
   action_fallback(BackendWeb.FallbackController)
 
   def index(conn, %{"ids" => ids}) do
-    Logger.error(inspect(ids))
-
     warships =
       from(s in Warship, where: s.id in ^ids)
       |> Repo.all()

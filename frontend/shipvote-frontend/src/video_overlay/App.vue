@@ -197,6 +197,7 @@ export default {
           this.voted = false;
           this.selecting = false;
           this.totalVotes = 0;
+          this.ships = [];
         }
       });
 

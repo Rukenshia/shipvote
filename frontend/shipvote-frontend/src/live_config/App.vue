@@ -165,6 +165,7 @@ export default {
       socket: undefined,
       channel: undefined,
       channelId: undefined,
+      token: '',
 
       viewSetting: 0,
 
@@ -216,11 +217,12 @@ export default {
       }
 
       this.channelId = data.channelId;
+      this.token = data.token;
 
       this.loadChannelConfig();
 
       this.socket = new Socket(`${BASE_WS_URL}/socket`, {
-        params: { token: data.token }
+        params: { token: this.token }
       });
       this.socket.connect();
       // Now that you are connected, you can join channels with a topic:
@@ -341,8 +343,12 @@ export default {
   },
   methods: {
     loadChannelConfig() {
-      get(`${BASE_URL}/api/channels/${this.channelId}`, {
-        headers: { 'Content-Type': 'application/json' }
+      this.loaded_configuration = false;
+      get(`${BASE_URL}/api/settings/channels/${this.channelId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `Bearer ${this.token}`
+        }
       })
         .then(res => {
           this.ships = res.data['data']['ships'];
