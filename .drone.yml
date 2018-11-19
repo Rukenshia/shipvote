@@ -4,9 +4,6 @@ name: backend
 steps:
 - name: install
   image: elixir:latest
-  volumes:
-  - name: mix
-    path: /root/.mix
   commands:
   - cd backend
   - mix local.rebar --force
@@ -15,16 +12,9 @@ steps:
 
 - name: test
   image: elixir:latest
-  volumes:
-  - name: mix
-    path: /root/.mix
   commands:
   - cd backend
   - mix test
-
-volumes:
-- name: mix
-  empty: {}
 
 ---
 kind: pipeline
