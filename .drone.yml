@@ -1,6 +1,9 @@
 kind: pipeline
 name: backend
 
+workspace:
+  base: /root
+
 steps:
 - name: install
   image: elixir:latest
