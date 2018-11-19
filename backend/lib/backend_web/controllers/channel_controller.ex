@@ -106,7 +106,7 @@ defmodule BackendWeb.ChannelController do
   end
 
   defp update_account_id(channel, new_username) do
-    if new_username != channel.wows_username do
+    if new_username == channel.wows_username do
       {:ok, channel}
     else
       with {:ok, account_id} <- find_account_id(new_username, channel.wows_realm) do
