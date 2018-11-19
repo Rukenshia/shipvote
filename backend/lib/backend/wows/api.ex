@@ -68,7 +68,6 @@ defmodule Backend.Wows.Api do
   end
 
   def get_account_ships(account_id, realm) do
-    # https://api.worldofwarships.eu/wows/ships/stats/?application_id=daa70fec1b570097a4da2af6fae354a3&account_id=503857807&in_garage=1&fields=ship_id
     response =
       HTTPoison.get!("#{realm_url(realm)}/wows/ships/stats/", [],
         params: %{
