@@ -9,7 +9,8 @@ services:
   image: postgres:9-alpine
   environment:
     POSTGRES_USER: postgres
-    POSTGRES_DB: test
+    POSTGRES_PASSWORD: test
+    POSTGRES_DB: backend_test
 
 steps:
 - name: install
