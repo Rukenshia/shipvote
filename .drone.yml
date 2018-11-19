@@ -12,8 +12,12 @@ steps:
 
 - name: test
   image: elixir:latest
+  environment:
+    DEV_SECRET_EXS:
+      from_secret: dev.secret.exs
   commands:
   - cd backend
+  - echo "${DEV_SECRET_EXS}" > config/dev.secret.exs
   - mix test
 
 ---
