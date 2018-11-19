@@ -64,9 +64,10 @@ defmodule BackendWeb.ChannelController do
       "channel.update.channel=#{channel.id},wows_username=#{channel_params["wows_username"]}"
     )
 
-    with {:ok, %Channel{} = channel} <-
+    with {:ok, channel} <-
            update_account_id(channel, channel_params["wows_username"] || channel.wows_username),
-         {:ok, %Channel{} = channel} <- Stream.update_channel(channel, channel_params),
+         {:ok, %Channel{} = channel} <-
+           Stream.update_channel(channel, Map.delete(channel_params, "wows_account_id")),
          {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
       render(conn, "show.json", channel: channel |> load_ships())
     else
@@ -106,12 +107,19 @@ defmodule BackendWeb.ChannelController do
   end
 
   defp update_account_id(channel, new_username) do
+    Logger.debug("update_account_id.stored=#{channel.wows_username},new=#{new_username}")
+
     if new_username == channel.wows_username do
+      Logger.debug("update_account_id.no_change")
       {:ok, channel}
     else
+      Logger.debug("update_account_id.find_id")
+
       with {:ok, account_id} <- find_account_id(new_username, channel.wows_realm) do
+        Logger.debug("update_account_id.old_id=#{channel.wows_account_id},new_id=#{account_id}")
+
         channel
-        |> Channel.changeset(%{wows_account_id: account_id})
+        |> Channel.changeset(%{"wows_account_id" => account_id})
         |> Repo.update()
       else
         {:error, message} ->

@@ -14,5 +14,6 @@ defmodule Backend.Stream.ChannelShip do
     channel_ship
     |> cast(attrs, [:channel_id, :ship_id])
     |> validate_required([:channel_id, :ship_id])
+    |> foreign_key_constraint(:ship_id)
   end
 end

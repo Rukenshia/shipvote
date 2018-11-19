@@ -191,16 +191,28 @@ defmodule Backend.Stream do
       channel
       |> Repo.preload(:ships)
 
+    Logger.debug("update_channel_ships.account_id=#{channel.wows_account_id}")
+
     with {:ok, ships} <-
            Backend.Wows.Api.get_account_ships(channel.wows_account_id, channel.wows_realm) do
+      # Because we can't error in a transaction (db aborts the transaction, duh), we filter out
+      # ships that don't exist by getting all ships that are in that list
+      ships =
+        from(s in Backend.Wows.Warship, where: s.id in ^ships)
+        |> Repo.all()
+
       Repo.transaction(fn ->
         from(s in Backend.Stream.ChannelShip, where: s.channel_id == ^channel.id)
         |> Repo.delete_all()
 
+        Logger.debug("update_channel_ships.inserting.ships=#{ships |> length}")
+
         for ship <- ships do
+          Logger.debug("update_channel_ships.inserting.channel_id=#{channel.id},ship=#{ship.id}")
+
           %Backend.Stream.ChannelShip{}
-          |> Backend.Stream.ChannelShip.changeset(%{channel_id: channel.id, ship_id: ship})
-          |> Repo.insert!()
+          |> Backend.Stream.ChannelShip.changeset(%{channel_id: channel.id, ship_id: ship.id})
+          |> Repo.insert()
         end
       end)
 
