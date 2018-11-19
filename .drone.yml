@@ -1,0 +1,44 @@
+kind: pipeline
+name: backend
+
+steps:
+- name: install
+  image: elixir:latest
+  volumes:
+  - name: mix
+    path: /root/.mix
+  commands:
+  - cd backend
+  - mix local.rebar --force
+  - mix local.hex --force
+  - mix deps.get
+
+- name: test
+  image: elixir:latest
+  volumes:
+  - name: mix
+    path: /root/.mix
+  commands:
+  - cd backend
+  - mix test
+
+volumes:
+- name: mix
+  empty: {}
+
+services:
+- name: database
+  image: postgres:9-alpine
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_DB: test
+---
+kind: pipeline
+name: frontend
+
+steps:
+- name: build
+  image: node
+  commands:
+  - npm install
+  - npm run build
