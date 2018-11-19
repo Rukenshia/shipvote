@@ -19,7 +19,7 @@ steps:
       from_secret: dev.secret.exs
   commands:
   - cd backend
-  - echo "${DEV_SECRET_EXS}" > config/dev.secret.exs
+  - echo '' > config/dev.secret.exs
   - mix local.rebar --force
   - mix local.hex --force
   - mix deps.get
@@ -28,7 +28,7 @@ steps:
   image: elixir:latest
   commands:
   - cd backend
-  - mix test
+  - MIX_ENV=test mix test
 
 ---
 kind: pipeline
