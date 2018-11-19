@@ -5,7 +5,7 @@ defmodule BackendWeb.StreamChannel do
   alias Backend.Repo
   import Ecto.Query, only: [from: 2]
 
-  def join("stream:" <> _broadcast_id, _params, %{assigns: %{:token => jwt}} = socket) do
+  def join("stream:" <> _broadcast_id, _params, %{assigns: %{:token => _jwt}} = socket) do
     {:ok, socket}
   end
 

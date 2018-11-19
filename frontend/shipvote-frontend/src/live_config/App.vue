@@ -1,5 +1,13 @@
 <template>
 <mdc-layout-grid>
+  <mdc-layout-cell :span=12>
+    <mdc-card class="mdc-card--flat">
+      <mdc-card-text style="padding-left: 16px">
+        <mdc-body>Learn how to use this extension <a target="_blank" href="https://shipvote.in.fkn.space/getting-started">here</a>.</mdc-body>
+      </mdc-card-text>
+    </mdc-card>
+  </mdc-layout-cell>
+
   <mdc-layout-cell :span=12 v-if="error">
     <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
   </mdc-layout-cell>

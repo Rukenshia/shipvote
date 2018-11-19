@@ -60,6 +60,8 @@ defmodule BackendWeb.ChannelController do
   def update(conn, %{"id" => id, "channel" => channel_params}) do
     channel = Stream.get_channel!(id)
 
+    Logger.debug("channel.update.wows_username=#{channel_params["wows_username"]}")
+
     with {:ok, %Channel{} = channel} <-
            update_account_id(channel, channel_params["wows_username"] || channel.wows_username),
          {:ok, %Channel{} = channel} <- Stream.update_channel(channel, channel_params),
@@ -72,6 +74,9 @@ defmodule BackendWeb.ChannelController do
         |> json(%{ok: false, message: "Player not found"})
 
       {:error, changeset} ->
+        Logger.warn("channel.update.failed.changeset")
+        Logger.warn(inspect(changeset))
+
         conn
         |> put_status(:bad_request)
         |> json(%{ok: false})

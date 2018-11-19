@@ -17,7 +17,7 @@ defmodule BackendWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(%{"token" => jwt} = params, socket) do
+  def connect(%{"token" => jwt}, socket) do
     decoded =
       jwt
       |> Joken.token()
