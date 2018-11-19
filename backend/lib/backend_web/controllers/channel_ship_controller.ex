@@ -2,8 +2,6 @@ defmodule BackendWeb.ChannelShipController do
   use BackendWeb, :controller
 
   alias Backend.Stream
-  alias Backend.Stream.ChannelShip
-  alias BackendWeb.Router.Helpers, as: Routes
 
   action_fallback(BackendWeb.FallbackController)
 
