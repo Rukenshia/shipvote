@@ -4,6 +4,13 @@ name: backend
 workspace:
   base: /root
 
+services:
+- name: database
+  image: postgres:9-alpine
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_DB: test
+
 steps:
 - name: install
   image: elixir:latest
