@@ -26,12 +26,6 @@ volumes:
 - name: mix
   empty: {}
 
-services:
-- name: database
-  image: postgres:9-alpine
-  environment:
-    POSTGRES_USER: postgres
-    POSTGRES_DB: test
 ---
 kind: pipeline
 name: frontend
@@ -40,5 +34,6 @@ steps:
 - name: build
   image: node
   commands:
+  - cd frontend/shipvote-frontend
   - npm install
   - npm run build
