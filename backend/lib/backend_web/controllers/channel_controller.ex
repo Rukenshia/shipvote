@@ -60,7 +60,9 @@ defmodule BackendWeb.ChannelController do
   def update(conn, %{"id" => id, "channel" => channel_params}) do
     channel = Stream.get_channel!(id)
 
-    Logger.debug("channel.update.wows_username=#{channel_params["wows_username"]}")
+    Logger.info(
+      "channel.update.channel=#{channel.id},wows_username=#{channel_params["wows_username"]}"
+    )
 
     with {:ok, %Channel{} = channel} <-
            update_account_id(channel, channel_params["wows_username"] || channel.wows_username),
