@@ -66,11 +66,18 @@ defmodule BackendWeb.StreamChannel do
           v
 
         nil ->
-          %Backend.Stream.Vote{}
-          |> Backend.Stream.Vote.changeset(%{channel_id: channel_id, status: "open", ships: ships})
-          |> Repo.insert!()
+          v =
+            %Backend.Stream.Vote{}
+            |> Backend.Stream.Vote.changeset(%{
+              channel_id: channel_id,
+              status: "open",
+              ships: ships
+            })
+            |> Repo.insert!()
 
           Logger.info("vote.opened.channel=#{channel_id}")
+
+          v
       end
 
     broadcast!(socket, "status", %{
