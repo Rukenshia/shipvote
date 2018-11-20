@@ -1,0 +1,65 @@
+.dark {
+  $color--background: #201c2b;
+  $color--background-highlight: #6441a4;
+  $color--text: #e5e3e8;
+  $color--text-highlight: #e2dbf0;
+  background-color: #201c2b;
+
+  color: $color--text;
+
+  a {
+    color: $color--text-highlight;
+  }
+
+  .mdc-card.mdc-card--flat {
+    background-color: $color--background-highlight;
+    color: inherit;
+  }
+
+  .mdc-text-field,.mdc-select {
+    background-color: $color--background-highlight;
+
+    label {
+      color: $color--text-highlight !important;
+    }
+
+    input,select {
+      color: $color--text !important;
+    }
+  }
+
+  .mdc-button.mdc-button--outlined {
+    border-color: $color--text-highlight;
+    color: $color--text-highlight;
+  }
+
+  .mdc-list {
+    color: inherit;
+
+    .mdc-list-item .mdc-list-item__secondary-text {
+      color: $color--text-highlight;
+    }
+  }
+
+  .vote-notice .cta {
+    background-color: $color--background-highlight;
+  }
+
+  .selection .card {
+    background-color: $color--background;
+
+    .ship {
+      background-color: $color--background-highlight;
+      border-color: $color--background-highlight;
+
+      .vote-button {
+        background-color: $color--text;
+        color: $color--background-highlight;
+      }
+
+      .progress-bar .progress {
+        background-color: hsla(0, 0, 100, 0.5);
+      }
+    }
+  }
+}
