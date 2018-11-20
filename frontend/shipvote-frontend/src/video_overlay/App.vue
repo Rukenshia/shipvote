@@ -119,7 +119,7 @@ export default {
   },
   created() {
     onContext(data => {
-      this.theme = ctx.theme;
+      this.theme = data.theme;
 
       this.maxHeight =
         parseInt(
