@@ -1,5 +1,5 @@
 <template>
-<mdc-layout-grid>
+<mdc-layout-grid :class="theme">
   <mdc-layout-cell :span=12>
     <mdc-card class="mdc-card--flat">
       <mdc-card-text style="padding-left: 16px">
@@ -85,10 +85,15 @@ export default {
 
       configured: false,
       token: '',
+      theme: 'light',
       config: {}
     };
   },
   created() {
+    window.Twitch.ext.onContext(ctx => {
+      this.theme = ctx.theme;
+    });
+
     window.Twitch.ext.onAuthorized(data => {
       this.config.id = data.channelId;
       this.token = data.token;
@@ -183,6 +188,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../darkmode';
 @import '../typography';
 @import '../card';
 @import '../mdc.scss';

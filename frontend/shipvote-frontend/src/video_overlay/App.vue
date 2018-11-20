@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="theme">
     <VoteProgress v-if="voting" :ships="ships" :voting="voting" :totalVotes="totalVotes" />
     <div class="selection" v-bind:data-active="selecting">
       <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" :maxHeight="maxHeight" :totalVotes="totalVotes" />
@@ -92,6 +92,7 @@ export default {
     return {
       socket: undefined,
       channel: undefined,
+      theme: 'light',
 
       // Max window height
       maxHeight: 200,
@@ -118,6 +119,8 @@ export default {
   },
   created() {
     onContext(data => {
+      this.theme = ctx.theme;
+
       this.maxHeight =
         parseInt(
           data['displayResolution'].slice(
@@ -227,6 +230,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../darkmode';
 @import '../typography';
 @import '../card';
 

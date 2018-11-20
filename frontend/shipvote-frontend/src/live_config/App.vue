@@ -1,5 +1,5 @@
 <template>
-<mdc-layout-grid>
+<mdc-layout-grid :class="theme">
   <mdc-layout-cell :span=12>
     <mdc-card class="mdc-card--flat">
       <mdc-card-text style="padding-left: 16px">
@@ -174,6 +174,7 @@ export default {
       channel: undefined,
       channelId: undefined,
       token: '',
+      theme: 'light',
 
       viewSetting: 0,
 
@@ -219,6 +220,10 @@ export default {
     };
   },
   created() {
+    window.Twitch.ext.onContext(ctx => {
+      this.theme = ctx.theme;
+    });
+
     window.Twitch.ext.onAuthorized(data => {
       if (this.socket) {
         this.socket.disconnect();
@@ -296,6 +301,7 @@ export default {
       if (this.ships.length === 0) {
         return [];
       }
+
       const sorted = Object.keys(this.stats.ship_votes).map(v => ({
         ...this.ships.find(s => s.id === parseInt(v, 10)),
         votes: this.stats.ship_votes[v]
@@ -391,6 +397,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import '../darkmode';
 @import '../typography';
 @import '../card';
 @import '../mdc.scss';
