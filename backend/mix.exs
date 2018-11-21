@@ -20,7 +20,7 @@ defmodule Backend.Mixfile do
   def application do
     [
       mod: {Backend.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :con_cache]
     ]
   end
 
@@ -47,7 +47,8 @@ defmodule Backend.Mixfile do
       {:joken, "~> 1.5.0"},
       {:cors_plug, "~> 2.0"},
       {:jason, "~> 1.1"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:con_cache, "~> 0.13.0"}
     ]
   end
 

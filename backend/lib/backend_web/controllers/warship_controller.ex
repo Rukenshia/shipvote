@@ -9,16 +9,39 @@ defmodule BackendWeb.WarshipController do
 
   action_fallback(BackendWeb.FallbackController)
 
-  def index(conn, %{"ids" => ids}) do
-    warships =
-      from(s in Warship, where: s.id in ^ids)
-      |> Repo.all()
+  # Returns a cached version of warships or queries the database
+  # and then renews the cache.
+  defp cache_warships() do
+    ConCache.get_or_store(:ships_cache, :all_warships, fn ->
+      Logger.info("cache_warships.all_warships.store")
+      %ConCache.Item{value: Wows.list_warships(), ttl: :timer.minutes(1)}
+    end)
+  end
 
+  ## Returns a cached version of a single warship or queries the db
+  defp cache_warships(ids) do
+    Logger.debug(inspect(ids))
+
+    ConCache.get_or_store(:ships_cache, ids, fn ->
+      Logger.info("cache_warships.#{ids}.store")
+
+      ids = String.split(ids, ",")
+
+      warships =
+        from(s in Warship, where: s.id in ^ids)
+        |> Repo.all()
+
+      %ConCache.Item{value: warships, ttl: :timer.minutes(1)}
+    end)
+  end
+
+  def index(conn, %{"ids" => ids}) do
+    warships = cache_warships(ids)
     render(conn, "index.json", warships: warships)
   end
 
   def index(conn, _params) do
-    warships = Wows.list_warships()
+    warships = cache_warships()
     render(conn, "index.json", warships: warships)
   end
 
