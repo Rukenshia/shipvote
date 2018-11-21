@@ -22,10 +22,8 @@ defmodule BackendWeb.WarshipController do
   defp cache_warships(ids) do
     Logger.debug(inspect(ids))
 
-    ConCache.get_or_store(:ships_cache, ids, fn ->
-      Logger.info("cache_warships.#{ids}.store")
-
-      ids = String.split(ids, ",")
+    ConCache.get_or_store(:ships_cache, Enum.join(ids, ","), fn ->
+      Logger.info("cache_warships.#{Enum.join(ids, ",")}.store")
 
       warships =
         from(s in Warship, where: s.id in ^ids)
