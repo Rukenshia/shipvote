@@ -25,11 +25,11 @@ steps:
   - mix local.hex --force
   - mix deps.get
 
-- name: test
+- name: compile
   image: elixir:latest
   commands:
   - cd backend
-  - MIX_ENV=test mix test
+  - MIX_ENV=prod mix compile
 
 ---
 kind: pipeline
