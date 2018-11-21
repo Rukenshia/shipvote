@@ -14,7 +14,8 @@ defmodule Backend.Application do
       supervisor(BackendWeb.Endpoint, []),
       # Start your own worker by calling: Backend.Worker.start_link(arg1, arg2, arg3)
       # worker(Backend.Worker, [arg1, arg2, arg3]),
-      worker(Backend.Wows.BackgroundRefresh, [])
+      worker(Backend.Wows.BackgroundRefresh, []),
+      {ConCache, [name: :ships_cache, ttl_check_interval: false]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
