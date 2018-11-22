@@ -11,9 +11,28 @@
     color: $color--text-highlight;
   }
 
+  .mdc-card {
+    .mdc-card__supporting-text {
+      color: $color--text;
+    }
+  }
+
   .mdc-card.mdc-card--flat {
     background-color: $color--background-highlight;
     color: inherit;
+  }
+
+  .mdc-tab--active .mdc-tab__text-label {
+    color: $color--background-highlight;
+  }
+  .mdc-tab__text-label {
+    color: $color--text;
+  }
+
+  .mdc-form-field {
+    > label {
+      color: $color--text-highlight;
+    }
   }
 
   .mdc-text-field,.mdc-select {

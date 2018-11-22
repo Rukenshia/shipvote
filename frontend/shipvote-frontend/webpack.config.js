@@ -3,9 +3,9 @@ var webpack = require('webpack')
 
 module.exports = {
   entry: {
-    'config': './src/config/main.js',
-    'live_config': './src/live_config/main.js',
-    'video_overlay': './src/video_overlay/main.js',
+    'config.vue': './src/config/App.vue',
+    'live_config.vue': './src/live_config/App.vue',
+    'video_overlay.vue': './src/video_overlay/App.vue',
   },
   output: {
     path: path.resolve(__dirname, './dist'),
@@ -70,7 +70,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        loaders: ['babel-loader', 'prettier-loader'],
         exclude: /node_modules/
       },
       {
@@ -96,11 +96,11 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  // devtool: '#eval-source-map'
 }
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map'
+  // module.exports.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
@@ -108,12 +108,12 @@ if (process.env.NODE_ENV === 'production') {
         NODE_ENV: '"production"'
       }
     }),
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      compress: {
-        warnings: false
-      }
-    }),
+    // new webpack.optimize.UglifyJsPlugin({
+    //   sourceMap: true,
+    //   compress: {
+    //     warnings: false
+    //   }
+    // }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })
