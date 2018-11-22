@@ -193,7 +193,6 @@ export default window.App;
 @import '../darkmode';
 @import '../typography';
 @import '../card';
-@import '../mdc.scss';
 
 :root {
   --mdc-theme-secondary: #6441a4;
