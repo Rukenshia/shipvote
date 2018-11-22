@@ -403,7 +403,6 @@ export default window.App;
 @import '../darkmode';
 @import '../typography';
 @import '../card';
-@import '../mdc.scss';
 
 .button {
   border-radius: 4px;
