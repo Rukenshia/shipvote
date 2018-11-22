@@ -67,10 +67,11 @@
 </template>
 
 <script>
-import { get, post, put } from 'axios';
 import { BASE_URL } from '../shipvote';
 
-export default {
+const { get, post, put } = window.axios;
+
+window.App = {
   name: 'app',
   data() {
     return {
@@ -185,6 +186,7 @@ export default {
     }
   }
 };
+export default window.App;
 </script>
 
 <style lang="scss">

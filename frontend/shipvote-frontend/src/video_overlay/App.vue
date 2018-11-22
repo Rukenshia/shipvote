@@ -17,75 +17,12 @@
 <script>
 import { Socket } from 'phoenix';
 import { BASE_WS_URL, BASE_URL } from '../shipvote';
-import { get } from 'axios';
 import ShipSelection from './ShipSelection';
 import VoteProgress from './VoteProgress';
 
-const mockSocket = false;
+const get = window.axios.get;
 
-let SocketImpl = Socket;
-let onAuthorized = window.Twitch.ext.onAuthorized;
-let onContext = window.Twitch.ext.onContext;
-
-if (mockSocket) {
-  onAuthorized = fn => {
-    fn({ token: 'foo', channel_id: 'bar' });
-  };
-  const Channel = class MockChannel {
-    constructor() {
-      this.evs = new Map();
-    }
-
-    join() {
-      return this;
-    }
-    receive(act, fn) {
-      if (act !== 'ok') {
-        return this;
-      }
-
-      setTimeout(() => fn(), 100);
-
-      return this;
-    }
-
-    trigger(e, p) {
-      if (this.evs.has(e)) {
-        this.evs.get(e).forEach(a => a(p));
-      }
-    }
-
-    on(e, a) {
-      if (!this.evs.has(e)) {
-        this.evs.set(e, [a]);
-      } else {
-        this.evs.get(e).push(a);
-      }
-
-      return this;
-    }
-
-    push(e, p) {
-      switch (e) {
-        case 'get_status':
-          this.trigger('status', { voting: true });
-        default:
-          break;
-      }
-
-      return this;
-    }
-  };
-
-  SocketImpl = class MockSocket {
-    connect() {}
-    channel() {
-      return new Channel();
-    }
-  };
-}
-
-export default {
+window.App = {
   name: 'app',
   components: { ShipSelection, VoteProgress },
   data() {
@@ -118,7 +55,7 @@ export default {
     };
   },
   created() {
-    onContext(data => {
+    window.Twitch.ext.onContext(data => {
       this.theme = data.theme;
 
       this.maxHeight =
@@ -129,12 +66,12 @@ export default {
           10
         ) - 160;
     });
-    onAuthorized(authData => {
+    window.Twitch.ext.onAuthorized(authData => {
       if (this.socket) {
         this.socket.disconnect();
       }
 
-      this.socket = new SocketImpl(`${BASE_WS_URL}/socket`, {
+      this.socket = new Socket(`${BASE_WS_URL}/socket`, {
         params: { token: authData.token }
       });
       this.socket.connect();
@@ -227,6 +164,8 @@ export default {
     }
   }
 };
+
+export default window.App;
 </script>
 
 <style lang="scss">

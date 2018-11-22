@@ -164,9 +164,10 @@
 <script>
 import { Socket } from 'phoenix';
 import { BASE_WS_URL, BASE_URL } from '../shipvote';
-import { get } from 'axios';
 
-export default {
+const get = window.axios.get;
+
+window.App = {
   name: 'app',
   data() {
     return {
@@ -394,6 +395,8 @@ export default {
     }
   }
 };
+
+export default window.App;
 </script>
 
 <style lang="scss">
