@@ -46,7 +46,7 @@ defmodule BackendWeb.UserSocket do
 
   def connect(_params, socket) do
     Logger.info("connect.denied.forbidden")
-    %{:error, %{reason: "forbidden"}}
+    {:error, %{reason: "forbidden"}}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
