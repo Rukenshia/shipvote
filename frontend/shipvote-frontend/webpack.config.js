@@ -70,7 +70,7 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loaders: ['babel-loader', 'prettier-loader'],
+        loaders: 'babel-loader',
         exclude: /node_modules/
       },
       {
@@ -115,7 +115,7 @@ if (process.env.NODE_ENV === 'production') {
     //   }
     // }),
     new webpack.LoaderOptionsPlugin({
-      minimize: true
+      minimize: false
     })
   ])
 }
