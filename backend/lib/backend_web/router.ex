@@ -76,9 +76,11 @@ defmodule BackendWeb.Router do
     scope "/settings" do
       pipe_through(:verify_jwt)
 
-      resources("/channels", ChannelController, except: [:new, :edit]) do
+      resources("/channels", ChannelController, except: [:index, :new, :edit]) do
         get("/ships", ChannelShipController, :get_channel_ships)
       end
     end
+
+    get("/_metrics/channels", ChannelController, :index)
   end
 end

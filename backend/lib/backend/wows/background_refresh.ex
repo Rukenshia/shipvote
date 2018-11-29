@@ -16,6 +16,15 @@ defmodule Backend.Wows.BackgroundRefresh do
   end
 
   def handle_info(:work, state) do
+    if Application.get_env(:backend, Backend.Wows.BackgroundRefresh)[:disabled] == true do
+      schedule()
+      {:noreply, state}
+    else
+      do_work(state)
+    end
+  end
+
+  def do_work(state) do
     Logger.info("BackgroundRefresh.handle_info")
 
     ships =
