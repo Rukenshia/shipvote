@@ -15,11 +15,8 @@ defmodule BackendWeb.ChannelController do
   end
 
   def index(conn, _params) do
-    # channels = Stream.list_channels()
-    # render(conn, "index.json", channels: channels)
-    conn
-    |> put_status(:not_implemented)
-    |> json(%{ok: false})
+    channels = Stream.list_channels()
+    render(conn, "index.json", channels: channels)
   end
 
   def create(conn, %{"wows_username" => username, "wows_realm" => realm} = channel_params) do
