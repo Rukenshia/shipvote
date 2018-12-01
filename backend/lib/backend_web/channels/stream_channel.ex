@@ -14,7 +14,7 @@ defmodule BackendWeb.StreamChannel do
   end
 
   defp get_open_channel_vote(channel_id) do
-    ConCache.get_or_store(:vote_cache, channel_id_key, fn ->
+    ConCache.get_or_store(:vote_cache, channel_id, fn ->
       Logger.info("get_open_channel_vote.store")
 
       %ConCache.Item{
