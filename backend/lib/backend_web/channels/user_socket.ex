@@ -1,5 +1,5 @@
 defmodule BackendWeb.UserSocket do
-  use Phoenix.Socket
+  use Phoenix.Socket, log: false
 
   require Logger
 
