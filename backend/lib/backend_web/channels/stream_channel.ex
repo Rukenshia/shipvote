@@ -13,17 +13,29 @@ defmodule BackendWeb.StreamChannel do
     {:error, %{reason: "unauthorized"}}
   end
 
+  defp get_open_channel_vote(channel_id) do
+    ConCache.get_or_store(:vote_cache, channel_id_key, fn ->
+      Logger.info("get_open_channel_vote.store")
+
+      %ConCache.Item{
+        value:
+          {:ok,
+           from(v in Backend.Stream.Vote,
+             where: v.status == "open" and v.channel_id == ^channel_id
+           )
+           |> Repo.one()
+           |> Repo.preload(:votes)},
+        ttl: :timer.minutes(1)
+      }
+    end)
+  end
+
   def handle_in(
         "get_status",
         _params,
         %{assigns: %{user_data: %{channel_id: channel_id}}} = socket
       ) do
-    vote =
-      from(v in Backend.Stream.Vote,
-        where: v.status == "open" and v.channel_id == ^channel_id
-      )
-      |> Repo.one()
-      |> Repo.preload(:votes)
+    {:ok, vote} = get_open_channel_vote(channel_id)
 
     if !is_nil(vote) do
       # count ship votes
@@ -66,6 +78,8 @@ defmodule BackendWeb.StreamChannel do
           v
 
         nil ->
+          ConCache.delete(:vote_cache, channel_id)
+
           v =
             %Backend.Stream.Vote{}
             |> Backend.Stream.Vote.changeset(%{
@@ -102,6 +116,7 @@ defmodule BackendWeb.StreamChannel do
 
     if !is_nil(vote) do
       Logger.info("vote.closed.channel=#{vote.channel_id}")
+      ConCache.delete(:vote_cache, channel_id)
 
       vote =
         vote
@@ -129,6 +144,8 @@ defmodule BackendWeb.StreamChannel do
         |> Repo.one()
 
       if is_nil(user_vote) do
+        ConCache.delete(:vote_cache, channel_id)
+
         Logger.info(
           "vote.user_vote.channel=#{vote.channel_id},user_id=#{user_id},ship_id=#{ship_id}"
         )
