@@ -6,7 +6,7 @@ defmodule BackendWeb.StreamChannel do
   import Ecto.Query, only: [from: 2]
 
   def join("stream:" <> broadcast_id, _params, %{assigns: %{:token => _jwt}} = socket) do
-    Logger.debug("stream:#{broadcast_id} JOIN")
+    Logger.info("stream:#{broadcast_id} JOIN")
     {:ok, socket}
   end
 
@@ -36,7 +36,7 @@ defmodule BackendWeb.StreamChannel do
         _params,
         %{assigns: %{user_data: %{channel_id: channel_id}}} = socket
       ) do
-    Logger.debug("stream:#{channel_id} get_status")
+    Logger.info("stream:#{channel_id} get_status")
     {:ok, vote} = get_open_channel_vote(channel_id)
 
     if !is_nil(vote) do
@@ -71,7 +71,7 @@ defmodule BackendWeb.StreamChannel do
         %{"ships" => ships},
         %{assigns: %{user_data: %{role: "broadcaster", channel_id: channel_id}}} = socket
       ) do
-    Logger.debug("stream:#{channel_id} open_vote")
+    Logger.info("stream:#{channel_id} open_vote")
 
     vote =
       case from(v in Backend.Stream.Vote,
@@ -112,7 +112,7 @@ defmodule BackendWeb.StreamChannel do
         _params,
         %{assigns: %{user_data: %{role: "broadcaster", channel_id: channel_id}}} = socket
       ) do
-    Logger.debug("stream:#{channel_id} close_vote")
+    Logger.info("stream:#{channel_id} close_vote")
 
     vote =
       from(v in Backend.Stream.Vote,
@@ -140,7 +140,7 @@ defmodule BackendWeb.StreamChannel do
         %{"ship_id" => ship_id},
         %{assigns: %{user_data: %{opaque_user_id: user_id, channel_id: channel_id}}} = socket
       ) do
-    Logger.debug("stream:#{channel_id} vote")
+    Logger.info("stream:#{channel_id} vote")
     vote = Backend.Stream.get_open_vote_by_channel(channel_id)
 
     if !is_nil(vote) do
