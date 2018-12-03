@@ -20,8 +20,7 @@ config :backend, BackendWeb.Endpoint,
     ]
   ]
 
-config :backend, Backend.Wows.BackgroundRefresh,
-  disabled: true
+config :backend, Backend.Wows.BackgroundRefresh, disabled: true
 
 # ## SSL Support
 #

@@ -63,6 +63,15 @@ defmodule BackendWeb.Router do
     end
   end
 
+  def check_jwt(conn, _) do
+    Logger.debug(inspect(conn.params))
+
+    conn
+    |> put_status(:unauthorized)
+    |> json(%{ok: false, message: "unauthorized"})
+    |> halt()
+  end
+
   scope "/", BackendWeb do
     get("/privacy-policy", NoticeController, :privacy_policy)
     get("/getting-started", NoticeController, :getting_started)
@@ -79,6 +88,12 @@ defmodule BackendWeb.Router do
       resources("/channels", ChannelController, except: [:index, :new, :edit]) do
         get("/ships", ChannelShipController, :get_channel_ships)
       end
+
+      put(
+        "/channels/:id/ships/:ship_id/enabled",
+        ChannelShipController,
+        :update_channel_ship_status
+      )
     end
 
     get("/_metrics/channels", ChannelController, :index)

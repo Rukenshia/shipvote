@@ -6,14 +6,23 @@ defmodule Backend.Stream.ChannelShip do
     belongs_to(:channel, Backend.Stream.Channel)
     belongs_to(:ship, Backend.Wows.Warship)
 
+    field(:enabled, :boolean, default: true)
+
     timestamps()
   end
 
   @doc false
   def changeset(channel_ship, attrs) do
     channel_ship
-    |> cast(attrs, [:channel_id, :ship_id])
-    |> validate_required([:channel_id, :ship_id])
+    |> cast(attrs, [:channel_id, :ship_id, :enabled])
+    |> validate_required([:channel_id, :ship_id, :enabled])
     |> foreign_key_constraint(:ship_id)
+  end
+
+  @doc false
+  def status_changeset(channel_ship, attrs) do
+    channel_ship
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
   end
 end
