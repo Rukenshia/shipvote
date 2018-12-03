@@ -602,6 +602,9 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 //
 //
 //
+//
+//
+//
 
 
 
@@ -720,6 +723,32 @@ window.App = {
           _this3.error = 'Please check your username and realm';
         }
       });
+    },
+    toggleShip: function toggleShip(ship) {
+      var _this4 = this;
+
+      var newState = !ship.enabled;
+
+      this.error = undefined;
+
+      console.log(this.token);
+
+      put(__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */] + '/api/settings/channels/' + this.config.id + '/ships/' + ship.id + '/enabled', { enabled: newState }, {
+        headers: {
+          authorization: 'Bearer ' + this.token
+        }
+      }).then(function () {
+        ship.enabled = newState;
+      }).catch(function (res) {
+        _this4.error = 'could not write ship information';
+      });
+    }
+  },
+  computed: {
+    enabledShips: function enabledShips() {
+      return this.config.ships.filter(function (s) {
+        return s.enabled === true;
+      });
     }
   }
 };
@@ -738,7 +767,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(6);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_30f401d6_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f8f77814_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(15);
 function injectStyle (ssrContext) {
   __webpack_require__(13)
 }
@@ -758,7 +787,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_30f401d6_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f8f77814_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -779,7 +808,7 @@ var content = __webpack_require__(14);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(1)("19b2f4ec", content, true, {});
+var update = __webpack_require__(1)("648cdbfe", content, true, {});
 
 /***/ }),
 /* 14 */
@@ -790,7 +819,7 @@ exports = module.exports = __webpack_require__(0)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-list-item__graphic {\n  margin-top: -32px;\n}\n.fullwidth,\n.fullwidth .mdc-textfield {\n  width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-list .mdc-list-item {\n  padding-top: 16px;\n}\n.fullwidth,\n.fullwidth .mdc-textfield {\n  width: 100%;\n}\n", ""]);
 
 // exports
 
@@ -800,7 +829,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-left":"16px"}},[_c('mdc-body',[_vm._v("Learn how to use this extension "),_c('a',{attrs:{"target":"_blank","href":"https://shipvote.in.fkn.space/getting-started"}},[_vm._v("here")]),_vm._v(".")])],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Shipvote Settings")]),_vm._v(" "),(_vm.loading)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("Loading your config")]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1):_vm._e(),_vm._v(" "),(_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("Configuration could not be loaded. Please contact rukenshia for support.")])],1)],1):_vm._e(),_vm._v(" "),(!_vm.loading && !_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":4,"tablet":4}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"label":"WoWS Username","valid":_vm.validations.username,"required":"","box":""},model:{value:(_vm.config.wows_username),callback:function ($$v) {_vm.$set(_vm.config, "wows_username", $$v)},expression:"config.wows_username"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":2,"tablet":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"WoWS Server","valid":_vm.validations.realm},model:{value:(_vm.config.wows_realm),callback:function ($$v) {_vm.$set(_vm.config, "wows_realm", $$v)},expression:"config.wows_realm"}},[_c('option',[_vm._v("eu")]),_vm._v(" "),_c('option',[_vm._v("na")]),_vm._v(" "),_c('option',[_vm._v("asia")]),_vm._v(" "),_c('option',[_vm._v("ru")])])],1),_vm._v(" "),(_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":""},on:{"click":_vm.updateInfo}},[_vm._v("Save")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.updateInfo}},[_vm._v("Refresh ships")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e(),_vm._v(" "),(!_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":"","disabled":_vm.config.wows_username === ''},on:{"click":_vm.createInfo}},[_vm._v("Setup")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e()],1),_vm._v(" "),(_vm.configured)?[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("You currently own "+_vm._s(_vm.config.ships.length)+" ships.")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.config.ships),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))])])}))]:_vm._e()],2)],1):_vm._e()],1)],1)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-left":"16px"}},[_c('mdc-body',[_vm._v("Learn how to use this extension "),_c('a',{attrs:{"target":"_blank","href":"https://shipvote.in.fkn.space/getting-started"}},[_vm._v("here")]),_vm._v(".")])],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Shipvote Settings")]),_vm._v(" "),(_vm.loading)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("Loading your config")]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1):_vm._e(),_vm._v(" "),(_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("Configuration could not be loaded. Please contact rukenshia for support.")])],1)],1):_vm._e(),_vm._v(" "),(!_vm.loading && !_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":4,"tablet":4}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"label":"WoWS Username","valid":_vm.validations.username,"required":"","box":""},model:{value:(_vm.config.wows_username),callback:function ($$v) {_vm.$set(_vm.config, "wows_username", $$v)},expression:"config.wows_username"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":2,"tablet":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"WoWS Server","valid":_vm.validations.realm},model:{value:(_vm.config.wows_realm),callback:function ($$v) {_vm.$set(_vm.config, "wows_realm", $$v)},expression:"config.wows_realm"}},[_c('option',[_vm._v("eu")]),_vm._v(" "),_c('option',[_vm._v("na")]),_vm._v(" "),_c('option',[_vm._v("asia")]),_vm._v(" "),_c('option',[_vm._v("ru")])])],1),_vm._v(" "),(_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":""},on:{"click":_vm.updateInfo}},[_vm._v("Save")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.updateInfo}},[_vm._v("Refresh ships")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e(),_vm._v(" "),(!_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":"","disabled":_vm.config.wows_username === ''},on:{"click":_vm.createInfo}},[_vm._v("Setup")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e()],1),_vm._v(" "),(_vm.configured)?[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("You currently own "+_vm._s(_vm.config.ships.length)+" ships. "+_vm._s(_vm.enabledShips.length)+" ships are currently enabled.\n            Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.config.ships),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":!ship.enabled},on:{"click":function($event){_vm.toggleShip(ship)}},slot:"end-detail"},[_vm._v(_vm._s(ship.enabled ? 'disable' : 'enable'))])],1)}))]:_vm._e()],2)],1):_vm._e()],1)],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);

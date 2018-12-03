@@ -2265,6 +2265,8 @@ window.App = {
       var _this2 = this;
 
       return this.ships.filter(function (s) {
+        return s.enabled;
+      }).filter(function (s) {
         return _this2.settings.tiers[s.tier - 1] === true;
       }).filter(function (s) {
         return _this2.settings.types[s.type] === true;
@@ -2402,7 +2404,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(7);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_761f53a6_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_d83695ba_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(19);
 function injectStyle (ssrContext) {
   __webpack_require__(17)
 }
@@ -2422,7 +2424,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_761f53a6_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_d83695ba_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -2443,7 +2445,7 @@ var content = __webpack_require__(18);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(1)("09100a0a", content, true, {});
+var update = __webpack_require__(1)("1448c0d5", content, true, {});
 
 /***/ }),
 /* 18 */
@@ -2454,7 +2456,7 @@ exports = module.exports = __webpack_require__(0)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n.mdc-list-item__graphic {\n  margin-top: -32px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n.mdc-list-item__graphic {\n  margin-top: -32px;\n}\n.mdc-list .mdc-list-item {\n  padding-top: 16px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n", ""]);
 
 // exports
 
