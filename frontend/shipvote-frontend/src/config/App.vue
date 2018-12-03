@@ -48,7 +48,8 @@
         </mdc-layout-grid>
 
         <template v-if="configured">
-          <mdc-body typo="body1">You currently own {{config.ships.length}} ships.</mdc-body>
+          <mdc-body typo="body1">You currently own {{config.ships.length}} ships. {{enabledShips.length}} ships are currently enabled.
+            Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.</mdc-body>
 
 
           <mdc-list two-line bordered>
@@ -57,6 +58,8 @@
             width="56" height="auto" :alt="`Image of ${ship.name}`">
               <span><strong>{{ship.name}}</strong></span>
               <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
+
+              <mdc-button slot="end-detail" @click="toggleShip(ship)" :raised="!ship.enabled">{{ship.enabled ? 'disable' : 'enable'}}</mdc-button>
             </mdc-list-item>
           </mdc-list>
         </template>
@@ -183,6 +186,36 @@ window.App = {
             this.error = 'Please check your username and realm';
           }
         });
+    },
+    toggleShip(ship) {
+      const newState = !ship.enabled;
+
+      this.error = undefined;
+
+      console.log(this.token);
+
+      put(
+        `${BASE_URL}/api/settings/channels/${this.config.id}/ships/${
+          ship.id
+        }/enabled`,
+        { enabled: newState },
+        {
+          headers: {
+            authorization: `Bearer ${this.token}`
+          }
+        }
+      )
+        .then(() => {
+          ship.enabled = newState;
+        })
+        .catch(res => {
+          this.error = 'could not write ship information';
+        });
+    }
+  },
+  computed: {
+    enabledShips() {
+      return this.config.ships.filter(s => s.enabled === true);
     }
   }
 };
@@ -219,8 +252,8 @@ export default window.App;
   border-bottom-right-radius: 8px;
 }
 
-.mdc-list-item__graphic {
-  margin-top: -32px;
+.mdc-list .mdc-list-item {
+  padding-top: 16px;
 }
 
 .fullwidth,

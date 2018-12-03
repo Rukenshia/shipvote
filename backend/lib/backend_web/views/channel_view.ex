@@ -27,9 +27,10 @@ defmodule BackendWeb.ChannelView do
       data
       |> Map.put(
         :ships,
-        BackendWeb.WarshipView.render("warships.json", %{
-          warships: Enum.map(channel.ships, fn s -> s.ship end)
-        })
+        Enum.map(channel.ships, fn s ->
+          BackendWeb.WarshipView.render("warship.json", %{warship: s.ship})
+          |> Map.put(:enabled, s.enabled)
+        end)
       )
     else
       data
