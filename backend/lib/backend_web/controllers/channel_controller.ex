@@ -98,7 +98,13 @@ defmodule BackendWeb.ChannelController do
 
     channel =
       channel
-      |> Map.put(:ships, Enum.map(channel.ships, fn s -> Repo.preload(s, :ship) end))
+      |> Map.put(
+        :ships,
+        Enum.map(channel.ships, fn s ->
+          Repo.preload(s, :ship)
+          |> Map.put(:enabled, s.enabled)
+        end)
+      )
 
     channel
   end

@@ -17,7 +17,6 @@ defmodule Backend.Wows.BackgroundRefresh do
 
   def handle_info(:work, state) do
     if Application.get_env(:backend, Backend.Wows.BackgroundRefresh)[:disabled] == true do
-      schedule()
       {:noreply, state}
     else
       do_work(state)
