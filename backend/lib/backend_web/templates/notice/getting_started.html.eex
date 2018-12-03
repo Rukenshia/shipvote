@@ -15,6 +15,9 @@
     <p>Once you hit the "Save" button, a list with all of your researched ships should appear. The data is retrieved from the
         World of Warships API, please get in contact with me if some ships do not show up.</p>
     
+    <p>If you have some ships that you don't want your viewers to vote for, you can disable them on this screen as well. Just hit the "DISABLE" button
+        on the right side of the ship name.</p>
+    
     <p>You can close the window now and head over to https://twitch.tv/<strong>YOURNAME</strong>/dashboard/extensions/manage.</p>
 
     <img src="<%= static_path(@conn, "/images/shipvote_twitch_config.png") %>" width="60%">
