@@ -57,9 +57,9 @@ defmodule BackendWeb.Router do
         Logger.debug(inspect(x))
 
         conn
-        |> put_status(:unauthorized)
-        |> json(%{ok: false, message: "unauthorized"})
-        |> halt()
+        # |> put_status(:unauthorized)
+        # |> json(%{ok: false, message: "unauthorized"})
+        # |> halt()
     end
   end
 
