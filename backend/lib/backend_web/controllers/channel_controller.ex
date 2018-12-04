@@ -20,24 +20,34 @@ defmodule BackendWeb.ChannelController do
   end
 
   def create(conn, %{"wows_username" => username, "wows_realm" => realm} = channel_params) do
-    with {:ok, account_id} <- find_account_id(username, realm),
-         {:ok, %Channel{} = channel} <-
-           Stream.create_channel(channel_params |> Map.put("wows_account_id", account_id)),
-         {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.channel_path(conn, :show, channel))
-      |> render("show.json", channel: channel |> load_ships())
-    else
-      {:error, "Player not found"} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{ok: false, message: "Player not found"})
+    case Stream.get_channel(channel_params |> Map.get("id")) do
+      %Channel{} ->
+        Logger.warn(
+          "channel_controller.create.reroute_to_update channel_id=#{Map.get(channel_params, "id")}"
+        )
 
-      {:error, message} ->
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{ok: false, message: message})
+        update(conn, %{"id" => channel_params |> Map.get("id"), "channel" => channel_params})
+
+      _ ->
+        with {:ok, account_id} <- find_account_id(username, realm),
+             {:ok, %Channel{} = channel} <-
+               Stream.create_channel(channel_params |> Map.put("wows_account_id", account_id)),
+             {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
+          conn
+          |> put_status(:created)
+          |> put_resp_header("location", Routes.channel_path(conn, :show, channel))
+          |> render("show.json", channel: channel |> load_ships())
+        else
+          {:error, "Player not found"} ->
+            conn
+            |> put_status(:not_found)
+            |> json(%{ok: false, message: "Player not found"})
+
+          {:error, message} ->
+            conn
+            |> put_status(:internal_server_error)
+            |> json(%{ok: false, message: message})
+        end
     end
   end
 
