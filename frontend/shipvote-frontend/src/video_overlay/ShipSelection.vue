@@ -1,14 +1,22 @@
 <template>
-<div class="card raised" :style="{height: `${maxHeight}px`}">
-		    <span class="typography--headline1">Pick a Ship</span>
-			<div class="card__divider"></div>
+  <div class="card raised" :style="{height: `${maxHeight}px`}">
+    <span class="typography--headline1">Pick a Ship</span>
+    <div class="card__divider"></div>
 
-			<div class="ships">
-				<template v-for="ship in ships">
-					<Ship :key="ship.id" :image="ship.image" :name="ship.name" :votes="ship.votes" @vote="vote(ship)" :canBeVoted="enableVoting && !voted" :totalVotes="totalVotes" />
-				</template>
-			</div>
-		</div>
+    <div class="ships">
+      <template v-for="ship in ships">
+        <Ship
+          :key="ship.name"
+          :image="ship.image"
+          :name="ship.name"
+          :votes="ship.votes"
+          @vote="vote(ship)"
+          :canBeVoted="enableVoting && !voted"
+          :totalVotes="totalVotes"
+        />
+      </template>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -23,6 +31,11 @@ export default {
   methods: {
     vote(ship) {
       this.$emit('vote', ship);
+    }
+  },
+  watch: {
+    ships() {
+      console.log(`ships update. order ${this.ships.map(s => s.name).join(',')}`);
     }
   }
 };

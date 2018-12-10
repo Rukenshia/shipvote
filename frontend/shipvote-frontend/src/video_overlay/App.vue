@@ -1,14 +1,26 @@
 <template>
   <div :class="theme">
-    <VoteProgress v-if="voting" :ships="ships" :voting="voting" :totalVotes="totalVotes" />
+    <VoteProgress v-if="voting" :ships="ships" :voting="voting" :totalVotes="totalVotes"/>
     <div class="selection" v-bind:data-active="selecting">
-      <ShipSelection @vote="vote" :ships="ships" :enableVoting="true" :voted="voted" :maxHeight="maxHeight" :totalVotes="totalVotes" />
+      <ShipSelection
+        @vote="vote"
+        :ships="ships"
+        :enableVoting="true"
+        :voted="voted"
+        :maxHeight="maxHeight"
+        :totalVotes="totalVotes"
+      />
     </div>
 
-    <div class="vote-notice" v-bind:data-active="voting && !selecting && !voted" v-bind:data-initial="voteStarted" v-bind:data-dismissed="selecting || voted">
-			<div class="cta raised" @click="selecting = true">
-				<i class="material-icons">error_outline</i>
-				<span>Vote for a Ship now!</span>
+    <div
+      class="vote-notice"
+      v-bind:data-active="voting && !selecting && !voted"
+      v-bind:data-initial="voteStarted"
+      v-bind:data-dismissed="selecting || voted"
+    >
+      <div class="cta raised" @click="selecting = true">
+        <i class="material-icons">error_outline</i>
+        <span>Vote for a Ship now!</span>
       </div>
     </div>
   </div>
@@ -142,9 +154,10 @@ window.App = {
       });
 
       channel.on('new_vote', data => {
-        const ship = this.ships.find(s => s.id === data['ship_id']);
+        const ship = this.ships.findIndex(s => s.id === data['ship_id']);
 
-        ship.votes += 1;
+        this.ships[ship] = { ...this.ships[ship], votes: this.ships[ship].votes + 1 };
+
         this.totalVotes++;
       });
     });
