@@ -64,7 +64,7 @@
               <mdc-button
                 raised
                 @click="createInfo"
-                :disabled="config.wows_username === "" || saving"
+                :disabled="config.wows_username === '' || saving"
               >Setup</mdc-button>
               <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
             </mdc-layout-cell>
