@@ -1,10 +1,10 @@
 <template>
   <div class="ship" @click="vote" :data-voteable="canBeVoted">
-    <div v-if="canBeVoted" class='vote-button'>Vote</div>
+    <div v-if="canBeVoted" class="vote-button">Vote</div>
     <div class="progress-bar">
       <div class="progress" :style="{minWidth: `${votes > 0 ? votes / totalVotes * 100 : 0}%`}"></div>
     </div>
-    <img :src="image" />
+    <img :src="image">
     <span class="typography--headline2">{{name}} ({{votes}})</span>
   </div>
 </template>

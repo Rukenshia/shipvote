@@ -1,164 +1,211 @@
 <template>
-<mdc-layout-grid :class="theme">
-  <mdc-layout-cell :span=12>
-    <mdc-card class="mdc-card--flat">
-      <mdc-card-text style="padding-left: 16px">
-        <mdc-body>Learn how to use this extension <a target="_blank" href="https://shipvote.in.fkn.space/getting-started">here</a>.</mdc-body>
-      </mdc-card-text>
-    </mdc-card>
-  </mdc-layout-cell>
+  <mdc-layout-grid :class="theme">
+    <mdc-layout-cell :span="12">
+      <mdc-card class="mdc-card--flat">
+        <mdc-card-text style="padding-left: 16px">
+          <mdc-body>Learn how to use this extension
+            <a target="_blank" href="https://shipvote.in.fkn.space/getting-started">here</a>.
+          </mdc-body>
+        </mdc-card-text>
+      </mdc-card>
+    </mdc-layout-cell>
 
-  <mdc-layout-cell :span=12 v-if="error">
-    <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
-  </mdc-layout-cell>
-  <mdc-layout-cell :span=12 v-if="!loaded_configuration">
-    <mdc-linear-progress indeterminate></mdc-linear-progress>
-  </mdc-layout-cell>
-  <mdc-layout-cell :span=12 v-if="!configured && loaded_configuration">
-    <mdc-card outlined>
-      <mdc-card-header style="padding: 8px" class="typography__color--error">
-        No personal configuration
-      </mdc-card-header>
-      <mdc-card-text style="padding: 8px">
-          <mdc-body>You did not configure this extension yet. Head over to your twitch dashboard, then go to "Extensions", "My Extensions"
-          and Click on the cog icon to configure this extension.</mdc-body>
+    <mdc-layout-cell :span="12" v-if="error">
+      <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
+    </mdc-layout-cell>
+    <mdc-layout-cell :span="12" v-if="!loaded_configuration">
+      <mdc-linear-progress indeterminate></mdc-linear-progress>
+    </mdc-layout-cell>
+    <mdc-layout-cell :span="12" v-if="!configured && loaded_configuration">
+      <mdc-card outlined>
+        <mdc-card-header
+          style="padding: 8px"
+          class="typography__color--error"
+        >No personal configuration</mdc-card-header>
+        <mdc-card-text style="padding: 8px">
+          <mdc-body>
+            You did not configure this extension yet. Head over to your twitch dashboard, then go to "Extensions", "My Extensions"
+            and Click on the cog icon to configure this extension.
+          </mdc-body>
 
           <mdc-button outlined @click="loadChannelConfig">Reload</mdc-button>
-      </mdc-card-text>
-    </mdc-card>
-  </mdc-layout-cell>
-  <mdc-layout-cell :span=12 v-if="configured && loaded_configuration">
-    <mdc-card class="mdc-card--flat" style="text-align: center">
-      <mdc-card-header>
-        <mdc-headline>
-          Vote is
-          <span v-if="voting" class="typography__color--success">open</span>
-          <span v-if="!voting" class="typography__color--error">closed</span>
-        </mdc-headline>
+        </mdc-card-text>
+      </mdc-card>
+    </mdc-layout-cell>
+    <mdc-layout-cell :span="12" v-if="configured && loaded_configuration">
+      <mdc-card class="mdc-card--flat" style="text-align: center">
+        <mdc-card-header>
+          <mdc-headline>
+            Vote is
+            <span v-if="voting" class="typography__color--success">open</span>
+            <span v-if="!voting" class="typography__color--error">closed</span>
+          </mdc-headline>
 
-        <mdc-body v-if="!voting">Based on the current filter, the vote will include {{filteredShips.length}} ships.</mdc-body>
+          <mdc-body
+            v-if="!voting"
+          >Based on the current filter, the vote will include {{filteredShips.length}} ships.</mdc-body>
 
-        <mdc-button :unelevated=true v-if="!voting" @click="openVote" class="mdc-button--primary">Open</mdc-button>
-        <mdc-button :unelevated=true v-if="voting" @click="closeVote" class="mdc-button--danger">Close</mdc-button>
+          <mdc-button
+            :unelevated="true"
+            v-if="!voting"
+            @click="openVote"
+            class="mdc-button--primary"
+          >Open</mdc-button>
+          <mdc-button
+            :unelevated="true"
+            v-if="voting"
+            @click="closeVote"
+            class="mdc-button--danger"
+          >Close</mdc-button>
 
-        <br />
-        <br />
-      </mdc-card-header>
-    </mdc-card>
+          <br>
+          <br>
+        </mdc-card-header>
+      </mdc-card>
 
-    <div v-if="voting">
-      <mdc-headline>Vote Statistics</mdc-headline>
-      <mdc-list two-line bordered>
-        <mdc-list-item>
-          <span><strong>{{stats.votes}}</strong></span>
-          <span slot="secondary">Participants</span>
-        </mdc-list-item>
-        <mdc-list-item>
-          <span><strong>{{mostVoted}}</strong></span>
-          <span slot="secondary">Most Votes</span>
-        </mdc-list-item>
-      </mdc-list>
+      <div v-if="voting">
+        <mdc-headline>Vote Statistics</mdc-headline>
+        <mdc-list two-line bordered>
+          <mdc-list-item>
+            <span>
+              <strong>{{stats.votes}}</strong>
+            </span>
+            <span slot="secondary">Participants</span>
+          </mdc-list-item>
+          <mdc-list-item>
+            <span>
+              <strong>{{mostVoted}}</strong>
+            </span>
+            <span slot="secondary">Most Votes</span>
+          </mdc-list-item>
+        </mdc-list>
 
-      <mdc-headline tag="h3">Vote results</mdc-headline>
-      <mdc-list two-line bordered>
-        <mdc-list-item v-for="ship in sortedVotes" :key="ship.id">
-          <img slot="start-detail" :src="ship.image"
-         width="56" height="auto" :alt="`Image of ${ship.name}`">
-          <span><strong>{{ship.name}}</strong></span>
-          <span slot="secondary">{{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}}</span>
-        </mdc-list-item>
-      </mdc-list>
-    </div>
-    <div v-show="!voting">
-      <mdc-headline>General</mdc-headline>
-      <!-- <mdc-textfield v-model="settings.duration" label=" Duration (seconds)" box/> -->
-      <mdc-checkbox  label="Premium Ships" v-model="settings.premium"/>
+        <mdc-headline tag="h3">Vote results</mdc-headline>
+        <mdc-list two-line bordered>
+          <mdc-list-item v-for="ship in sortedVotes" :key="ship.id">
+            <img
+              slot="start-detail"
+              :src="ship.image"
+              width="56"
+              height="auto"
+              :alt="`Image of ${ship.name}`"
+            >
+            <span>
+              <strong>{{ship.name}}</strong>
+            </span>
+            <span slot="secondary">{{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}}</span>
+          </mdc-list-item>
+        </mdc-list>
+      </div>
+      <div v-show="!voting">
+        <mdc-headline>General</mdc-headline>
+        <!-- <mdc-textfield v-model="settings.duration" label=" Duration (seconds)" box/> -->
+        <mdc-checkbox label="Premium Ships" v-model="settings.premium"/>
 
+        <mdc-headline>Filters</mdc-headline>
 
-      <mdc-headline>Filters</mdc-headline>
-
-      <div class="mdc-tab-bar" role="tablist">
-        <div class="mdc-tab-scroller">
-          <div class="mdc-tab-scroller__scroll-area">
-            <div class="mdc-tab-scroller__scroll-content">
-              <button class="mdc-tab" :class="{'mdc-tab--active': viewSetting === 0}"
-                role="tab"
-                :aria-selected="viewSetting === 0"
-                @click="() => this.viewSetting = 0"
-                tabindex="0">
-                <span class="mdc-tab__content">
-                  <span class="mdc-tab__text-label">Tier</span>
-                </span>
-                <span v-if="viewSetting === 0" class="mdc-tab-indicator mdc-tab-indicator--active">
-                  <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                </span>
-                <span class="mdc-tab__ripple"></span>
-              </button>
-              <button class="mdc-tab" :class="{'mdc-tab--active': viewSetting === 1}"
-                role="tab"
-                :aria-selected="viewSetting === 1"
-                @click="() => this.viewSetting = 1"
-                tabindex="1">
-                <span class="mdc-tab__content">
-                  <span class="mdc-tab__text-label">Type</span>
-                </span>
-                <span v-if="viewSetting === 1" class="mdc-tab-indicator mdc-tab-indicator--active">
-                  <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                </span>
-                <span class="mdc-tab__ripple"></span>
-              </button>
-              <button class="mdc-tab" :class="{'mdc-tab--active': viewSetting === 2}"
-                role="tab"
-                :aria-selected="viewSetting === 2"
-                @click="() => this.viewSetting = 2"
-                tabindex="2">
-                <span class="mdc-tab__content">
-                  <span class="mdc-tab__text-label">Nation</span>
-                </span>
-                <span v-if="viewSetting === 2" class="mdc-tab-indicator mdc-tab-indicator--active">
-                  <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                </span>
-                <span class="mdc-tab__ripple"></span>
-              </button>
+        <div class="mdc-tab-bar" role="tablist">
+          <div class="mdc-tab-scroller">
+            <div class="mdc-tab-scroller__scroll-area">
+              <div class="mdc-tab-scroller__scroll-content">
+                <button
+                  class="mdc-tab"
+                  :class="{'mdc-tab--active': viewSetting === 0}"
+                  role="tab"
+                  :aria-selected="viewSetting === 0"
+                  @click="() => this.viewSetting = 0"
+                  tabindex="0"
+                >
+                  <span class="mdc-tab__content">
+                    <span class="mdc-tab__text-label">Tier</span>
+                  </span>
+                  <span
+                    v-if="viewSetting === 0"
+                    class="mdc-tab-indicator mdc-tab-indicator--active"
+                  >
+                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                  </span>
+                  <span class="mdc-tab__ripple"></span>
+                </button>
+                <button
+                  class="mdc-tab"
+                  :class="{'mdc-tab--active': viewSetting === 1}"
+                  role="tab"
+                  :aria-selected="viewSetting === 1"
+                  @click="() => this.viewSetting = 1"
+                  tabindex="1"
+                >
+                  <span class="mdc-tab__content">
+                    <span class="mdc-tab__text-label">Type</span>
+                  </span>
+                  <span
+                    v-if="viewSetting === 1"
+                    class="mdc-tab-indicator mdc-tab-indicator--active"
+                  >
+                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                  </span>
+                  <span class="mdc-tab__ripple"></span>
+                </button>
+                <button
+                  class="mdc-tab"
+                  :class="{'mdc-tab--active': viewSetting === 2}"
+                  role="tab"
+                  :aria-selected="viewSetting === 2"
+                  @click="() => this.viewSetting = 2"
+                  tabindex="2"
+                >
+                  <span class="mdc-tab__content">
+                    <span class="mdc-tab__text-label">Nation</span>
+                  </span>
+                  <span
+                    v-if="viewSetting === 2"
+                    class="mdc-tab-indicator mdc-tab-indicator--active"
+                  >
+                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                  </span>
+                  <span class="mdc-tab__ripple"></span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        <mdc-layout-grid v-if="viewSetting === 0">
+          <template v-for="(v,key) in settings.tiers">
+            <mdc-layout-cell :key="key">
+              <mdc-checkbox :label="`Tier ${key + 1}`" v-model="settings.tiers[key]"/>
+            </mdc-layout-cell>
+          </template>
+        </mdc-layout-grid>
+
+        <mdc-layout-grid v-if="viewSetting === 1">
+          <template v-for="key in Object.keys(settings.types)">
+            <mdc-layout-cell :key="key">
+              <mdc-checkbox :label="key" v-model="settings.types[key]"/>
+            </mdc-layout-cell>
+          </template>
+        </mdc-layout-grid>
+
+        <mdc-layout-grid v-if="viewSetting === 2">
+          <template v-for="key in Object.keys(settings.nations)">
+            <mdc-layout-cell :key="key">
+              <mdc-checkbox class="checkbox" :label="key" v-model="settings.nations[key]"/>
+            </mdc-layout-cell>
+          </template>
+        </mdc-layout-grid>
       </div>
 
-      <mdc-layout-grid v-if="viewSetting === 0">
-        <template v-for="(v,key) in settings.tiers">
-          <mdc-layout-cell :key="key">
-            <mdc-checkbox  :label="`Tier ${key + 1}`" v-model="settings.tiers[key]"/>
-          </mdc-layout-cell>
-        </template>
-      </mdc-layout-grid>
-
-      <mdc-layout-grid v-if="viewSetting === 1">
-        <template v-for="key in Object.keys(settings.types)">
-          <mdc-layout-cell :key="key">
-            <mdc-checkbox  :label="key" v-model="settings.types[key]"/>
-          </mdc-layout-cell>
-        </template>
-      </mdc-layout-grid>
-
-      <mdc-layout-grid v-if="viewSetting === 2">
-        <template v-for="key in Object.keys(settings.nations)">
-          <mdc-layout-cell :key="key">
-            <mdc-checkbox class="checkbox" :label="key" v-model="settings.nations[key]"/>
-          </mdc-layout-cell>
-        </template>
-      </mdc-layout-grid>
-    </div>
-
-    <mdc-card class="mdc-card--flat">
-      <mdc-card-text>
-        <mdc-body typo="body2">
-          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or <a href="mailto:jan@ruken.pw">via mail</a>
-        </mdc-body>
-      </mdc-card-text>
-    </mdc-card>
-  </mdc-layout-cell>
-</mdc-layout-grid>
+      <mdc-card class="mdc-card--flat">
+        <mdc-card-text>
+          <mdc-body
+            typo="body2"
+          >Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or
+            <a href="mailto:jan@ruken.pw">via mail</a>
+          </mdc-body>
+        </mdc-card-text>
+      </mdc-card>
+    </mdc-layout-cell>
+  </mdc-layout-grid>
 </template>
 
 <script>
@@ -404,6 +451,7 @@ export default window.App;
 @import '../darkmode';
 @import '../typography';
 @import '../card';
+@import '../list';
 
 .button {
   border-radius: 4px;
@@ -447,14 +495,6 @@ export default window.App;
 
 .mdc-button.mdc-button--primary {
   --mdc-theme-primary: rgba(63, 195, 128, 1);
-}
-
-.mdc-list-item__graphic {
-  margin-top: -32px;
-}
-
-.mdc-list .mdc-list-item {
-  padding-top: 16px;
 }
 
 :root {
