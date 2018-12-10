@@ -1,72 +1,107 @@
 <template>
-<mdc-layout-grid :class="theme">
-  <mdc-layout-cell :span=12>
-    <mdc-card class="mdc-card--flat">
-      <mdc-card-text style="padding-left: 16px">
-        <mdc-body>Learn how to use this extension <a target="_blank" href="https://shipvote.in.fkn.space/getting-started">here</a>.</mdc-body>
-      </mdc-card-text>
-    </mdc-card>
-    <mdc-headline>Shipvote Settings</mdc-headline>
+  <mdc-layout-grid :class="theme">
+    <mdc-layout-cell :span="12">
+      <mdc-card class="mdc-card--flat">
+        <mdc-card-text style="padding-left: 16px">
+          <mdc-body>
+            Learn how to use this extension
+            <a
+              target="_blank"
+              href="https://shipvote.in.fkn.space/getting-started"
+            >here</a>.
+          </mdc-body>
+        </mdc-card-text>
+      </mdc-card>
+      <mdc-headline>Shipvote Settings</mdc-headline>
 
-    <mdc-layout-grid v-if="loading">
-      <mdc-layout-cell :span=4>
-        <mdc-body typo="body2">Loading your config</mdc-body>
-        <mdc-linear-progress indeterminate></mdc-linear-progress>
-      </mdc-layout-cell>
-    </mdc-layout-grid>
+      <mdc-layout-grid v-if="loading">
+        <mdc-layout-cell :span="4">
+          <mdc-body typo="body2">Loading your config</mdc-body>
+          <mdc-linear-progress indeterminate></mdc-linear-progress>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
 
-    <mdc-layout-grid v-if="loadingError">
-      <mdc-layout-cell :span=4>
-        <mdc-body typo="body1">Configuration could not be loaded. Please contact rukenshia for support.</mdc-body>
-      </mdc-layout-cell>
-    </mdc-layout-grid>
+      <mdc-layout-grid v-if="loadingError">
+        <mdc-layout-cell :span="4">
+          <mdc-body
+            typo="body1"
+          >Configuration could not be loaded. Please contact rukenshia for support.</mdc-body>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
 
+      <mdc-layout-grid v-if="!loading && !loadingError">
+        <mdc-layout-cell :span="12">
+          <mdc-layout-grid>
+            <mdc-layout-cell :phone="4" :desktop="4" :tablet="4">
+              <mdc-textfield
+                class="fullwidth"
+                v-model="config.wows_username"
+                label="WoWS Username"
+                :valid="validations.username"
+                required
+                box
+              />
+            </mdc-layout-cell>
+            <mdc-layout-cell :phone="4" :desktop="2" :tablet="2">
+              <mdc-select
+                class="fullwidth"
+                v-model="config.wows_realm"
+                label="WoWS Server"
+                :valid="validations.realm"
+              >
+                <option>eu</option>
+                <option>na</option>
+                <option>asia</option>
+                <option>ru</option>
+              </mdc-select>
+            </mdc-layout-cell>
+            <mdc-layout-cell :span="12" v-if="configured">
+              <mdc-button raised @click="updateInfo" :disabled="saving">Save</mdc-button>
+              <mdc-button outlined @click="updateInfo" :disabled="saving">Refresh ships</mdc-button>
+              <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
+            </mdc-layout-cell>
+            <mdc-layout-cell :span="12" v-if="!configured">
+              <mdc-button
+                raised
+                @click="createInfo"
+                :disabled="config.wows_username === "" || saving"
+              >Setup</mdc-button>
+              <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
+            </mdc-layout-cell>
+          </mdc-layout-grid>
 
-    <mdc-layout-grid v-if="!loading && !loadingError">
-      <mdc-layout-cell :span=12>
-        <mdc-layout-grid>
-          <mdc-layout-cell :phone=4 :desktop=4 :tablet=4>
-            <mdc-textfield class="fullwidth" v-model="config.wows_username" label="WoWS Username" :valid="validations.username" required box/>
-          </mdc-layout-cell>
-          <mdc-layout-cell :phone=4 :desktop=2 :tablet=2>
-            <mdc-select class="fullwidth" v-model="config.wows_realm" label="WoWS Server" :valid="validations.realm">
-              <option>eu</option>
-              <option>na</option>
-              <option>asia</option>
-              <option>ru</option>
-            </mdc-select>
-          </mdc-layout-cell>
-          <mdc-layout-cell :span=12 v-if="configured">
-            <mdc-button raised @click="updateInfo">Save</mdc-button>
-            <mdc-button outlined @click="updateInfo">Refresh ships</mdc-button>
-            <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
-          </mdc-layout-cell>
-          <mdc-layout-cell :span=12 v-if="!configured">
-            <mdc-button raised @click="createInfo" :disabled="config.wows_username === ''">Setup</mdc-button>
-            <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
-          </mdc-layout-cell>
-        </mdc-layout-grid>
+          <template v-if="configured">
+            <mdc-body typo="body1">
+              You currently own {{config.ships.length}} ships. {{enabledShips.length}} ships are currently enabled.
+              Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.
+            </mdc-body>
 
-        <template v-if="configured">
-          <mdc-body typo="body1">You currently own {{config.ships.length}} ships. {{enabledShips.length}} ships are currently enabled.
-            Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.</mdc-body>
+            <mdc-list two-line bordered>
+              <mdc-list-item v-for="ship in config.ships" :key="ship.id">
+                <img
+                  slot="start-detail"
+                  :src="ship.image"
+                  width="56"
+                  height="auto"
+                  :alt="`Image of ${ship.name}`"
+                >
+                <span>
+                  <strong>{{ship.name}}</strong>
+                </span>
+                <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
 
-
-          <mdc-list two-line bordered>
-            <mdc-list-item v-for="ship in config.ships" :key="ship.id">
-              <img slot="start-detail" :src="ship.image"
-            width="56" height="auto" :alt="`Image of ${ship.name}`">
-              <span><strong>{{ship.name}}</strong></span>
-              <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
-
-              <mdc-button slot="end-detail" @click="toggleShip(ship)" :raised="!ship.enabled">{{ship.enabled ? 'disable' : 'enable'}}</mdc-button>
-            </mdc-list-item>
-          </mdc-list>
-        </template>
-      </mdc-layout-cell>
-    </mdc-layout-grid>
-  </mdc-layout-cell>
-</mdc-layout-grid>
+                <mdc-button
+                  slot="end-detail"
+                  @click="toggleShip(ship)"
+                  :raised="!ship.enabled"
+                >{{ship.enabled ? 'disable' : 'enable'}}</mdc-button>
+              </mdc-list-item>
+            </mdc-list>
+          </template>
+        </mdc-layout-cell>
+      </mdc-layout-grid>
+    </mdc-layout-cell>
+  </mdc-layout-grid>
 </template>
 
 <script>
@@ -79,6 +114,7 @@ window.App = {
   data() {
     return {
       loading: true,
+      saving: false,
       loadingError: false,
 
       error: undefined,
@@ -134,6 +170,7 @@ window.App = {
       this.error = undefined;
       this.validations.username = true;
       this.validations.realm = true;
+      this.saving = true;
 
       put(
         `${BASE_URL}/api/settings/channels/${this.config.id}`,
@@ -159,12 +196,16 @@ window.App = {
             this.validations.realm = false;
             this.error = 'Please check your username and realm';
           }
+        })
+        .then(() => {
+          this.saving = false;
         });
     },
     createInfo() {
       this.error = undefined;
       this.validations.username = true;
       this.validations.realm = true;
+      this.saving = true;
 
       post(`${BASE_URL}/api/settings/channels`, this.config, {
         headers: {
@@ -185,6 +226,9 @@ window.App = {
             this.validations.realm = false;
             this.error = 'Please check your username and realm';
           }
+        })
+        .then(() => {
+          this.saving = false;
         });
     },
     toggleShip(ship) {
@@ -222,7 +266,7 @@ window.App = {
 export default window.App;
 </script>
 
-<style lang="scss">
+<style lang='scss'>
 @import '../darkmode';
 @import '../typography';
 @import '../card';
