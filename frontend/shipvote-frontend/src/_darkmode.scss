@@ -62,6 +62,10 @@
     .mdc-list-item .mdc-list-item__secondary-text {
       color: $color--text-highlight;
     }
+
+    &.mdc-list--bordered .mdc-list-item {
+      border-color: $color--text-highlight;
+    }
   }
 
   .vote-notice .cta {

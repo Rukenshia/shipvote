@@ -270,6 +270,7 @@ export default window.App;
 @import '../darkmode';
 @import '../typography';
 @import '../card';
+@import '../list';
 
 :root {
   --mdc-theme-secondary: #6441a4;
@@ -294,10 +295,6 @@ export default window.App;
 .mdc-list.mdc-list--bordered li:last-child {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-}
-
-.mdc-list .mdc-list-item {
-  padding-top: 16px;
 }
 
 .fullwidth,
