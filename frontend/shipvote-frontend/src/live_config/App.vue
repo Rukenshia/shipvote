@@ -288,6 +288,7 @@ window.App = {
   computed: {
     filteredShips() {
       return this.ships
+        .filter(s => s.enabled)
         .filter(s => this.settings.tiers[s.tier - 1] === true)
         .filter(s => this.settings.types[s.type] === true)
         .filter(
@@ -450,6 +451,10 @@ export default window.App;
 
 .mdc-list-item__graphic {
   margin-top: -32px;
+}
+
+.mdc-list .mdc-list-item {
+  padding-top: 16px;
 }
 
 :root {
