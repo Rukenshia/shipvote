@@ -5,7 +5,7 @@ sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
-  - 3abe5eb9-b390-41ec-ba22-4a9056281504
+  - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
 tasks:
   - mirror: |
       cd shipvote
