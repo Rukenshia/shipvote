@@ -8,6 +8,6 @@ secrets:
   - 3abe5eb9-b390-41ec-ba22-4a9056281504
 tasks:
   - mirror: |
-    cd shipvote
-    git remote set-url origin git@github.com:Rukenshia/shipvote.git
-    git push origin master
+      cd shipvote
+      git remote set-url origin git@github.com:Rukenshia/shipvote.git
+      git push origin master
