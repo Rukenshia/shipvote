@@ -138,7 +138,17 @@ window.App = {
               });
             }
 
-            this.ships = ships;
+            // Sort the incoming ships alphabetically
+            this.ships = ships.sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              } else if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            });
+
+            this.ships.forEach((s, i) => {s.order = i;});
           });
           this.noteDismissed = false;
 
@@ -156,8 +166,7 @@ window.App = {
       channel.on('new_vote', data => {
         const ship = this.ships.findIndex(s => s.id === data['ship_id']);
 
-        this.ships[ship] = { ...this.ships[ship], votes: this.ships[ship].votes + 1 };
-
+        Vue.set(this.ships, ship, { ...this.ships[ship], votes: this.ships[ship].votes + 1 });
         this.totalVotes++;
       });
     });
