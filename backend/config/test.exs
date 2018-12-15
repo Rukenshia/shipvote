@@ -6,13 +6,17 @@ config :backend, BackendWeb.Endpoint,
   http: [port: 4001],
   server: false
 
+config :backend, Backend.Wows.BackgroundRefresh, disabled: true
+
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :backend, BackendWeb.UserSocket, twitch_secret_key: "dGVzdA=="
 
 # Configure your database
 config :backend, Backend.Repo,
   username: "postgres",
   password: "postgres",
   database: "backend_test",
-  hostname: "database",
+  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

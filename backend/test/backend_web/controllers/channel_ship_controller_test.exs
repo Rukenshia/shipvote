@@ -3,79 +3,113 @@ defmodule BackendWeb.ChannelShipControllerTest do
 
   alias Backend.Stream
   alias Backend.Stream.ChannelShip
+  alias BackendWeb.Router.Helpers, as: Routes
+
+  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+              |> Base.decode64!()
 
   @create_attrs %{
-
+    id: 1,
+    channel_id: 1,
+    ship_id: 1,
+    enabled: true
   }
-  @update_attrs %{
 
+  @disable_attrs %{
+    "id" => 1,
+    "ship_id" => 1,
+    "enabled" => false
   }
-  @invalid_attrs %{}
+  @enable_attrs %{
+    "id" => 1,
+    "ship_id" => 1,
+    "enabled" => true
+  }
 
   def fixture(:channel_ship) do
-    {:ok, channel_ship} = Stream.create_channel_ship(@create_attrs)
+    {:ok, channel} =
+      Stream.create_channel(%{
+        id: 1,
+        wows_username: "username",
+        wows_realm: "eu",
+        wows_account_id: 1
+      })
+
+    {:ok, ship} =
+      Backend.Wows.create_warship(%{
+        name: "Stalingrad",
+        tier: 10,
+        type: "Battleship",
+        image: "x"
+      })
+
+    attrs =
+      @create_attrs
+      |> Map.merge(%{ship_id: ship.id, channel_id: channel.id})
+
+    {:ok, channel_ship} = Stream.create_channel_ship(attrs)
     channel_ship
   end
 
   setup %{conn: conn} do
-    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+    secret =
+      %{"channel_id" => "1", "opaque_user_id" => "1", "user_id" => "1", "role" => "broadcaster"}
+      |> Joken.token()
+      |> Joken.with_signer(Joken.hs256(@secret_key))
+      |> Joken.sign()
+      |> Joken.get_compact()
+
+    conn =
+      conn
+      |> put_req_header("accept", "application/json")
+      |> put_req_header("authorization", "Bearer #{secret}")
+
+    {:ok, conn: conn}
   end
 
-  describe "index" do
-    test "lists all channel_ships", %{conn: conn} do
-      conn = get(conn, Routes.channel_ship_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
-
-  describe "create channel_ship" do
-    test "renders channel_ship when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.channel_ship_path(conn, :create), channel_ship: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
-
-      conn = get(conn, Routes.channel_ship_path(conn, :show, id))
-
-      assert %{
-               "id" => id
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.channel_ship_path(conn, :create), channel_ship: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "update channel_ship" do
+  describe "update_channel_ship_status" do
     setup [:create_channel_ship]
 
-    test "renders channel_ship when data is valid", %{conn: conn, channel_ship: %ChannelShip{id: id} = channel_ship} do
-      conn = put(conn, Routes.channel_ship_path(conn, :update, channel_ship), channel_ship: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+    test "can disable the ship status", %{
+      conn: conn,
+      channel_ship: %ChannelShip{} = channel_ship
+    } do
+      conn =
+        put(
+          conn,
+          Routes.channel_ship_path(
+            conn,
+            :update_channel_ship_status,
+            channel_ship.channel_id,
+            channel_ship.ship_id
+          ),
+          @disable_attrs
+        )
 
-      conn = get(conn, Routes.channel_ship_path(conn, :show, id))
+      assert json_response(conn, 200) != %{}
 
-      assert %{
-               "id" => id
-             } = json_response(conn, 200)["data"]
+      # TODO: check actual status
     end
 
-    test "renders errors when data is invalid", %{conn: conn, channel_ship: channel_ship} do
-      conn = put(conn, Routes.channel_ship_path(conn, :update, channel_ship), channel_ship: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
+    test "can enable the ship status", %{
+      conn: conn,
+      channel_ship: %ChannelShip{} = channel_ship
+    } do
+      conn =
+        put(
+          conn,
+          Routes.channel_ship_path(
+            conn,
+            :update_channel_ship_status,
+            channel_ship.channel_id,
+            channel_ship.ship_id
+          ),
+          @enable_attrs
+        )
 
-  describe "delete channel_ship" do
-    setup [:create_channel_ship]
+      assert json_response(conn, 200) != %{}
 
-    test "deletes chosen channel_ship", %{conn: conn, channel_ship: channel_ship} do
-      conn = delete(conn, Routes.channel_ship_path(conn, :delete, channel_ship))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.channel_ship_path(conn, :show, channel_ship))
-      end
+      # TODO: check actual status
     end
   end
 

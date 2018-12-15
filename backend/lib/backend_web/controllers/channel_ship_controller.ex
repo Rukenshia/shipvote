@@ -2,16 +2,10 @@ defmodule BackendWeb.ChannelShipController do
   use BackendWeb, :controller
 
   import Ecto.Query, only: [from: 2]
-  alias Backend.Stream
   alias Backend.Stream.ChannelShip
   alias Backend.Repo
 
   action_fallback(BackendWeb.FallbackController)
-
-  def index(conn, %{channel_id: channel_id}) do
-    channel_ships = Stream.list_channel_ships(channel_id)
-    render(conn, "index.json", channel_ships: channel_ships)
-  end
 
   def update_channel_ship_status(conn, %{
         "id" => channel_id,
