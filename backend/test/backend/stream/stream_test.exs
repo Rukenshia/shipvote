@@ -6,9 +6,19 @@ defmodule Backend.StreamTest do
   describe "channels" do
     alias Backend.Stream.Channel
 
-    @valid_attrs %{channel_id: 42}
-    @update_attrs %{channel_id: 43}
-    @invalid_attrs %{channel_id: nil}
+    @valid_attrs %{
+      id: 42,
+      wows_username: "username",
+      wows_realm: "eu",
+      wows_account_id: 4711
+    }
+    @update_attrs %{
+      id: 43,
+      wows_username: "updated username",
+      wows_realm: "na",
+      wows_account_id: 4712
+    }
+    @invalid_attrs %{wows_username: nil}
 
     def channel_fixture(attrs \\ %{}) do
       {:ok, channel} =
@@ -31,7 +41,7 @@ defmodule Backend.StreamTest do
 
     test "create_channel/1 with valid data creates a channel" do
       assert {:ok, %Channel{} = channel} = Stream.create_channel(@valid_attrs)
-      assert channel.channel_id == 42
+      assert channel.id == 42
     end
 
     test "create_channel/1 with invalid data returns error changeset" do
@@ -41,13 +51,17 @@ defmodule Backend.StreamTest do
     test "update_channel/2 with valid data updates the channel" do
       channel = channel_fixture()
       assert {:ok, %Channel{} = channel} = Stream.update_channel(channel, @update_attrs)
-      assert channel.channel_id == 43
+      assert channel.id == 43
     end
 
     test "update_channel/2 with invalid data returns error changeset" do
       channel = channel_fixture()
       assert {:error, %Ecto.Changeset{}} = Stream.update_channel(channel, @invalid_attrs)
-      assert channel == Stream.get_channel!(channel.id)
+    end
+
+    test "update_channel does not take a random realm" do
+      channel = channel_fixture()
+      assert {:error, %Ecto.Changeset{}} = Stream.update_channel(channel, %{wows_realm: "bla"})
     end
 
     test "delete_channel/1 deletes the channel" do
@@ -65,22 +79,40 @@ defmodule Backend.StreamTest do
   describe "channel_ships" do
     alias Backend.Stream.ChannelShip
 
-    @valid_attrs %{}
-    @update_attrs %{}
-    @invalid_attrs %{}
+    @valid_attrs %{ship_id: 1, channel_id: 1, enabled: true}
+    @update_attrs %{enabled: false}
+    @invalid_attrs %{enabled: nil}
 
     def channel_ship_fixture(attrs \\ %{}) do
+      {:ok, channel} =
+        Stream.create_channel(%{
+          id: 1,
+          wows_username: "foo",
+          wows_realm: "eu",
+          wows_account_id: 4711
+        })
+
+      {:ok, ship} =
+        Backend.Wows.create_warship(%{
+          name: "Stalingrad",
+          nation: "USSR",
+          type: "Battleship",
+          tier: 10,
+          image: "",
+          premium: false
+        })
+
       {:ok, channel_ship} =
         attrs
-        |> Enum.into(@valid_attrs)
+        |> Enum.into(@valid_attrs |> Map.merge(%{ship_id: ship.id, channel_id: channel.id}))
         |> Stream.create_channel_ship()
 
       channel_ship
     end
 
-    test "list_channel_ships/0 returns all channel_ships" do
-      channel_ship = channel_ship_fixture()
-      assert Stream.list_channel_ships() == [channel_ship]
+    test "list_channel_ships/0 returns all channel_ships of a channel" do
+      channel_ship = channel_ship_fixture() |> Repo.preload(:ship)
+      assert Stream.list_channel_ships(channel_ship.channel_id) == [channel_ship]
     end
 
     test "get_channel_ship!/1 returns the channel_ship with given id" do
@@ -89,7 +121,29 @@ defmodule Backend.StreamTest do
     end
 
     test "create_channel_ship/1 with valid data creates a channel_ship" do
-      assert {:ok, %ChannelShip{} = channel_ship} = Stream.create_channel_ship(@valid_attrs)
+      {:ok, channel} =
+        Stream.create_channel(%{
+          id: 1,
+          wows_username: "foo",
+          wows_realm: "eu",
+          wows_account_id: 4711
+        })
+
+      {:ok, ship} =
+        Backend.Wows.create_warship(%{
+          name: "Stalingrad",
+          nation: "USSR",
+          type: "Battleship",
+          tier: 10,
+          image: "",
+          premium: false
+        })
+
+      assert {:ok, %ChannelShip{} = channel_ship} =
+               Stream.create_channel_ship(
+                 @valid_attrs
+                 |> Map.merge(%{channel_id: channel.id, ship_id: ship.id})
+               )
     end
 
     test "create_channel_ship/1 with invalid data returns error changeset" do
@@ -98,12 +152,17 @@ defmodule Backend.StreamTest do
 
     test "update_channel_ship/2 with valid data updates the channel_ship" do
       channel_ship = channel_ship_fixture()
-      assert {:ok, %ChannelShip{} = channel_ship} = Stream.update_channel_ship(channel_ship, @update_attrs)
+
+      assert {:ok, %ChannelShip{} = channel_ship} =
+               Stream.update_channel_ship(channel_ship, @update_attrs)
     end
 
     test "update_channel_ship/2 with invalid data returns error changeset" do
       channel_ship = channel_ship_fixture()
-      assert {:error, %Ecto.Changeset{}} = Stream.update_channel_ship(channel_ship, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Stream.update_channel_ship(channel_ship, @invalid_attrs)
+
       assert channel_ship == Stream.get_channel_ship!(channel_ship.id)
     end
 

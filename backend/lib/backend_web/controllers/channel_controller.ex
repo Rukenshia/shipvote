@@ -43,7 +43,15 @@ defmodule BackendWeb.ChannelController do
             |> put_status(:not_found)
             |> json(%{ok: false, message: "Player not found"})
 
+          {:error, %Ecto.Changeset{}} ->
+            # TODO: render errors
+            conn
+            |> put_status(:bad_request)
+            |> json(%{ok: false, message: "Bad request"})
+
           {:error, message} ->
+            Logger.error(inspect(message))
+
             conn
             |> put_status(:internal_server_error)
             |> json(%{ok: false, message: message})
@@ -89,7 +97,7 @@ defmodule BackendWeb.ChannelController do
 
         conn
         |> put_status(:bad_request)
-        |> json(%{ok: false})
+        |> json(%{ok: false, message: "Bad request"})
     end
   end
 

@@ -23,7 +23,9 @@ defmodule Backend.Auth.Twitch do
 
       if claims["channel_id"] != channel_id do
         Logger.error(
-          "check_jwt.channel_id_check_failed.claim=#{channel_id},req=#{claims["channel_id"]}"
+          "check_jwt.channel_id_check_failed.claim=#{inspect(channel_id)},req=#{
+            inspect(claims["channel_id"])
+          }"
         )
 
         conn
@@ -51,7 +53,7 @@ defmodule Backend.Auth.Twitch do
         |> halt()
 
       x ->
-        Logger.debug(inspect(x))
+        Logger.error(inspect(x))
 
         conn
         |> put_status(:unauthorized)

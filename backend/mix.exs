@@ -48,7 +48,8 @@ defmodule Backend.Mixfile do
       {:cors_plug, "~> 2.0"},
       {:jason, "~> 1.1"},
       {:poison, "~> 3.1"},
-      {:con_cache, "~> 0.13.0"}
+      {:con_cache, "~> 0.13.0"},
+      {:mock, "~> 0.3.0", only: :test}
     ]
   end
 
