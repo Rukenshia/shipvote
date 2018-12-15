@@ -11,3 +11,4 @@ tasks:
       cd shipvote
       git remote set-url origin git@github.com:Rukenshia/shipvote.git
       git push origin master
+      git push origin --tags

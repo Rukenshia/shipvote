@@ -6,7 +6,7 @@
     <div class="ships">
       <template v-for="ship in ships">
         <Ship
-          :key="ship.name"
+          v-bind:key="ship.id"
           :image="ship.image"
           :name="ship.name"
           :votes="ship.votes"
@@ -33,11 +33,6 @@ export default {
       this.$emit('vote', ship);
     }
   },
-  watch: {
-    ships() {
-      console.log(`ships update. order ${this.ships.map(s => s.name).join(',')}`);
-    }
-  }
 };
 </script>
 

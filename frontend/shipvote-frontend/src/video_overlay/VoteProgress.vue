@@ -1,10 +1,13 @@
 <template>
-<div class="vote-progress" v-if="sortedShips.length > 0">
-  <div class="progress-ship" v-for="ship in sortedShips" :key="ship.id">
-    {{ship.name}} ({{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}})
-    <mdc-linear-progress accent :progress="ship.votes / totalVotes > 1.0 ? 1.0 : ship.votes / totalVotes"></mdc-linear-progress>
+  <div class="vote-progress" v-if="sortedShips.length > 0">
+    <div class="progress-ship" v-for="ship in sortedShips" :key="ship.id">
+      {{ship.name}} ({{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}})
+      <mdc-linear-progress
+        accent
+        :progress="ship.votes / totalVotes > 1.0 ? 1.0 : ship.votes / totalVotes"
+      ></mdc-linear-progress>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -18,7 +21,7 @@ export default {
       if (this.ships.length === 0) {
         return [];
       }
-      const sorted = this.ships;
+      const sorted = JSON.parse(JSON.stringify(this.ships));
 
       sorted.sort((a, b) => {
         const av = a.votes || 0;
