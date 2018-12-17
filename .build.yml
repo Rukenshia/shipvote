@@ -32,7 +32,9 @@ tasks:
       mix local.hex --force
       mix local.rebar --force
       mix deps.get
-      mix test
+      mix test --cover
+  - compile: |
+      MIX_ENV=prod mix compile
 triggers:
   - action: email
     condition: failure
