@@ -2,6 +2,7 @@ image: alpine/edge
 packages:
   - git
   - elixir
+  - postgresql
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -17,6 +18,8 @@ tasks:
       git push origin --tags
   - test: |
       cd shipvote/backend
+
+      rc-service postgresql start
  
       mix local.hex --force
       mix local.rebar --force
