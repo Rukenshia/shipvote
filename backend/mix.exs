@@ -10,7 +10,14 @@ defmodule Backend.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -49,6 +56,7 @@ defmodule Backend.Mixfile do
       {:jason, "~> 1.1"},
       {:poison, "~> 3.1"},
       {:con_cache, "~> 0.13.0"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:mock, "~> 0.3.0", only: :test}
     ]
   end
