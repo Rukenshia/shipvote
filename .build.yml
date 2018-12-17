@@ -7,6 +7,8 @@ sources:
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
+environment:
+  MIX_ENV: test
 tasks:
   - mirror: |
       cd shipvote
@@ -17,5 +19,5 @@ tasks:
       cd shipvote/backend
  
       mix local.hex --force
-      MIX_ENV=test mix deps.get
-      MIX_ENV=text mix test
+      mix deps.get
+      mix test
