@@ -33,3 +33,7 @@ tasks:
       mix local.rebar --force
       mix deps.get
       mix test
+triggers:
+  - action: email
+    condition: failure
+    to: jan@chrstphrsn.cc
