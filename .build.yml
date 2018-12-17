@@ -1,4 +1,4 @@
-image: alpine/edge
+image: archlinux
 packages:
   - git
   - elixir
@@ -19,7 +19,7 @@ tasks:
   - test: |
       cd shipvote/backend
 
-      rc-service postgresql start
+      sudo systemctl start postgres
  
       mix local.hex --force
       mix local.rebar --force
