@@ -1,6 +1,7 @@
 image: alpine/edge
 packages:
   - git
+  - elixir
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -12,3 +13,7 @@ tasks:
       git remote set-url origin git@github.com:Rukenshia/shipvote.git
       git push origin master
       git push origin --tags
+  - test: |
+      cd shipvote/backend
+      MIX_ENV=test mix deps.get
+      MIX_ENV=text mix test
