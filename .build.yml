@@ -15,5 +15,7 @@ tasks:
       git push origin --tags
   - test: |
       cd shipvote/backend
-      MIX_ENV=test mix deps.get --force
+ 
+      mix local.hex --force
+      MIX_ENV=test mix deps.get
       MIX_ENV=text mix test
