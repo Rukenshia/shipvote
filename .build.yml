@@ -19,13 +19,14 @@ tasks:
       git push origin master
       git push origin --tags
 
-  - postgres: |
+  - setup: |
       sudo mkdir /run/postgresql
       sudo chown postgres /run/postgresql
       sudo su - postgres -c 'pg_ctl initdb --pgdata=/var/lib/postgresql'
-      sudo su - postgres -c 'postgres -D /var/lib/postgresql' &> /dev/null &
 
   - test: |
+      sudo su - postgres -c 'postgres -D /var/lib/postgresql' &> /dev/null &
+
       cd shipvote/backend
  
       mix local.hex --force
