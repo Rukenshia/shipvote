@@ -1,7 +1,9 @@
-image: archlinux
+image: alpine/edge
 packages:
   - git
   - elixir
+  - erlang-runtime-tools
+  - erlang-tools
   - postgresql
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
@@ -16,10 +18,15 @@ tasks:
       git remote set-url origin git@github.com:Rukenshia/shipvote.git
       git push origin master
       git push origin --tags
+
+  - postgres: |
+      sudo mkdir /run/postgresql
+      sudo chown postgres /run/postgresql
+      sudo su - postgres -c 'pg_ctl initdb --pgdata=/var/lib/postgresql'
+      sudo su - postgres -c 'postgres -D /var/lib/postgresql' &> /dev/null &
+
   - test: |
       cd shipvote/backend
-
-      su - postgres postgres
  
       mix local.hex --force
       mix local.rebar --force
