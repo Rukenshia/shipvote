@@ -52,8 +52,16 @@ defmodule Backend.Auth.Twitch do
         |> json(%{ok: false, message: "unauthorized"})
         |> halt()
 
+      [] ->
+        Logger.warn("check_jwt.no_authorization_header")
+
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{ok: false, message: "unauthorized"})
+        |> halt()
+
       x ->
-        Logger.error(inspect(x))
+        Logger.warn(inspect(x))
 
         conn
         |> put_status(:unauthorized)
@@ -63,7 +71,7 @@ defmodule Backend.Auth.Twitch do
   end
 
   def check_jwt(conn, _) do
-    Logger.debug(inspect(conn.params))
+    Logger.warn("check_jwt.no_id_param=#{inspect(conn.params)}")
 
     conn
     |> put_status(:unauthorized)
