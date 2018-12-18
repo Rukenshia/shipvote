@@ -20,13 +20,9 @@ tasks:
       git push origin --tags
 
   - setup: |
-      sudo mkdir /run/postgresql
-      sudo chown postgres /run/postgresql
-      sudo su - postgres -c 'pg_ctl initdb --pgdata=/var/lib/postgresql'
-
+      sudo service postgresql start
+      createdb example
   - test: |
-      sudo su - postgres -c 'postgres -D /var/lib/postgresql' &> /dev/null &
-
       cd shipvote/backend
  
       mix local.hex --force
@@ -34,6 +30,7 @@ tasks:
       mix deps.get
       mix test --cover
   - compile: |
+    cd shipvote/backend
       MIX_ENV=prod mix compile
 triggers:
   - action: email
