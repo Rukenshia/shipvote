@@ -35,7 +35,7 @@ tasks:
       mix test --cover
   - compile: |
       MIX_ENV=prod mix compile
-triggers:
-  - action: email
-    condition: failure
-    to: "Jan Christophersen <jan@chrstphrsn.cc>"
+    triggers:
+      - action: email
+        condition: failure
+        to: "Jan Christophersen <jan@chrstphrsn.cc>"
