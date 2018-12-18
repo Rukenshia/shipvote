@@ -38,4 +38,4 @@ tasks:
 triggers:
   - action: email
     condition: failure
-    to: jan@chrstphrsn.cc
+    to: "Jan Christophersen <jan@chrstphrsn.cc>"
