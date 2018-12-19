@@ -30,7 +30,7 @@ tasks:
       mix deps.get
       mix test --cover
   - compile: |
-    cd shipvote/backend
+      cd shipvote/backend
       MIX_ENV=prod mix compile
 triggers:
   - action: email
