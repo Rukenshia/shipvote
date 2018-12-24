@@ -18,4 +18,12 @@ defmodule Backend.Stream.Vote do
     |> cast(attrs, [:channel_id, :ships, :status])
     |> validate_required([:channel_id, :ships, :status])
   end
+
+  @doc false
+  def status_changeset(vote, attrs) do
+    vote
+    |> cast(attrs, [:status])
+    |> validate_required([:status])
+    |> validate_inclusion(:status, ["open", "closed"])
+  end
 end

@@ -78,4 +78,25 @@ defmodule Backend.Auth.Twitch do
     |> json(%{ok: false, message: "unauthorized"})
     |> halt()
   end
+
+  def require_broadcaster(conn, _) do
+    case is_broadcaster?(conn) do
+      true ->
+        conn
+
+      false ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{ok: false, message: "unauthorized"})
+        |> halt()
+    end
+  end
+
+  defp is_broadcaster?(%{assigns: %{user_data: %{role: "broadcaster"}}}) do
+    true
+  end
+
+  defp is_broadcaster?(_) do
+    false
+  end
 end
