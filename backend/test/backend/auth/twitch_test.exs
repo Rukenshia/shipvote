@@ -108,5 +108,111 @@ defmodule Backend.Auth.TwitchTest do
 
       assert %Plug.Conn{state: :unset} = conn
     end
+
+    test "sets the user_data on conn", %{conn: conn} do
+      token =
+        %{
+          "channel_id" => "1234",
+          "opaque_user_id" => "opaque_id",
+          "user_id" => "1234",
+          "role" => "broadcaster"
+        }
+        |> Joken.token()
+        |> Joken.with_signer(Joken.hs256(@secret_key))
+        |> Joken.sign()
+        |> Joken.get_compact()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> Twitch.check_jwt(%{})
+
+      assert conn.assigns[:user_data] == %{
+               channel_id: "1234",
+               opaque_user_id: "opaque_id",
+               user_id: "1234",
+               role: "broadcaster"
+             }
+    end
+
+    test "sets the token on conn", %{conn: conn} do
+      token =
+        %{
+          "channel_id" => "1234",
+          "opaque_user_id" => "opaque_id",
+          "user_id" => "1234",
+          "role" => "broadcaster"
+        }
+        |> Joken.token()
+        |> Joken.with_signer(Joken.hs256(@secret_key))
+        |> Joken.sign()
+        |> Joken.get_compact()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> Twitch.check_jwt(%{})
+
+      assert conn.assigns[:token] == token
+    end
+  end
+
+  describe "require_broadcaster" do
+    setup %{conn: conn} do
+      conn = %{conn | params: %{"id" => "1234"}}
+
+      %{conn: conn}
+    end
+
+    test "halts the request with unauthorized if no user data is set", %{conn: conn} do
+      assert Twitch.require_broadcaster(conn, %{}) |> json_response(401) == %{
+               "ok" => false,
+               "message" => "unauthorized"
+             }
+    end
+
+    test "halts the request with unauthorized if the wrong role", %{conn: conn} do
+      token =
+        %{
+          "channel_id" => "1234",
+          "opaque_user_id" => "opaque_id",
+          "user_id" => "1234",
+          "role" => "viewer"
+        }
+        |> Joken.token()
+        |> Joken.with_signer(Joken.hs256(@secret_key))
+        |> Joken.sign()
+        |> Joken.get_compact()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> Twitch.check_jwt(%{})
+        |> Twitch.require_broadcaster(%{})
+
+      assert json_response(conn, 401) == %{"ok" => false, "message" => "unauthorized"}
+    end
+
+    test "passes the request when the role is set to broadcaster", %{conn: conn} do
+      token =
+        %{
+          "channel_id" => "1234",
+          "opaque_user_id" => "opaque_id",
+          "user_id" => "1234",
+          "role" => "broadcaster"
+        }
+        |> Joken.token()
+        |> Joken.with_signer(Joken.hs256(@secret_key))
+        |> Joken.sign()
+        |> Joken.get_compact()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> Twitch.check_jwt(%{})
+        |> Twitch.require_broadcaster(%{})
+
+      assert %Plug.Conn{state: :unset} = conn
+    end
   end
 end
