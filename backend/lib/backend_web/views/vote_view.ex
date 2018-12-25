@@ -10,6 +10,22 @@ defmodule BackendWeb.VoteView do
   end
 
   def render("vote.json", %{vote: vote}) do
-    %{id: vote.id, status: vote.status, ships: vote.ships}
+    %{id: vote.id, status: vote.status, ships: vote.ships, votes: []}
+    |> render_voted_ships(vote)
+  end
+
+  defp render_voted_ships(data, vote) do
+    if Ecto.assoc_loaded?(vote.votes) do
+      %{
+        data
+        | votes:
+            Enum.map(vote.votes, fn v -> v.ship_id end)
+            |> Enum.reduce(%{}, fn x, acc ->
+              Map.update(acc, x, 1, &(&1 + 1))
+            end)
+      }
+    else
+      data
+    end
   end
 end

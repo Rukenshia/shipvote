@@ -20,6 +20,9 @@ defmodule Backend.Application do
       ),
       Supervisor.child_spec({ConCache, [name: :vote_cache, ttl_check_interval: false]},
         id: :vote_cache
+      ),
+      Supervisor.child_spec({ConCache, [name: :rest_vote_cache, ttl_check_interval: false]},
+        id: :rest_vote_cache
       )
     ]
 

@@ -27,6 +27,8 @@ defmodule BackendWeb.Router do
     scope("/channels/:id") do
       pipe_through(:verify_jwt)
 
+      get("/", ChannelController, :show_public_info)
+
       get("/votes", VoteController, :index)
       get("/votes/:vote_id", VoteController, :show)
       post("/votes/:vote_id/submit", VoteController, :vote_for_ship)

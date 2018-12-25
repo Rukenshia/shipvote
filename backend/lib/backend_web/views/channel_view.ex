@@ -10,12 +10,26 @@ defmodule BackendWeb.ChannelView do
     %{data: render_one(channel, ChannelView, "channel.json")}
   end
 
+  def render("show.public.json", %{channel: channel}) do
+    %{data: render_one(channel, ChannelView, "channel.public.json")}
+  end
+
+  def render("channel.public.json", %{channel: channel}) do
+    %{
+      id: channel.id,
+      enable_rest_api: channel.enable_rest_api,
+      ships: []
+    }
+    |> render_ships(channel)
+  end
+
   def render("channel.json", %{channel: channel}) do
     %{
       id: channel.id,
       wows_username: channel.wows_username,
       wows_account_id: channel.wows_account_id,
       wows_realm: channel.wows_realm,
+      enable_rest_api: channel.enable_rest_api,
       ships: []
     }
     |> render_ships(channel)
