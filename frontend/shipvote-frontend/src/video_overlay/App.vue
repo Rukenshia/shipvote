@@ -125,6 +125,9 @@ window.App = {
               if (vote) {
                 if (!this.voting) {
                   this.voteStarted = true;
+                  setTimeout(() => {
+                    this.voteStarted = false;
+                  }, 5000);
                 }
                 this.voting = true;
 
