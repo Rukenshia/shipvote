@@ -4,29 +4,66 @@ defmodule BackendWeb.VoteController do
 
   alias Backend.Repo
   alias Backend.Stream.Vote
+  alias Backend.Stream.VotedShip
 
   import Ecto.Query, only: [from: 2]
 
-  def index(conn, %{id: channel_id, status: status}) do
+  ## TODO
+  ## * Improve caching, migrate to single cache and pick results
+  ## * Changeset error handling for duplicate vote
+
+  def index(conn, %{"id" => channel_id, "status" => status})
+      when status == "open" or status == "closed" do
+    votes =
+      ConCache.get_or_store(:rest_vote_cache, :index_status, fn ->
+        votes =
+          from(p in Backend.Stream.Vote,
+            where: p.channel_id == ^channel_id and p.status == ^status
+          )
+          |> Repo.all()
+          |> Repo.preload(:votes)
+
+        %ConCache.Item{value: votes, ttl: :timer.minutes(2)}
+      end)
+
+    conn
+    |> render("votes.json", %{votes: votes})
   end
 
   def index(conn, %{"id" => channel_id}) do
-    # TODO: cache
     votes =
-      from(p in Backend.Stream.Vote, where: p.channel_id == ^channel_id)
-      |> Repo.all()
+      ConCache.get_or_store(:rest_vote_cache, :index, fn ->
+        votes =
+          from(p in Backend.Stream.Vote,
+            where: p.channel_id == ^channel_id
+          )
+          |> Repo.all()
+          |> Repo.preload(:votes)
+
+        %ConCache.Item{value: votes, ttl: :timer.minutes(2)}
+      end)
 
     conn
     |> render("votes.json", %{votes: votes})
   end
 
   def show(conn, %{"id" => channel_id, "vote_id" => vote_id}) do
-    # TODO: cache
     vote_id = String.to_integer(vote_id)
 
-    case Repo.get(Vote, vote_id) do
-      v -> conn |> render("show.json", %{vote: v})
-      nil -> conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
+    vote =
+      ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
+        case Repo.get(Vote, vote_id) do
+          v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.minutes(1)}
+          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
+        end
+      end)
+
+    case vote do
+      vote ->
+        conn |> render("show.json", %{vote: vote})
+
+      :not_found ->
+        conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
     end
   end
 
@@ -37,6 +74,10 @@ defmodule BackendWeb.VoteController do
          |> Vote.changeset(attrs)
          |> Repo.insert() do
       {:ok, vote} ->
+        ConCache.delete(:rest_vote_cache, vote.id)
+        ConCache.delete(:rest_vote_cache, :index_status)
+        ConCache.delete(:rest_vote_cache, :index)
+
         conn
         |> render("show.json", %{vote: vote})
 
@@ -57,6 +98,10 @@ defmodule BackendWeb.VoteController do
            |> Vote.status_changeset(%{"status" => status})
            |> Repo.update() do
         {:ok, vote} ->
+          ConCache.delete(:rest_vote_cache, vote.id)
+          ConCache.delete(:rest_vote_cache, :index_status)
+          ConCache.delete(:rest_vote_cache, :index)
+
           conn
           |> render("show.json", %{vote: vote})
 
@@ -76,8 +121,6 @@ defmodule BackendWeb.VoteController do
   end
 
   def vote_for_ship(conn, %{"vote_id" => vote_id, "ship_id" => ship_id}) do
-    # TODO: disable duplicates
-    # TODO: clear cache
     vote_id = String.to_integer(vote_id)
 
     with %Vote{} = vote <- Repo.get(Vote, vote_id) do
@@ -89,6 +132,10 @@ defmodule BackendWeb.VoteController do
            })
            |> Repo.insert() do
         {:ok, _} ->
+          ConCache.delete(:rest_vote_cache, vote.id)
+          ConCache.delete(:rest_vote_cache, :index_status)
+          ConCache.delete(:rest_vote_cache, :index)
+
           conn
           |> json(%{ok: true})
 

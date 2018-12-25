@@ -72,6 +72,19 @@ defmodule BackendWeb.ChannelController do
     end
   end
 
+  def show_public_info(conn, %{"id" => id}) do
+    with %Backend.Stream.Channel{} = channel <-
+           Stream.get_channel(id)
+           |> Repo.preload(:ships) do
+      render(conn, "show.public.json", channel: channel |> load_ships())
+    else
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{ok: false, message: "Not found"})
+    end
+  end
+
   def update(conn, %{"id" => id, "channel" => channel_params}) do
     channel = Stream.get_channel!(id)
 
