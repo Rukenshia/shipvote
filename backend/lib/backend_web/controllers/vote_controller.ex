@@ -75,8 +75,8 @@ defmodule BackendWeb.VoteController do
          |> Repo.insert() do
       {:ok, vote} ->
         ConCache.delete(:rest_vote_cache, vote.id)
-        ConCache.delete(:rest_vote_cache, :index_status)
-        ConCache.delete(:rest_vote_cache, :index)
+        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}")
+        ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
         conn
         |> render("show.json", %{vote: vote})
@@ -99,8 +99,8 @@ defmodule BackendWeb.VoteController do
            |> Repo.update() do
         {:ok, vote} ->
           ConCache.delete(:rest_vote_cache, vote.id)
-          ConCache.delete(:rest_vote_cache, :index_status)
-          ConCache.delete(:rest_vote_cache, :index)
+          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}")
+          ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
           conn
           |> render("show.json", %{vote: vote})
