@@ -2,6 +2,7 @@ image: alpine/edge
 packages:
   - git
   - nodejs
+  - nodejs-npm
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
