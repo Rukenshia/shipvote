@@ -53,13 +53,13 @@ defmodule BackendWeb.VoteController do
     vote =
       ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
         case Repo.get(Vote, vote_id) do
-          v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.minutes(1)}
+          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.minutes(1)}
           nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
         end
       end)
 
     case vote do
-      vote ->
+      %Vote{} = vote ->
         conn |> render("show.json", %{vote: vote})
 
       :not_found ->
