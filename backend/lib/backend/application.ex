@@ -15,14 +15,21 @@ defmodule Backend.Application do
       # Start your own worker by calling: Backend.Worker.start_link(arg1, arg2, arg3)
       # worker(Backend.Worker, [arg1, arg2, arg3]),
       worker(Backend.Wows.BackgroundRefresh, []),
-      Supervisor.child_spec({ConCache, [name: :ships_cache, ttl_check_interval: false]},
+      Supervisor.child_spec(
+        {ConCache, [name: :ships_cache, ttl_check_interval: 500, global_ttl: 5000]},
         id: :ships_cache
       ),
-      Supervisor.child_spec({ConCache, [name: :vote_cache, ttl_check_interval: false]},
+      Supervisor.child_spec(
+        {ConCache, [name: :vote_cache, ttl_check_interval: 500, global_ttl: 5000]},
         id: :vote_cache
       ),
-      Supervisor.child_spec({ConCache, [name: :rest_vote_cache, ttl_check_interval: false]},
+      Supervisor.child_spec(
+        {ConCache, [name: :rest_vote_cache, ttl_check_interval: 500, global_ttl: 5000]},
         id: :rest_vote_cache
+      ),
+      Supervisor.child_spec(
+        {ConCache, [name: :channel_cache, ttl_check_interval: 500, global_ttl: 5000]},
+        id: :channel_cache
       )
     ]
 

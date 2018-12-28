@@ -73,15 +73,23 @@ defmodule BackendWeb.ChannelController do
   end
 
   def show_public_info(conn, %{"id" => id}) do
-    with %Backend.Stream.Channel{} = channel <-
-           Stream.get_channel(id)
-           |> Repo.preload(:ships) do
-      render(conn, "show.public.json", channel: channel |> load_ships())
-    else
-      nil ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{ok: false, message: "Not found"})
+    channel =
+      ConCache.get_or_store(:channel_cache, id, fn ->
+        case Repo.get(Channel, id) do
+          %Channel{} = c ->
+            %ConCache.Item{value: c |> Repo.preload(:ships), ttl: :timer.minutes(1)}
+
+          nil ->
+            %ConCache.Item{value: :not_found, ttl: :timer.seconds(10)}
+        end
+      end)
+
+    case channel do
+      %Channel{} = channel ->
+        conn |> render("show.public.json", %{channel: channel})
+
+      :not_found ->
+        conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
     end
   end
 
@@ -97,6 +105,7 @@ defmodule BackendWeb.ChannelController do
          {:ok, %Channel{} = channel} <-
            Stream.update_channel(channel, Map.delete(channel_params, "wows_account_id")),
          {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
+      ConCache.delete(:channel_cache, id)
       render(conn, "show.json", channel: channel |> load_ships())
     else
       {:error, "Player not found"} ->
