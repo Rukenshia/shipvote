@@ -2721,7 +2721,7 @@ var content = __webpack_require__(42);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(3)("12ff2397", content, true, {});
+var update = __webpack_require__(3)("767e0950", content, true, {});
 
 /***/ }),
 /* 42 */

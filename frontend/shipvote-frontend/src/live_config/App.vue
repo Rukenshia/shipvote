@@ -286,16 +286,19 @@ window.App = {
           this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
 
           const updateOpenVote = () => {
-            this.api.getOpenVote().then(vote => {
-              this.vote = vote;
+            this.api
+              .getOpenVote()
+              .then(vote => {
+                this.vote = vote;
 
-              this.stats.ship_votes = vote.votes;
+                this.stats.ship_votes = vote.votes;
 
-              const votes = Object.values(vote.votes);
+                const votes = Object.values(vote.votes);
 
-              this.stats.votes =
-                votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
-            }).catch(e => console.error(`loadChannelConfig: ${e}`))
+                this.stats.votes =
+                  votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
+              })
+              .catch(e => console.error(`loadChannelConfig: ${e}`))
               .then(() => {
                 setTimeout(() => updateOpenVote(), 5000);
               });
@@ -325,7 +328,11 @@ window.App = {
             });
 
           channel.on('status', data => {
-            this.voting = data.voting;
+            if (data.voting) {
+              this.vote = { status: 'open', id: 999999 };
+            } else {
+              this.vote = undefined;
+            }
 
             if (data.votes) {
               const values = Object.values(data.votes);
