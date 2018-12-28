@@ -15,7 +15,7 @@ defmodule BackendWeb.VoteController do
   def index(conn, %{"id" => channel_id, "status" => status})
       when status == "open" or status == "closed" do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "index_status_#{id}", fn ->
+      ConCache.get_or_store(:rest_vote_cache, "index_status_#{channel_id}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.channel_id == ^channel_id and p.status == ^status
@@ -32,7 +32,7 @@ defmodule BackendWeb.VoteController do
 
   def index(conn, %{"id" => channel_id}) do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "index_#{id}", fn ->
+      ConCache.get_or_store(:rest_vote_cache, "index_#{channel_id}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.channel_id == ^channel_id
