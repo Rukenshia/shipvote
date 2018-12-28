@@ -118,7 +118,7 @@ window.App = {
             }).catch(e => console.error(`updateVotes: ${e}`))
               .then(() => {
                 if (this.voting) {
-                  setTimeout(() => updateVotes(voteId), 1000);
+                  setTimeout(() => updateVotes(voteId), 2500);
                 }
               });
           };
@@ -151,7 +151,7 @@ window.App = {
             }).catch(e => console.error(`checkOpenVote: ${e}`))
               .then(() => {
                 if (!this.voting) {
-                  setTimeout(() => checkOpenVote(), 2000);
+                  setTimeout(() => checkOpenVote(), 5000);
                 }
               });
           };
