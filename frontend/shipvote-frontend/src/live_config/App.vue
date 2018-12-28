@@ -295,9 +295,10 @@ window.App = {
 
               this.stats.votes =
                 votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
-            });
-
-            setTimeout(() => updateOpenVote(), 5000);
+            }).catch(e => console.error(`loadChannelConfig: ${e}`))
+              .then(() => {
+                setTimeout(() => updateOpenVote(), 5000);
+              });
           };
 
           updateOpenVote();
