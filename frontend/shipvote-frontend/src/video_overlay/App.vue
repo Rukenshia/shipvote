@@ -115,8 +115,10 @@ window.App = {
 
               this.vote = vote;
               this.totalVotes = totalVotes;
-              setTimeout(() => updateVotes(voteId), 1000);
-            });
+            }).catch(e => console.error(`updateVotes: ${e}`))
+              .then(() => {
+                setTimeout(() => updateVotes(voteId), 1000);
+              });
           };
 
           const checkOpenVote = () => {
@@ -145,10 +147,11 @@ window.App = {
                 this.selecting = false;
                 this.totalVotes = 0;
                 this.ships = [];
-
-                setTimeout(() => checkOpenVote(), 2000);
               }
-            });
+            }).catch(e => console.error(`checkOpenVote: ${e}`))
+              .then(() => {
+                setTimeout(() => checkOpenVote(voteId), 2000);
+              });
           };
 
           checkOpenVote();
