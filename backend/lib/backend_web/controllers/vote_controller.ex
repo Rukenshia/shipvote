@@ -90,7 +90,7 @@ defmodule BackendWeb.VoteController do
     end
   end
 
-  def set_status(conn, %{"vote_id" => vote_id, "status" => status}) do
+  def set_status(conn, %{"id" => channel_id, "vote_id" => vote_id, "status" => status}) do
     vote_id = String.to_integer(vote_id)
 
     with %Vote{} = vote <- Repo.get(Vote, vote_id) do
