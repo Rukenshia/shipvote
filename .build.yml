@@ -21,7 +21,7 @@ tasks:
 
   - setup: |
       sudo service postgresql start
-      createdb example
+      sudo su - postgres -c 'createdb shipvote'
   - test: |
       cd shipvote/backend
  
