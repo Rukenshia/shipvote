@@ -3956,6 +3956,9 @@ window.App = {
 
               _this.vote = vote;
               _this.totalVotes = totalVotes;
+            }).catch(function (e) {
+              return console.error('updateVotes: ' + e);
+            }).then(function () {
               setTimeout(function () {
                 return updateVotes(voteId);
               }, 1000);
@@ -3965,13 +3968,11 @@ window.App = {
           var _checkOpenVote = function _checkOpenVote() {
             _this.api.getOpenVote().then(function (vote) {
               _this.vote = vote;
-              if (vote) {
-                if (!_this.voting) {
-                  _this.voteStarted = true;
-                  setTimeout(function () {
-                    _this.voteStarted = false;
-                  }, 5000);
-                }
+              if (vote && !_this.voting) {
+                _this.voteStarted = true;
+                setTimeout(function () {
+                  _this.voteStarted = false;
+                }, 5000);
                 _this.voting = true;
 
                 // Get ships
@@ -3990,7 +3991,11 @@ window.App = {
                 _this.selecting = false;
                 _this.totalVotes = 0;
                 _this.ships = [];
-
+              }
+            }).catch(function (e) {
+              return console.error('checkOpenVote: ' + e);
+            }).then(function () {
+              if (!_this.voting) {
                 setTimeout(function () {
                   return _checkOpenVote();
                 }, 2000);
@@ -4258,7 +4263,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(36);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_17faa800_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9b1a65cc_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(63);
 function injectStyle (ssrContext) {
   __webpack_require__(49)
 }
@@ -4278,7 +4283,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_17faa800_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9b1a65cc_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4299,7 +4304,7 @@ var content = __webpack_require__(50);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(3)("67a8c2fa", content, true, {});
+var update = __webpack_require__(3)("0e088963", content, true, {});
 
 /***/ }),
 /* 50 */

@@ -124,13 +124,11 @@ window.App = {
           const checkOpenVote = () => {
             this.api.getOpenVote().then(vote => {
               this.vote = vote;
-              if (vote) {
-                if (!this.voting) {
-                  this.voteStarted = true;
-                  setTimeout(() => {
-                    this.voteStarted = false;
-                  }, 5000);
-                }
+              if (vote && !this.voting) {
+                this.voteStarted = true;
+                setTimeout(() => {
+                  this.voteStarted = false;
+                }, 5000);
                 this.voting = true;
 
                 // Get ships
@@ -150,7 +148,9 @@ window.App = {
               }
             }).catch(e => console.error(`checkOpenVote: ${e}`))
               .then(() => {
-                setTimeout(() => checkOpenVote(voteId), 2000);
+                if (!this.voting) {
+                  setTimeout(() => checkOpenVote(), 2000);
+                }
               });
           };
 
