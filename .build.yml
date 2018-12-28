@@ -10,6 +10,7 @@ sources:
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
+  - c7e549a9-3b06-449d-ab54-51c492c28ca2
 environment:
   MIX_ENV: test
 tasks:
@@ -31,7 +32,7 @@ tasks:
       mix test --cover
   - compile: |
       cd shipvote/backend
-      touch config/prod.secret.exs
+      mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
 triggers:
   - action: email
