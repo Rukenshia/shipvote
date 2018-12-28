@@ -117,7 +117,9 @@ window.App = {
               this.totalVotes = totalVotes;
             }).catch(e => console.error(`updateVotes: ${e}`))
               .then(() => {
-                setTimeout(() => updateVotes(voteId), 1000);
+                if (this.voting) {
+                  setTimeout(() => updateVotes(voteId), 1000);
+                }
               });
           };
 

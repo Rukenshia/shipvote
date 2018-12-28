@@ -127,7 +127,7 @@ defmodule BackendWeb.VoteController do
       case %VotedShip{}
            |> VotedShip.changeset(%{
              "vote_id" => vote_id,
-             "user_id" => conn.assigns[:user_data][:user_id],
+             "user_id" => conn.assigns[:user_data][:opaque_user_id],
              "ship_id" => ship_id
            })
            |> Repo.insert() do
