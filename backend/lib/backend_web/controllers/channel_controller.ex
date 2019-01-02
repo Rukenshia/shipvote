@@ -77,10 +77,10 @@ defmodule BackendWeb.ChannelController do
       ConCache.get_or_store(:channel_cache, id, fn ->
         case Repo.get(Channel, id) do
           %Channel{} = c ->
-            %ConCache.Item{value: c |> Repo.preload(:ships), ttl: :timer.minutes(1)}
+            %ConCache.Item{value: c |> Repo.preload(:ships), ttl: :timer.seconds(5)}
 
           nil ->
-            %ConCache.Item{value: :not_found, ttl: :timer.seconds(10)}
+            %ConCache.Item{value: :not_found, ttl: :timer.seconds(5)}
         end
       end)
 
