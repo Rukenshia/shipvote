@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :backend, BackendWeb.Endpoint,
   load_from_system_env: true,
-  url: [host: "shipvote.in.fkn.space", port: 80],
+  url: [host: "0.0.0.0", port: 4000],
   check_origin: ["//*.ext-twitch.tv", "//localhost.rig.twitch.tv"],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
