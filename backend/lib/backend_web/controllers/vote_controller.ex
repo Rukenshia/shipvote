@@ -23,7 +23,7 @@ defmodule BackendWeb.VoteController do
           |> Repo.all()
           |> Repo.preload(:votes)
 
-        %ConCache.Item{value: votes, ttl: :timer.seconds(3)}
+        %ConCache.Item{value: votes, ttl: :timer.seconds(5)}
       end)
 
     conn
@@ -40,7 +40,7 @@ defmodule BackendWeb.VoteController do
           |> Repo.all()
           |> Repo.preload(:votes)
 
-        %ConCache.Item{value: votes, ttl: :timer.seconds(3)}
+        %ConCache.Item{value: votes, ttl: :timer.seconds(2)}
       end)
 
     conn
