@@ -14,7 +14,7 @@ defmodule BackendWeb.WarshipController do
   defp cache_warships() do
     ConCache.get_or_store(:ships_cache, :all_warships, fn ->
       Logger.info("cache_warships.all_warships.store")
-      %ConCache.Item{value: Wows.list_warships(), ttl: :timer.seconds(5)}
+      %ConCache.Item{value: Wows.list_warships(), ttl: :timer.seconds(2)}
     end)
   end
 
@@ -29,7 +29,7 @@ defmodule BackendWeb.WarshipController do
         from(s in Warship, where: s.id in ^ids)
         |> Repo.all()
 
-      %ConCache.Item{value: warships, ttl: :timer.seconds(5)}
+      %ConCache.Item{value: warships, ttl: :timer.seconds(2)}
     end)
   end
 
