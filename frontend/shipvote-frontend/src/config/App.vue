@@ -55,12 +55,6 @@
                 <option>ru</option>
               </mdc-select>
             </mdc-layout-cell>
-            <mdc-layout-cell :span="12">
-              <mdc-checkbox
-                label="Enable REST API (experimental)"
-                v-model="config.enable_rest_api"
-              />
-            </mdc-layout-cell>
             <mdc-layout-cell :span="12" v-if="configured">
               <mdc-button raised @click="updateInfo" :disabled="saving">Save</mdc-button>
               <mdc-button outlined @click="updateInfo" :disabled="saving">Refresh ships</mdc-button>
@@ -163,7 +157,6 @@ window.App = {
               wows_username: '',
               wows_realm: 'eu',
               ships: [],
-              enable_rest_api: false
             };
           } else {
             this.loadingError = true;

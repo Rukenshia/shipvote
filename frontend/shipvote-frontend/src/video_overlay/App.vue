@@ -47,9 +47,6 @@ window.App = {
       // Active vote
       vote: undefined,
 
-      // Channel features
-      enableRestApi: false,
-
       // Max window height
       maxHeight: 200,
 
@@ -89,171 +86,71 @@ window.App = {
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
 
       this.api.getChannelInfo().then(info => {
-        this.enableRestApi = info.enable_rest_api;
+        const updateVotes = voteId => {
+          this.api.getVote(voteId).then(vote => {
+            if (!vote || vote.status === 'closed') {
+              checkOpenVote();
+              return;
+            }
 
-        if (this.enableRestApi) {
-          const updateVotes = voteId => {
-            this.api.getVote(voteId).then(vote => {
-              if (!vote || vote.status === 'closed') {
-                checkOpenVote();
-                return;
-              }
+            let totalVotes = 0;
+            Object.keys(vote.votes).forEach(shipId => {
+              totalVotes += vote.votes[shipId];
+              shipId = parseInt(shipId, 10);
+              const shipIdx = this.ships.findIndex(s => s.id === shipId);
 
-              let totalVotes = 0;
-              Object.keys(vote.votes).forEach(shipId => {
-                totalVotes += vote.votes[shipId];
-                shipId = parseInt(shipId, 10);
-                const shipIdx = this.ships.findIndex(s => s.id === shipId);
-
-                if (shipIdx !== -1) {
-                  Vue.set(this.ships, shipIdx, {
-                    ...this.ships[shipIdx],
-                    votes: vote.votes[shipId]
-                  });
-                }
-              });
-
-              this.vote = vote;
-              this.totalVotes = totalVotes;
-            }).catch(e => console.error(`updateVotes: ${e}`))
-              .then(() => {
-                if (this.voting) {
-                  setTimeout(() => updateVotes(voteId), 2500);
-                }
-              });
-          };
-
-          const checkOpenVote = () => {
-            this.api.getOpenVote().then(vote => {
-              this.vote = vote;
-              if (vote && !this.voting) {
-                this.voteStarted = true;
-                setTimeout(() => {
-                  this.voteStarted = false;
-                }, 5000);
-                this.voting = true;
-
-                // Get ships
-                // Update votes in an interval
-                // Terminate interval
-                this.api.getWarships(vote.ships).then(ships => {
-                  this.ships = ships.map(s => ({ ...s, votes: 0 }));
-                  updateVotes(vote.id);
+              if (shipIdx !== -1) {
+                Vue.set(this.ships, shipIdx, {
+                  ...this.ships[shipIdx],
+                  votes: vote.votes[shipId]
                 });
-              } else {
-                this.voting = false;
-                this.noteDismissed = false;
-                this.voted = false;
-                this.selecting = false;
-                this.totalVotes = 0;
-                this.ships = [];
               }
-            }).catch(e => console.error(`checkOpenVote: ${e}`))
-              .then(() => {
-                if (!this.voting) {
-                  setTimeout(() => checkOpenVote(), 5000);
-                }
-              });
-          };
-
-          checkOpenVote();
-        } else {
-          if (this.socket) {
-            this.socket.disconnect();
-          }
-
-          this.socket = new Socket(`${BASE_WS_URL}/socket`, {
-            params: { token: authData.token }
-          });
-          this.socket.connect();
-          // Now that you are connected, you can join channels with a topic:
-          const channel = (this.channel = this.socket.channel(
-            `stream:${authData.channelId}`,
-            {}
-          ));
-          channel
-            .join()
-            .receive('ok', resp => {
-              this.connected = true;
-
-              channel.push('get_status');
-            })
-            .receive('error', resp => {
-              console.log('Unable to join', resp);
             });
 
-          channel.on('status', data => {
-            this.voting = data.voting;
-            this.voteStarted = data.voting;
+            this.vote = vote;
+            this.totalVotes = totalVotes;
+          }).catch(e => console.error(`updateVotes: ${e}`))
+            .then(() => {
+              if (this.voting) {
+                setTimeout(() => updateVotes(voteId), 2500);
+              }
+            });
+        };
 
-            if (this.voting) {
-              get(`${BASE_URL}/api/warships`, {
-                params: { ids: data.ships },
-                headers: { 'Content-Type': 'application/json' }
-              }).then(res => {
-                let ships = res.data['data'];
-
-                if (data.ships) {
-                  ships = ships.filter(
-                    s => data['ships'].find(v => v === s.id) !== undefined
-                  );
-                }
-
-                if (data.votes) {
-                  ships = ships.map(s => {
-                    if (typeof data['votes'][s.id] === 'undefined') {
-                      return { ...s, votes: 0 };
-                    }
-                    return { ...s, votes: data['votes'][s.id] };
-                  });
-
-                  this.totalVotes = Object.values(data['votes']).reduce(
-                    (p, c) => p + c,
-                    0
-                  );
-                } else {
-                  ships = ships.map(s => {
-                    return { ...s, votes: 0 };
-                  });
-                }
-
-                // Sort the incoming ships alphabetically
-                this.ships = ships.sort((a, b) => {
-                  if (a.name < b.name) {
-                    return -1;
-                  } else if (a.name > b.name) {
-                    return 1;
-                  }
-                  return 0;
-                });
-
-                this.ships.forEach((s, i) => {
-                  s.order = i;
-                });
-              });
-              this.noteDismissed = false;
-
+        const checkOpenVote = () => {
+          this.api.getOpenVote().then(vote => {
+            this.vote = vote;
+            if (vote && !this.voting) {
+              this.voteStarted = true;
               setTimeout(() => {
                 this.voteStarted = false;
               }, 5000);
+              this.voting = true;
+
+              // Get ships
+              // Update votes in an interval
+              // Terminate interval
+              this.api.getWarships(vote.ships).then(ships => {
+                this.ships = ships.map(s => ({ ...s, votes: 0 }));
+                updateVotes(vote.id);
+              });
             } else {
+              this.voting = false;
+              this.noteDismissed = false;
               this.voted = false;
               this.selecting = false;
               this.totalVotes = 0;
               this.ships = [];
             }
-          });
-
-          channel.on('new_vote', data => {
-            const ship = this.ships.findIndex(s => s.id === data['ship_id']);
-
-            Vue.set(this.ships, ship, {
-              ...this.ships[ship],
-              votes: this.ships[ship].votes + 1
+          }).catch(e => console.error(`checkOpenVote: ${e}`))
+            .then(() => {
+              if (!this.voting) {
+                setTimeout(() => checkOpenVote(), 5000);
+              }
             });
-            this.totalVotes++;
-          });
-        }
+        };
+
+        checkOpenVote();
       });
     });
   },
@@ -266,13 +163,7 @@ window.App = {
       this.voted = true;
       this.selecting = false;
 
-      if (this.enableRestApi) {
-        this.api.voteForShip(this.vote.id, ship.id);
-      } else {
-        if (this.channel) {
-          this.channel.push('vote', { ship_id: ship.id });
-        }
-      }
+      this.api.voteForShip(this.vote.id, ship.id);
     }
   }
 };
