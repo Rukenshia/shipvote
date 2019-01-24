@@ -10,7 +10,7 @@ defmodule Backend.StreamTest do
       id: 42,
       wows_username: "username",
       wows_realm: "eu",
-      enable_rest_api: false,
+      enable_rest_api: true,
       wows_account_id: 4711
     }
     @update_attrs %{
