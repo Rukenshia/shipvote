@@ -1,13 +1,5 @@
 <template>
   <mdc-layout-grid :class="theme">
-    <mdc-layout-cell :span="12" v-if="enableRestApi">
-      <mdc-card class="mdc-card--flat">
-        <mdc-card-text style="padding-left: 16px">
-          <mdc-body>You are using an experimental API. If you encounter any issues please contact me and disable the feature in your config.</mdc-body>
-        </mdc-card-text>
-      </mdc-card>
-    </mdc-layout-cell>
-
     <mdc-layout-cell :span="12" v-if="error">
       <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
     </mdc-layout-cell>
@@ -222,7 +214,6 @@ window.App = {
       channelId: undefined,
       token: '',
       theme: 'light',
-      enableRestApi: false,
       api: undefined,
       vote: undefined,
 
@@ -282,83 +273,28 @@ window.App = {
       this.token = data.token;
 
       this.loadChannelConfig().then(() => {
-        if (this.enableRestApi) {
-          this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
+        this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
 
-          const updateOpenVote = () => {
-            this.api
-              .getOpenVote()
-              .then(vote => {
-                this.vote = vote;
+        const updateOpenVote = () => {
+          this.api
+            .getOpenVote()
+            .then(vote => {
+              this.vote = vote;
 
-                this.stats.ship_votes = vote.votes;
+              this.stats.ship_votes = vote.votes;
 
-                const votes = Object.values(vote.votes);
+              const votes = Object.values(vote.votes);
 
-                this.stats.votes =
-                  votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
-              })
-              .catch(e => console.error(`loadChannelConfig: ${e}`))
-              .then(() => {
-                setTimeout(() => updateOpenVote(), 5000);
-              });
-          };
-
-          updateOpenVote();
-        } else {
-          this.socket = new Socket(`${BASE_WS_URL}/socket`, {
-            params: { token: this.token }
-          });
-          this.socket.connect();
-          // Now that you are connected, you can join channels with a topic:
-          let channel = (this.channel = this.socket.channel(
-            `stream:${data.channelId}`,
-            {}
-          ));
-          channel
-            .join()
-            .receive('ok', resp => {
-              this.connected = true;
-              this.connecting = false;
-
-              channel.push('get_status');
+              this.stats.votes =
+                votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
             })
-            .receive('error', resp => {
-              this.connecting = false;
+            .catch(e => console.error(`loadChannelConfig: ${e}`))
+            .then(() => {
+              setTimeout(() => updateOpenVote(), 5000);
             });
+        };
 
-          channel.on('status', data => {
-            if (data.voting) {
-              this.vote = { status: 'open', id: 999999 };
-            } else {
-              this.vote = undefined;
-            }
-
-            if (data.votes) {
-              const values = Object.values(data.votes);
-              if (values.length === 0) {
-                this.stats.votes = 0;
-              } else {
-                this.stats.votes = values.reduce((p, c) => p + c);
-              }
-              this.stats.ship_votes = data.votes;
-              this.$forceUpdate();
-            }
-          });
-
-          channel.on('new_vote', data => {
-            if (typeof this.stats.ship_votes[data['ship_id']] === 'undefined') {
-              this.stats.ship_votes[data['ship_id']] = 0;
-            }
-            this.stats.ship_votes = {
-              ...this.stats.ship_votes,
-              [data['ship_id']]: this.stats.ship_votes[data['ship_id']] + 1
-            };
-
-            this.stats.votes++;
-            this.$forceUpdate();
-          });
-        }
+        updateOpenVote();
       });
     });
   },
@@ -448,7 +384,6 @@ window.App = {
       })
         .then(res => {
           this.ships = res.data['data']['ships'];
-          this.enableRestApi = res.data['data']['enable_rest_api'];
           this.configured = true;
         })
         .catch(e => {
@@ -464,30 +399,16 @@ window.App = {
         });
     },
     openVote() {
-      if (this.enableRestApi) {
-        this.stats.votes = 0;
-        this.stats.ship_votes = {};
-        this.api.openVote(this.filteredShips).then(vote => {
-          this.vote = vote;
-        });
-      } else {
-        if (this.channel) {
-          this.channel.push('open_vote', {
-            ships: this.filteredShips
-          });
-        }
-      }
+      this.stats.votes = 0;
+      this.stats.ship_votes = {};
+      this.api.openVote(this.filteredShips).then(vote => {
+        this.vote = vote;
+      });
     },
     closeVote() {
-      if (this.enableRestApi) {
-        this.api.closeVote(this.vote.id).then(vote => {
-          this.vote = vote;
-        });
-      } else {
-        if (this.channel) {
-          this.channel.push('close_vote');
-        }
-      }
+      this.api.closeVote(this.vote.id).then(vote => {
+        this.vote = vote;
+      });
     }
   }
 };
