@@ -13,7 +13,7 @@ defmodule BackendWeb.ChannelControllerTest do
     wows_username: "username",
     wows_realm: "eu",
     wows_account_id: "4711",
-    enable_rest_api: false
+    enable_rest_api: true
   }
   @update_attrs %{
     id: "1",
@@ -71,7 +71,7 @@ defmodule BackendWeb.ChannelControllerTest do
                  "wows_username" => "username",
                  "wows_realm" => "eu",
                  "wows_account_id" => 4711,
-                 "enable_rest_api" => false,
+                 "enable_rest_api" => true,
                  "ships" => []
                } == json_response(conn, 200)["data"]
       end
