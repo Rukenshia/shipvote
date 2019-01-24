@@ -1203,9 +1203,9 @@ module.exports = function listToStyles (parentId, list) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BASE_URL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return BASE_WS_URL; });
+/* unused harmony export BASE_WS_URL */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_js__ = __webpack_require__(12);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
 var BASE_URL = "https://shipvote.in.fkn.space";
 var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 // export const BASE_URL = 'http://localhost:4000';
@@ -3891,9 +3891,6 @@ window.App = {
       // Active vote
       vote: undefined,
 
-      // Channel features
-      enableRestApi: false,
-
       // Max window height
       maxHeight: 200,
 
@@ -3926,179 +3923,83 @@ window.App = {
       _this.maxHeight = parseInt(data['displayResolution'].slice(data['displayResolution'].indexOf('x') + 1), 10) - 160;
     });
     window.Twitch.ext.onAuthorized(function (authData) {
-      _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["c" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], authData.token, authData.channelId);
+      _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], authData.token, authData.channelId);
 
       _this.api.getChannelInfo().then(function (info) {
-        _this.enableRestApi = info.enable_rest_api;
+        var updateVotes = function updateVotes(voteId) {
+          _this.api.getVote(voteId).then(function (vote) {
+            if (!vote || vote.status === 'closed') {
+              checkOpenVote();
+              return;
+            }
 
-        if (_this.enableRestApi) {
-          var updateVotes = function updateVotes(voteId) {
-            _this.api.getVote(voteId).then(function (vote) {
-              if (!vote || vote.status === 'closed') {
-                _checkOpenVote();
-                return;
-              }
-
-              var totalVotes = 0;
-              Object.keys(vote.votes).forEach(function (shipId) {
-                totalVotes += vote.votes[shipId];
-                shipId = parseInt(shipId, 10);
-                var shipIdx = _this.ships.findIndex(function (s) {
-                  return s.id === shipId;
-                });
-
-                if (shipIdx !== -1) {
-                  Vue.set(_this.ships, shipIdx, _extends({}, _this.ships[shipIdx], {
-                    votes: vote.votes[shipId]
-                  }));
-                }
+            var totalVotes = 0;
+            Object.keys(vote.votes).forEach(function (shipId) {
+              totalVotes += vote.votes[shipId];
+              shipId = parseInt(shipId, 10);
+              var shipIdx = _this.ships.findIndex(function (s) {
+                return s.id === shipId;
               });
 
-              _this.vote = vote;
-              _this.totalVotes = totalVotes;
-            }).catch(function (e) {
-              return console.error('updateVotes: ' + e);
-            }).then(function () {
-              if (_this.voting) {
-                setTimeout(function () {
-                  return updateVotes(voteId);
-                }, 2500);
+              if (shipIdx !== -1) {
+                Vue.set(_this.ships, shipIdx, _extends({}, _this.ships[shipIdx], {
+                  votes: vote.votes[shipId]
+                }));
               }
             });
-          };
 
-          var _checkOpenVote = function _checkOpenVote() {
-            _this.api.getOpenVote().then(function (vote) {
-              _this.vote = vote;
-              if (vote && !_this.voting) {
-                _this.voteStarted = true;
-                setTimeout(function () {
-                  _this.voteStarted = false;
-                }, 5000);
-                _this.voting = true;
-
-                // Get ships
-                // Update votes in an interval
-                // Terminate interval
-                _this.api.getWarships(vote.ships).then(function (ships) {
-                  _this.ships = ships.map(function (s) {
-                    return _extends({}, s, { votes: 0 });
-                  });
-                  updateVotes(vote.id);
-                });
-              } else {
-                _this.voting = false;
-                _this.noteDismissed = false;
-                _this.voted = false;
-                _this.selecting = false;
-                _this.totalVotes = 0;
-                _this.ships = [];
-              }
-            }).catch(function (e) {
-              return console.error('checkOpenVote: ' + e);
-            }).then(function () {
-              if (!_this.voting) {
-                setTimeout(function () {
-                  return _checkOpenVote();
-                }, 5000);
-              }
-            });
-          };
-
-          _checkOpenVote();
-        } else {
-          if (_this.socket) {
-            _this.socket.disconnect();
-          }
-
-          _this.socket = new __WEBPACK_IMPORTED_MODULE_0_phoenix__["Socket"](__WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* BASE_WS_URL */] + '/socket', {
-            params: { token: authData.token }
-          });
-          _this.socket.connect();
-          // Now that you are connected, you can join channels with a topic:
-          var channel = _this.channel = _this.socket.channel('stream:' + authData.channelId, {});
-          channel.join().receive('ok', function (resp) {
-            _this.connected = true;
-
-            channel.push('get_status');
-          }).receive('error', function (resp) {
-            console.log('Unable to join', resp);
-          });
-
-          channel.on('status', function (data) {
-            _this.voting = data.voting;
-            _this.voteStarted = data.voting;
-
+            _this.vote = vote;
+            _this.totalVotes = totalVotes;
+          }).catch(function (e) {
+            return console.error('updateVotes: ' + e);
+          }).then(function () {
             if (_this.voting) {
-              get(__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */] + '/api/warships', {
-                params: { ids: data.ships },
-                headers: { 'Content-Type': 'application/json' }
-              }).then(function (res) {
-                var ships = res.data['data'];
+              setTimeout(function () {
+                return updateVotes(voteId);
+              }, 2500);
+            }
+          });
+        };
 
-                if (data.ships) {
-                  ships = ships.filter(function (s) {
-                    return data['ships'].find(function (v) {
-                      return v === s.id;
-                    }) !== undefined;
-                  });
-                }
-
-                if (data.votes) {
-                  ships = ships.map(function (s) {
-                    if (typeof data['votes'][s.id] === 'undefined') {
-                      return _extends({}, s, { votes: 0 });
-                    }
-                    return _extends({}, s, { votes: data['votes'][s.id] });
-                  });
-
-                  _this.totalVotes = Object.values(data['votes']).reduce(function (p, c) {
-                    return p + c;
-                  }, 0);
-                } else {
-                  ships = ships.map(function (s) {
-                    return _extends({}, s, { votes: 0 });
-                  });
-                }
-
-                // Sort the incoming ships alphabetically
-                _this.ships = ships.sort(function (a, b) {
-                  if (a.name < b.name) {
-                    return -1;
-                  } else if (a.name > b.name) {
-                    return 1;
-                  }
-                  return 0;
-                });
-
-                _this.ships.forEach(function (s, i) {
-                  s.order = i;
-                });
-              });
-              _this.noteDismissed = false;
-
+        var checkOpenVote = function checkOpenVote() {
+          _this.api.getOpenVote().then(function (vote) {
+            _this.vote = vote;
+            if (vote && !_this.voting) {
+              _this.voteStarted = true;
               setTimeout(function () {
                 _this.voteStarted = false;
               }, 5000);
+              _this.voting = true;
+
+              // Get ships
+              // Update votes in an interval
+              // Terminate interval
+              _this.api.getWarships(vote.ships).then(function (ships) {
+                _this.ships = ships.map(function (s) {
+                  return _extends({}, s, { votes: 0 });
+                });
+                updateVotes(vote.id);
+              });
             } else {
+              _this.voting = false;
+              _this.noteDismissed = false;
               _this.voted = false;
               _this.selecting = false;
               _this.totalVotes = 0;
               _this.ships = [];
             }
+          }).catch(function (e) {
+            return console.error('checkOpenVote: ' + e);
+          }).then(function () {
+            if (!_this.voting) {
+              setTimeout(function () {
+                return checkOpenVote();
+              }, 5000);
+            }
           });
+        };
 
-          channel.on('new_vote', function (data) {
-            var ship = _this.ships.findIndex(function (s) {
-              return s.id === data['ship_id'];
-            });
-
-            Vue.set(_this.ships, ship, _extends({}, _this.ships[ship], {
-              votes: _this.ships[ship].votes + 1
-            }));
-            _this.totalVotes++;
-          });
-        }
+        checkOpenVote();
       });
     });
   },
@@ -4112,13 +4013,7 @@ window.App = {
       this.voted = true;
       this.selecting = false;
 
-      if (this.enableRestApi) {
-        this.api.voteForShip(this.vote.id, ship.id);
-      } else {
-        if (this.channel) {
-          this.channel.push('vote', { ship_id: ship.id });
-        }
-      }
+      this.api.voteForShip(this.vote.id, ship.id);
     }
   }
 };
@@ -4405,7 +4300,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(36);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dd3e5a44_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3f99acae_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(66);
 function injectStyle (ssrContext) {
   __webpack_require__(50)
 }
@@ -4425,7 +4320,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dd3e5a44_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3f99acae_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4446,7 +4341,7 @@ var content = __webpack_require__(51);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("f41b6b06", content, true, {});
+var update = __webpack_require__(4)("335f9842", content, true, {});
 
 /***/ }),
 /* 51 */

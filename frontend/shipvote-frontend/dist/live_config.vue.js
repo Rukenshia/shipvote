@@ -1203,9 +1203,9 @@ module.exports = function listToStyles (parentId, list) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return BASE_URL; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return BASE_WS_URL; });
+/* unused harmony export BASE_WS_URL */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_js__ = __webpack_require__(12);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
 var BASE_URL = "https://shipvote.in.fkn.space";
 var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 // export const BASE_URL = 'http://localhost:4000';
@@ -3839,16 +3839,6 @@ var Timer = function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shipvote__ = __webpack_require__(11);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -4065,7 +4055,6 @@ window.App = {
       channelId: undefined,
       token: '',
       theme: 'light',
-      enableRestApi: false,
       api: undefined,
       vote: undefined,
 
@@ -4127,77 +4116,29 @@ window.App = {
       _this.token = data.token;
 
       _this.loadChannelConfig().then(function () {
-        if (_this.enableRestApi) {
-          _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["c" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], _this.token, _this.channelId);
+        _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], _this.token, _this.channelId);
 
-          var updateOpenVote = function updateOpenVote() {
-            _this.api.getOpenVote().then(function (vote) {
-              _this.vote = vote;
+        var updateOpenVote = function updateOpenVote() {
+          _this.api.getOpenVote().then(function (vote) {
+            _this.vote = vote;
 
-              _this.stats.ship_votes = vote.votes;
+            _this.stats.ship_votes = vote.votes;
 
-              var votes = Object.values(vote.votes);
+            var votes = Object.values(vote.votes);
 
-              _this.stats.votes = votes.length > 0 ? votes.reduce(function (p, v) {
-                return p + v;
-              }) : 0;
-            }).catch(function (e) {
-              return console.error('loadChannelConfig: ' + e);
-            }).then(function () {
-              setTimeout(function () {
-                return updateOpenVote();
-              }, 5000);
-            });
-          };
-
-          updateOpenVote();
-        } else {
-          _this.socket = new __WEBPACK_IMPORTED_MODULE_0_phoenix__["Socket"](__WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* BASE_WS_URL */] + '/socket', {
-            params: { token: _this.token }
+            _this.stats.votes = votes.length > 0 ? votes.reduce(function (p, v) {
+              return p + v;
+            }) : 0;
+          }).catch(function (e) {
+            return console.error('loadChannelConfig: ' + e);
+          }).then(function () {
+            setTimeout(function () {
+              return updateOpenVote();
+            }, 5000);
           });
-          _this.socket.connect();
-          // Now that you are connected, you can join channels with a topic:
-          var channel = _this.channel = _this.socket.channel('stream:' + data.channelId, {});
-          channel.join().receive('ok', function (resp) {
-            _this.connected = true;
-            _this.connecting = false;
+        };
 
-            channel.push('get_status');
-          }).receive('error', function (resp) {
-            _this.connecting = false;
-          });
-
-          channel.on('status', function (data) {
-            if (data.voting) {
-              _this.vote = { status: 'open', id: 999999 };
-            } else {
-              _this.vote = undefined;
-            }
-
-            if (data.votes) {
-              var values = Object.values(data.votes);
-              if (values.length === 0) {
-                _this.stats.votes = 0;
-              } else {
-                _this.stats.votes = values.reduce(function (p, c) {
-                  return p + c;
-                });
-              }
-              _this.stats.ship_votes = data.votes;
-              _this.$forceUpdate();
-            }
-          });
-
-          channel.on('new_vote', function (data) {
-            if (typeof _this.stats.ship_votes[data['ship_id']] === 'undefined') {
-              _this.stats.ship_votes[data['ship_id']] = 0;
-            }
-            _this.stats.ship_votes = _extends({}, _this.stats.ship_votes, _defineProperty({}, data['ship_id'], _this.stats.ship_votes[data['ship_id']] + 1));
-
-            _this.stats.votes++;
-            _this.$forceUpdate();
-          });
-        }
+        updateOpenVote();
       });
     });
   },
@@ -4304,7 +4245,6 @@ window.App = {
         }
       }).then(function (res) {
         _this5.ships = res.data['data']['ships'];
-        _this5.enableRestApi = res.data['data']['enable_rest_api'];
         _this5.configured = true;
       }).catch(function (e) {
         if (e.response.status === 404) {
@@ -4320,32 +4260,18 @@ window.App = {
     openVote: function openVote() {
       var _this6 = this;
 
-      if (this.enableRestApi) {
-        this.stats.votes = 0;
-        this.stats.ship_votes = {};
-        this.api.openVote(this.filteredShips).then(function (vote) {
-          _this6.vote = vote;
-        });
-      } else {
-        if (this.channel) {
-          this.channel.push('open_vote', {
-            ships: this.filteredShips
-          });
-        }
-      }
+      this.stats.votes = 0;
+      this.stats.ship_votes = {};
+      this.api.openVote(this.filteredShips).then(function (vote) {
+        _this6.vote = vote;
+      });
     },
     closeVote: function closeVote() {
       var _this7 = this;
 
-      if (this.enableRestApi) {
-        this.api.closeVote(this.vote.id).then(function (vote) {
-          _this7.vote = vote;
-        });
-      } else {
-        if (this.channel) {
-          this.channel.push('close_vote');
-        }
-      }
+      this.api.closeVote(this.vote.id).then(function (vote) {
+        _this7.vote = vote;
+      });
     }
   }
 };
@@ -4369,7 +4295,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(35);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_c58906cc_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_55e7c5e4_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(48);
 function injectStyle (ssrContext) {
   __webpack_require__(46)
 }
@@ -4389,7 +4315,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_c58906cc_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_55e7c5e4_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4410,7 +4336,7 @@ var content = __webpack_require__(47);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("0a0fd4cb", content, true, {});
+var update = __webpack_require__(4)("089982f1", content, true, {});
 
 /***/ }),
 /* 47 */
@@ -4433,7 +4359,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 "use strict";
 var render = function () {
 var this$1 = this;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[(_vm.enableRestApi)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-left":"16px"}},[_c('mdc-body',[_vm._v("You are using an experimental API. If you encounter any issues please contact me and disable the feature in your config.")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("Based on the current filter, the vote will include "+_vm._s(_vm.filteredShips.length)+" ships.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("General")]),_vm._v(" "),_c('mdc-checkbox',{attrs:{"label":"Premium Ships"},model:{value:(_vm.settings.premium),callback:function ($$v) {_vm.$set(_vm.settings, "premium", $$v)},expression:"settings.premium"}}),_vm._v(" "),_c('mdc-headline',[_vm._v("Filters")]),_vm._v(" "),_c('div',{staticClass:"mdc-tab-bar",attrs:{"role":"tablist"}},[_c('div',{staticClass:"mdc-tab-scroller"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-area"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-content"},[_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 0},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 0,"tabindex":"0"},on:{"click":function () { return this$1.viewSetting = 0; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Tier")])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 1},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 1,"tabindex":"1"},on:{"click":function () { return this$1.viewSetting = 1; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Type")])]),_vm._v(" "),(_vm.viewSetting === 1)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 2},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 2,"tabindex":"2"},on:{"click":function () { return this$1.viewSetting = 2; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Nation")])]),_vm._v(" "),(_vm.viewSetting === 2)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})])])])])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('mdc-layout-grid',[_vm._l((_vm.settings.tiers),function(v,key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":("Tier " + (key + 1))},model:{value:(_vm.settings.tiers[key]),callback:function ($$v) {_vm.$set(_vm.settings.tiers, key, $$v)},expression:"settings.tiers[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 1)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.types)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":key},model:{value:(_vm.settings.types[key]),callback:function ($$v) {_vm.$set(_vm.settings.types, key, $$v)},expression:"settings.types[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 2)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.nations)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{staticClass:"checkbox",attrs:{"label":key},model:{value:(_vm.settings.nations[key]),callback:function ($$v) {_vm.$set(_vm.settings.nations, key, $$v)},expression:"settings.nations[key]"}})],1)]})],2):_vm._e()],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],1):_vm._e()],1)}
+var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("Based on the current filter, the vote will include "+_vm._s(_vm.filteredShips.length)+" ships.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("General")]),_vm._v(" "),_c('mdc-checkbox',{attrs:{"label":"Premium Ships"},model:{value:(_vm.settings.premium),callback:function ($$v) {_vm.$set(_vm.settings, "premium", $$v)},expression:"settings.premium"}}),_vm._v(" "),_c('mdc-headline',[_vm._v("Filters")]),_vm._v(" "),_c('div',{staticClass:"mdc-tab-bar",attrs:{"role":"tablist"}},[_c('div',{staticClass:"mdc-tab-scroller"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-area"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-content"},[_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 0},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 0,"tabindex":"0"},on:{"click":function () { return this$1.viewSetting = 0; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Tier")])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 1},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 1,"tabindex":"1"},on:{"click":function () { return this$1.viewSetting = 1; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Type")])]),_vm._v(" "),(_vm.viewSetting === 1)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 2},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 2,"tabindex":"2"},on:{"click":function () { return this$1.viewSetting = 2; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Nation")])]),_vm._v(" "),(_vm.viewSetting === 2)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})])])])])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('mdc-layout-grid',[_vm._l((_vm.settings.tiers),function(v,key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":("Tier " + (key + 1))},model:{value:(_vm.settings.tiers[key]),callback:function ($$v) {_vm.$set(_vm.settings.tiers, key, $$v)},expression:"settings.tiers[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 1)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.types)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":key},model:{value:(_vm.settings.types[key]),callback:function ($$v) {_vm.$set(_vm.settings.types, key, $$v)},expression:"settings.types[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 2)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.nations)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{staticClass:"checkbox",attrs:{"label":key},model:{value:(_vm.settings.nations[key]),callback:function ($$v) {_vm.$set(_vm.settings.nations, key, $$v)},expression:"settings.nations[key]"}})],1)]})],2):_vm._e()],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],1):_vm._e()],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
