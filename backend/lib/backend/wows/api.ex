@@ -52,6 +52,7 @@ defmodule Backend.Wows.Api do
 
     with %{"status" => "ok"} = data <- Jason.decode!(response.body) do
       if data["data"] |> length == 0 do
+        Logger.error("Player Lookup without data: #{inspect(data)}")
         {:error, "Player not found"}
       else
         {:ok, (data["data"] |> Enum.at(0))["account_id"]}
