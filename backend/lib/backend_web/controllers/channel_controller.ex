@@ -101,7 +101,11 @@ defmodule BackendWeb.ChannelController do
     )
 
     with {:ok, channel} <-
-           update_account_id(channel, channel_params["wows_username"] || channel.wows_username),
+           update_account_id(
+             channel,
+             channel_params["wows_username"] || channel.wows_username,
+             channel_params["wows_realm"] || channel.wows_realm
+           ),
          {:ok, %Channel{} = channel} <-
            Stream.update_channel(channel, Map.delete(channel_params, "wows_account_id")),
          {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
