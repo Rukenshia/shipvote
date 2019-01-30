@@ -149,7 +149,7 @@ defmodule BackendWeb.ChannelController do
     channel
   end
 
-  defp update_account_id(channel, new_username) do
+  defp update_account_id(channel, new_username, realm) do
     Logger.debug("update_account_id.stored=#{channel.wows_username},new=#{new_username}")
 
     if new_username == channel.wows_username do
@@ -158,11 +158,11 @@ defmodule BackendWeb.ChannelController do
     else
       Logger.debug("update_account_id.find_id")
 
-      with {:ok, account_id} <- find_account_id(new_username, channel.wows_realm) do
+      with {:ok, account_id} <- find_account_id(new_username, realm) do
         Logger.debug("update_account_id.old_id=#{channel.wows_account_id},new_id=#{account_id}")
 
         channel
-        |> Channel.changeset(%{"wows_account_id" => account_id})
+        |> Channel.changeset(%{"wows_account_id" => account_id, "wows_realm" => realm})
         |> Repo.update()
       else
         {:error, message} ->
