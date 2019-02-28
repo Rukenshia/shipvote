@@ -11,7 +11,7 @@ secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - c7e549a9-3b06-449d-ab54-51c492c28ca2
-  - 6932b21c-fddf-443c-b47e-a9124a4044ff
+  - 0ea9acdb-4117-4068-bc2c-107bdba5c026
 environment:
   MIX_ENV: test
 tasks:
@@ -36,10 +36,10 @@ tasks:
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
   - deploy: |
-      cd shipvote/backend
+      echo "104.248.101.163 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwM48NgaEpbJv1C1FoQlmzm4YeMvwDtAO0er8LCYCBQGKxGTDt6TyFdbXGWsXRnioG/Uqz3jtJs1+4LDRWYbcOe43kKcBDcQSewZmTc1W4nXrFE9sRrRXxinBzGoTEB66W4z5BQyKwTxQ4pcp84Ym3iUuQwESIUR0l7PAtKeHDWn4N2qF9uTh1q2XOknoF5Yc3TF2+OA8rZtGuIRohHOR2NrWAeta487TziYzwd0eg9wlt6jwsigeb/FpdvW3THG/0cb3tgTQ32INs/MYVlT8z96AOC1AdzQpy4q1/BKbxdav2RLIkPJq2slmAEUbwfZwUtrLfQm9FgvZ1tZfU5hCz" >> known_hosts
 
-      ssh -i ~/.ssh/deploy root@104.248.101.163 <<EOS
-        cd /root/shipvote
+      ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@104.248.101.163 <<EOS
+        cd /root/shipvote/backend
         git pull
         MIX_ENV=prod mix deps.get
         MIX_ENV=prod mix ecto.migrate
