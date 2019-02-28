@@ -10,14 +10,12 @@ defmodule Backend.StreamTest do
       id: 42,
       wows_username: "username",
       wows_realm: "eu",
-      enable_rest_api: true,
       wows_account_id: 4711
     }
     @update_attrs %{
       id: 43,
       wows_username: "updated username",
       wows_realm: "na",
-      enable_rest_api: true,
       wows_account_id: 4712
     }
     @invalid_attrs %{wows_username: nil}
@@ -91,7 +89,6 @@ defmodule Backend.StreamTest do
           id: 1,
           wows_username: "foo",
           wows_realm: "eu",
-          enable_rest_api: true,
           wows_account_id: 4711
         })
 
@@ -129,7 +126,6 @@ defmodule Backend.StreamTest do
           id: 1,
           wows_username: "foo",
           wows_realm: "eu",
-          enable_rest_api: true,
           wows_account_id: 4711
         })
 
