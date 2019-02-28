@@ -12,15 +12,13 @@ defmodule BackendWeb.ChannelControllerTest do
     id: "1",
     wows_username: "username",
     wows_realm: "eu",
-    wows_account_id: "4711",
-    enable_rest_api: true
+    wows_account_id: "4711"
   }
   @update_attrs %{
     id: "1",
     wows_username: "updated username",
     wows_realm: "na",
-    wows_account_id: "4712",
-    enable_rest_api: true
+    wows_account_id: "4712"
   }
   @invalid_attrs %{id: "1", wows_username: nil, wows_realm: nil, wows_account_id: nil}
 
@@ -71,7 +69,6 @@ defmodule BackendWeb.ChannelControllerTest do
                  "wows_username" => "username",
                  "wows_realm" => "eu",
                  "wows_account_id" => 4711,
-                 "enable_rest_api" => true,
                  "ships" => []
                } == json_response(conn, 200)["data"]
       end
@@ -106,7 +103,6 @@ defmodule BackendWeb.ChannelControllerTest do
                  "ships" => [],
                  "wows_username" => "updated username",
                  "wows_realm" => "na",
-                 "enable_rest_api" => true,
                  "wows_account_id" => 4712
                } == json_response(conn, 200)["data"]
       end
