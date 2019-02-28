@@ -17,6 +17,8 @@ defmodule BackendWeb.ChannelView do
   def render("channel.public.json", %{channel: channel}) do
     %{
       id: channel.id,
+      # Backwards compatibility to 0.3.x
+      enable_rest_api: true,
       ships: []
     }
     |> render_ships(channel)
@@ -28,6 +30,8 @@ defmodule BackendWeb.ChannelView do
       wows_username: channel.wows_username,
       wows_account_id: channel.wows_account_id,
       wows_realm: channel.wows_realm,
+      # Backwards compatibility to 0.3.x
+      enable_rest_api: true,
       ships: []
     }
     |> render_ships(channel)
