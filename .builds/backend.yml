@@ -39,6 +39,8 @@ tasks:
       echo "104.248.101.163 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwM48NgaEpbJv1C1FoQlmzm4YeMvwDtAO0er8LCYCBQGKxGTDt6TyFdbXGWsXRnioG/Uqz3jtJs1+4LDRWYbcOe43kKcBDcQSewZmTc1W4nXrFE9sRrRXxinBzGoTEB66W4z5BQyKwTxQ4pcp84Ym3iUuQwESIUR0l7PAtKeHDWn4N2qF9uTh1q2XOknoF5Yc3TF2+OA8rZtGuIRohHOR2NrWAeta487TziYzwd0eg9wlt6jwsigeb/FpdvW3THG/0cb3tgTQ32INs/MYVlT8z96AOC1AdzQpy4q1/BKbxdav2RLIkPJq2slmAEUbwfZwUtrLfQm9FgvZ1tZfU5hCz" >> known_hosts
 
       ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@104.248.101.163 <<EOS
+        set -ex
+
         cd /root/shipvote/backend
         git pull
         MIX_ENV=prod mix deps.get
