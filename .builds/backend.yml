@@ -11,6 +11,7 @@ secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - c7e549a9-3b06-449d-ab54-51c492c28ca2
+  - 6932b21c-fddf-443c-b47e-a9124a4044ff
 environment:
   MIX_ENV: test
 tasks:
@@ -34,6 +35,16 @@ tasks:
       cd shipvote/backend
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
+  - deploy: |
+      cd shipvote/backend
+
+      ssh -i ~/.ssh/deploy root@104.248.101.163 <<EOS
+        cd /root/shipvote
+        git pull
+        MIX_ENV=prod mix deps.get
+        MIX_ENV=prod mix ecto.migrate
+        sudo systemctl restart shipvote
+      EOS
 triggers:
   - action: email
     condition: failure
