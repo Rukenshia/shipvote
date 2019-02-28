@@ -41,5 +41,5 @@ tasks:
       ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@104.248.101.163 < shipvote/backend/scripts/deploy.sh
 triggers:
   - action: email
-    condition: failure
+    condition: always
     to: "Jan Christophersen <jan@chrstphrsn.cc>"
