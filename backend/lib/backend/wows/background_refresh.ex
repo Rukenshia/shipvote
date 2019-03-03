@@ -49,6 +49,22 @@ defmodule Backend.Wows.BackgroundRefresh do
       |> Repo.insert_or_update!()
     end
 
+    # Clean up ships that do not exist anymore
+    ids = Enum.map(ships, fn s -> s.id end)
+
+    deleted_ships =
+      from(s in Backend.Wows.Warship,
+        where:
+          (s.id in ^ids)
+          |> Repo.all()
+      )
+
+    Logger.info(
+      "BackgroundRefresh: deleting #{length(deleted_ships)} ships from the database: #{
+        deleted_ships |> Enum.map(fn s -> s.name end) |> Enum.join(", ")
+      }"
+    )
+
     Logger.debug("BackgroundRefresh.handle_info.ships_updated")
 
     # Reschedule
