@@ -56,7 +56,7 @@ defmodule Backend.Wows.BackgroundRefresh do
 
     deleted_ships =
       from(s in Backend.Wows.Warship,
-        where: s.id in ^ids
+        where: not (s.id in ^ids)
       )
       |> Repo.all()
 
