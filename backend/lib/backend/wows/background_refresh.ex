@@ -58,9 +58,9 @@ defmodule Backend.Wows.BackgroundRefresh do
       from(s in Backend.Wows.Warship,
         where: not (s.id in ^ids)
       )
-      |> Repo.all()
+      |> Repo.delete!()
 
-    Logger.info(
+    Logger.debug(
       "BackgroundRefresh: deleting #{length(deleted_ships)} ships from the database: #{
         deleted_ships |> Enum.map(fn s -> s.name end) |> Enum.join(", ")
       }"
