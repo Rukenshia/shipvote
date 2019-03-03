@@ -54,14 +54,14 @@ defmodule Backend.Wows.BackgroundRefresh do
     # Clean up ships that do not exist anymore
     ids = Enum.map(ships, fn s -> s.id end)
 
-    deleted_ships =
+    {deleted_ships, _} =
       from(s in Backend.Wows.Warship,
         where: not (s.id in ^ids)
       )
-      |> Repo.delete!()
+      |> Repo.delete_all()
 
     Logger.debug(
-      "BackgroundRefresh: deleting #{length(deleted_ships)} ships from the database: #{
+      "BackgroundRefresh: deleting #{deleted_ships} ships from the database: #{
         deleted_ships |> Enum.map(fn s -> s.name end) |> Enum.join(", ")
       }"
     )
