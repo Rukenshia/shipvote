@@ -1216,11 +1216,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-// import * as twitchMock from './twitch_mock.js';
+//import * as twitchMock from './twitch_mock.js';
 
-// setTimeout(() => {
-//   window.simulateTwitch();
-// }, 500);
+//setTimeout(() => {
+//window.simulateTwitch();
+//}, 500);
 
 /***/ }),
 /* 12 */
@@ -3839,12 +3839,8 @@ var Timer = function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shipvote__ = __webpack_require__(11);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-//
-//
-//
-//
-//
-//
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 //
 //
 //
@@ -4066,30 +4062,20 @@ window.App = {
       loaded_configuration: false,
       error: false,
 
-      settings: {
-        duration: '60',
-        premium: true,
-        tiers: [true, true, true, true, true, true, true, true, true, true],
-        types: {
-          Battleship: true,
-          Cruiser: true,
-          Destroyer: true,
-          AirCarrier: true
-        },
-        nations: {
-          commonwealth: true,
-          france: true,
-          germany: true,
-          italy: true,
-          japan: true,
-          pan_america: true,
-          pan_asia: true,
-          poland: true,
-          uk: true,
-          usa: true,
-          ussr: true
-        }
+      search: '',
+      filterReworkDialog: true,
+      bulkAdd: {
+        nations: 'all',
+        tiers: 'all',
+        types: 'all',
+        premiums: true
       },
+      filters: {
+        nations: ['all', 'commonwealth', 'france', 'germany', 'italy', 'japan', 'pan_america', 'pan_asia', 'poland', 'uk', 'usa', 'ussr'],
+        tiers: ['all', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'],
+        types: ['all', 'Battleship', 'Cruiser', 'Destroyer', 'AirCarrier']
+      },
+      selectedShips: [],
 
       stats: {
         votes: 0,
@@ -4102,6 +4088,10 @@ window.App = {
   },
   created: function created() {
     var _this = this;
+
+    if (window.localStorage.getItem('filterReworkDialogDismissed')) {
+      this.filterReworkDialog = false;
+    }
 
     window.Twitch.ext.onContext(function (ctx) {
       _this.theme = ctx.theme;
@@ -4121,6 +4111,10 @@ window.App = {
         var updateOpenVote = function updateOpenVote() {
           _this.api.getOpenVote().then(function (vote) {
             _this.vote = vote;
+
+            if (!vote) {
+              return;
+            }
 
             _this.stats.ship_votes = vote.votes;
 
@@ -4147,41 +4141,66 @@ window.App = {
     voting: function voting() {
       return this.vote !== undefined && this.vote.status === 'open';
     },
-    filteredShips: function filteredShips() {
+    bulkAddShips: function bulkAddShips() {
       var _this2 = this;
 
       return this.ships.filter(function (s) {
         return s.enabled;
       }).filter(function (s) {
-        return _this2.settings.tiers[s.tier - 1] === true;
+        return !_this2.selectedShips.includes(s);
       }).filter(function (s) {
-        return _this2.settings.types[s.type] === true;
+        return _this2.bulkAdd.premiums || !s.premium;
       }).filter(function (s) {
-        return _this2.settings.premium || !_this2.settings.premium && s.premium === false;
+        return _this2.bulkAdd.nations === 'all' || s.nation === _this2.bulkAdd.nations;
       }).filter(function (s) {
-        return _this2.settings.nations[s.nation] === true;
-      }).map(function (s) {
-        return s.id;
+        return _this2.bulkAdd.tiers === 'all' || s.tier === tierToInt(_this2.bulkAdd.tiers);
+      }).filter(function (s) {
+        return _this2.bulkAdd.types === 'all' || s.type === _this2.bulkAdd.types;
+      });
+    },
+    searchedSelectedShips: function searchedSelectedShips() {
+      var _this3 = this;
+
+      return this.selectedShips.filter(function (s) {
+        return s.name.startsWith(_this3.search);
+      });
+    },
+    availableShips: function availableShips() {
+      var _this4 = this;
+
+      return this.ships.filter(function (s) {
+        return s.enabled;
+      }).filter(function (s) {
+        return s.name.startsWith(_this4.search);
+      }).filter(function (s) {
+        return !_this4.selectedShips.includes(s);
+      }).sort(function (a, b) {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier === b.tier) {
+          return 0;
+        }
+        return -1;
       });
     },
     sortedVotes: function sortedVotes() {
-      var _this3 = this;
+      var _this5 = this;
 
       if (this.ships.length === 0) {
         return [];
       }
 
       var sorted = Object.keys(this.stats.ship_votes).map(function (v) {
-        return _extends({}, _this3.ships.find(function (s) {
+        return _extends({}, _this5.ships.find(function (s) {
           return s.id === parseInt(v, 10);
         }), {
-          votes: _this3.stats.ship_votes[v]
+          votes: _this5.stats.ship_votes[v]
         });
       });
 
       sorted.sort(function (a, b) {
-        var av = _this3.stats.ship_votes[a.id] || 0;
-        var bv = _this3.stats.ship_votes[b.id] || 0;
+        var av = _this5.stats.ship_votes[a.id] || 0;
+        var bv = _this5.stats.ship_votes[b.id] || 0;
 
         if (av < bv) {
           return 1;
@@ -4194,23 +4213,23 @@ window.App = {
       return sorted;
     },
     mostVoted: function mostVoted() {
-      var _this4 = this;
+      var _this6 = this;
 
       if (this.ships.length === 0) {
         return 'none';
       }
 
       var sorted = Object.keys(this.stats.ship_votes).map(function (v) {
-        return _extends({}, _this4.ships.find(function (s) {
+        return _extends({}, _this6.ships.find(function (s) {
           return s.id === parseInt(v, 10);
         }), {
-          votes: _this4.stats.ship_votes[v]
+          votes: _this6.stats.ship_votes[v]
         });
       });
 
       sorted.sort(function (a, b) {
-        var av = _this4.stats.ship_votes[a.id] || 0;
-        var bv = _this4.stats.ship_votes[b.id] || 0;
+        var av = _this6.stats.ship_votes[a.id] || 0;
+        var bv = _this6.stats.ship_votes[b.id] || 0;
 
         if (av < bv) {
           return 1;
@@ -4235,7 +4254,7 @@ window.App = {
   },
   methods: {
     loadChannelConfig: function loadChannelConfig() {
-      var _this5 = this;
+      var _this7 = this;
 
       this.loaded_configuration = false;
       return get(__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */] + '/api/settings/channels/' + this.channelId, {
@@ -4244,37 +4263,85 @@ window.App = {
           authorization: 'Bearer ' + this.token
         }
       }).then(function (res) {
-        _this5.ships = res.data['data']['ships'];
-        _this5.configured = true;
+        _this7.ships = res.data['data']['ships'];
+        _this7.configured = true;
       }).catch(function (e) {
         if (e.response.status === 404) {
-          _this5.configured = false;
+          _this7.configured = false;
         } else {
           console.error(e);
-          _this5.error = true;
+          _this7.error = true;
         }
       }).then(function () {
-        _this5.loaded_configuration = true;
+        _this7.loaded_configuration = true;
       });
     },
     openVote: function openVote() {
-      var _this6 = this;
+      var _this8 = this;
 
       this.stats.votes = 0;
       this.stats.ship_votes = {};
-      this.api.openVote(this.filteredShips).then(function (vote) {
-        _this6.vote = vote;
+      this.api.openVote(this.selectedShips.map(function (s) {
+        return s.id;
+      })).then(function (vote) {
+        _this8.vote = vote;
       });
     },
     closeVote: function closeVote() {
-      var _this7 = this;
+      var _this9 = this;
 
       this.api.closeVote(this.vote.id).then(function (vote) {
-        _this7.vote = vote;
+        _this9.vote = vote;
       });
+    },
+    doBulkAdd: function doBulkAdd() {
+      var _selectedShips;
+
+      (_selectedShips = this.selectedShips).push.apply(_selectedShips, _toConsumableArray(this.bulkAddShips));
+      this.sortSelectedShips();
+    },
+    select: function select(ship) {
+      this.selectedShips.push(ship);
+      this.sortSelectedShips();
+    },
+    deselect: function deselect(ship) {
+      var idx = this.selectedShips.findIndex(function (s) {
+        return s.id === ship.id;
+      });
+
+      this.selectedShips.splice(idx, 1);
+    },
+    sortSelectedShips: function sortSelectedShips() {
+      this.selectedShips = this.selectedShips.sort(function (a, b) {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier == b.tier) {
+          return 0;
+        }
+        return -1;
+      });
+    },
+    dismissFilterReworkDialog: function dismissFilterReworkDialog() {
+      window.localStorage.setItem('filterReworkDialogDismissed', true);
+      this.filterReworkDialog = false;
     }
   }
 };
+
+function tierToInt(tier) {
+  return {
+    'I': 1,
+    'II': 2,
+    'III': 3,
+    'IV': 4,
+    'V': 5,
+    'VI': 6,
+    'VII': 7,
+    'VIII': 8,
+    'IX': 9,
+    'X': 10
+  }[tier] || 0;
+}
 
 /* harmony default export */ __webpack_exports__["a"] = (window.App);
 
@@ -4295,7 +4362,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(35);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_55e7c5e4_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dc2e70ac_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(48);
 function injectStyle (ssrContext) {
   __webpack_require__(46)
 }
@@ -4315,7 +4382,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_55e7c5e4_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_dc2e70ac_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4336,7 +4403,7 @@ var content = __webpack_require__(47);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("089982f1", content, true, {});
+var update = __webpack_require__(4)("5e1a9477", content, true, {});
 
 /***/ }),
 /* 47 */
@@ -4347,7 +4414,7 @@ exports = module.exports = __webpack_require__(3)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.fullwidth {\n  width: 100%;\n}\n", ""]);
 
 // exports
 
@@ -4357,9 +4424,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {
-var this$1 = this;
-var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("Based on the current filter, the vote will include "+_vm._s(_vm.filteredShips.length)+" ships.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("General")]),_vm._v(" "),_c('mdc-checkbox',{attrs:{"label":"Premium Ships"},model:{value:(_vm.settings.premium),callback:function ($$v) {_vm.$set(_vm.settings, "premium", $$v)},expression:"settings.premium"}}),_vm._v(" "),_c('mdc-headline',[_vm._v("Filters")]),_vm._v(" "),_c('div',{staticClass:"mdc-tab-bar",attrs:{"role":"tablist"}},[_c('div',{staticClass:"mdc-tab-scroller"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-area"},[_c('div',{staticClass:"mdc-tab-scroller__scroll-content"},[_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 0},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 0,"tabindex":"0"},on:{"click":function () { return this$1.viewSetting = 0; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Tier")])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 1},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 1,"tabindex":"1"},on:{"click":function () { return this$1.viewSetting = 1; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Type")])]),_vm._v(" "),(_vm.viewSetting === 1)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})]),_vm._v(" "),_c('button',{staticClass:"mdc-tab",class:{'mdc-tab--active': _vm.viewSetting === 2},attrs:{"role":"tab","aria-selected":_vm.viewSetting === 2,"tabindex":"2"},on:{"click":function () { return this$1.viewSetting = 2; }}},[_c('span',{staticClass:"mdc-tab__content"},[_c('span',{staticClass:"mdc-tab__text-label"},[_vm._v("Nation")])]),_vm._v(" "),(_vm.viewSetting === 2)?_c('span',{staticClass:"mdc-tab-indicator mdc-tab-indicator--active"},[_c('span',{staticClass:"mdc-tab-indicator__content mdc-tab-indicator__content--underline"})]):_vm._e(),_vm._v(" "),_c('span',{staticClass:"mdc-tab__ripple"})])])])])]),_vm._v(" "),(_vm.viewSetting === 0)?_c('mdc-layout-grid',[_vm._l((_vm.settings.tiers),function(v,key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":("Tier " + (key + 1))},model:{value:(_vm.settings.tiers[key]),callback:function ($$v) {_vm.$set(_vm.settings.tiers, key, $$v)},expression:"settings.tiers[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 1)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.types)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{attrs:{"label":key},model:{value:(_vm.settings.types[key]),callback:function ($$v) {_vm.$set(_vm.settings.types, key, $$v)},expression:"settings.types[key]"}})],1)]})],2):_vm._e(),_vm._v(" "),(_vm.viewSetting === 2)?_c('mdc-layout-grid',[_vm._l((Object.keys(_vm.settings.nations)),function(key){return [_c('mdc-layout-cell',{key:key},[_c('mdc-checkbox',{staticClass:"checkbox",attrs:{"label":key},model:{value:(_vm.settings.nations[key]),callback:function ($$v) {_vm.$set(_vm.settings.nations, key, $$v)},expression:"settings.nations[key]"}})],1)]})],2):_vm._e()],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],1):_vm._e()],1)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-dialog',{attrs:{"title":"Year of the Filter Rework","accept":"Alright"},on:{"accept":_vm.dismissFilterReworkDialog},model:{value:(_vm.filterReworkDialog),callback:function ($$v) {_vm.filterReworkDialog=$$v},expression:"filterReworkDialog"}},[_vm._v("\n    The filters for selecting ships for votes have been reworked to be easier to use. You can now also add / remove individual ships easily.\n    Please submit feedback or criticism - this extension was built to help you so I want to make it as easy to use as possible.\n  ")]),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("You have selected "+_vm._s(_vm.selectedShips.length)+" ships for the next vote.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("Ship selection")]),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Nation"},model:{value:(_vm.bulkAdd.nations),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "nations", $$v)},expression:"bulkAdd.nations"}},[_vm._l((_vm.filters.nations),function(nation){return [_c('option',{key:nation},[_vm._v(_vm._s(nation))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Tier"},model:{value:(_vm.bulkAdd.tiers),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "tiers", $$v)},expression:"bulkAdd.tiers"}},[_vm._l((_vm.filters.tiers),function(tier){return [_c('option',{key:tier},[_vm._v(_vm._s(tier))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Class"},model:{value:(_vm.bulkAdd.types),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "types", $$v)},expression:"bulkAdd.types"}},[_vm._l((_vm.filters.types),function(type){return [_c('option',{key:type},[_vm._v(_vm._s(type))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-checkbox',{attrs:{"label":"Premiums"},model:{value:(_vm.bulkAdd.premiums),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "premiums", $$v)},expression:"bulkAdd.premiums"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"raised":"","disabled":_vm.bulkAddShips.length === 0},on:{"click":_vm.doBulkAdd}},[_vm._v("Add "+_vm._s(_vm.bulkAddShips.length)+" ships")])],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"disabled":_vm.selectedShips.length === 0},on:{"click":function($event){_vm.selectedShips = []}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete")]),_vm._v(" reset")])],1)],1),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"tablet":8,"desktop":12}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"box":"","label":"Ship name","trailing-icon":"search"},model:{value:(_vm.search),callback:function ($$v) {_vm.search=$$v},expression:"search"}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"bordered":"","two-line":""}},[_vm._l((_vm.searchedSelectedShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":""},on:{"click":function($event){_vm.deselect(ship)}},slot:"end-detail"},[_vm._v("remove")])],1)}),_vm._v(" "),_vm._l((_vm.availableShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail"},on:{"click":function($event){_vm.select(ship)}},slot:"end-detail"},[_vm._v("add")])],1)})],2)],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],1):_vm._e()],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
