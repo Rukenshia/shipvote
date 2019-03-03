@@ -3,8 +3,8 @@
     <mdc-dialog v-model="filterReworkDialog"
       title="Year of the Filter Rework" accept="Alright"
       @accept="dismissFilterReworkDialog">
-      The filters for selecting ships for votes have been reworked to be easier to use. You can now also add / remove individual ships easily.
-      Please submit feedback or criticism - this extension was built to help you so I want to make it as easy to use as possible.
+      The filters for selecting ships for votes have been reworked to allow more customization.
+      Please submit feedback so I can keep improving it!
     </mdc-dialog>
 
     <mdc-layout-cell :span="12" v-if="error">
