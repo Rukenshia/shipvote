@@ -31,6 +31,9 @@ defmodule Backend.Wows.BackgroundRefresh do
       |> Map.values()
       |> filter_clan_battle_ships()
       |> filter_testing_ships()
+
+    changesets =
+      ships
       |> Enum.map(fn data ->
         case from(s in Backend.Wows.Warship, where: s.id == ^data["ship_id"]) |> Repo.one() do
           %Backend.Wows.Warship{} = ship ->
@@ -44,7 +47,7 @@ defmodule Backend.Wows.BackgroundRefresh do
 
     Logger.debug("BackgroundRefresh.handle_info.ships_count=#{length(ships)}")
 
-    for ship <- ships do
+    for ship <- changesets do
       ship
       |> Repo.insert_or_update!()
     end
