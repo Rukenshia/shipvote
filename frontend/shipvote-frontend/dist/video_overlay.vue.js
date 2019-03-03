@@ -1216,11 +1216,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-// import * as twitchMock from './twitch_mock.js';
+//import * as twitchMock from './twitch_mock.js';
 
-// setTimeout(() => {
-//   window.simulateTwitch();
-// }, 500);
+//setTimeout(() => {
+//window.simulateTwitch();
+//}, 500);
 
 /***/ }),
 /* 12 */

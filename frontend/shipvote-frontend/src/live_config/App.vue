@@ -1,5 +1,12 @@
 <template>
   <mdc-layout-grid :class="theme">
+    <mdc-dialog v-model="filterReworkDialog"
+      title="Year of the Filter Rework" accept="Alright"
+      @accept="dismissFilterReworkDialog">
+      The filters for selecting ships for votes have been reworked to be easier to use. You can now also add / remove individual ships easily.
+      Please submit feedback or criticism - this extension was built to help you so I want to make it as easy to use as possible.
+    </mdc-dialog>
+
     <mdc-layout-cell :span="12" v-if="error">
       <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
     </mdc-layout-cell>
@@ -33,7 +40,7 @@
 
           <mdc-body
             v-if="!voting"
-          >Based on the current filter, the vote will include {{filteredShips.length}} ships.</mdc-body>
+          >You have selected {{selectedShips.length}} ships for the next vote.</mdc-body>
 
           <mdc-button
             :unelevated="true"
@@ -88,101 +95,88 @@
         </mdc-list>
       </div>
       <div v-show="!voting">
-        <mdc-headline>General</mdc-headline>
-        <!-- <mdc-textfield v-model="settings.duration" label=" Duration (seconds)" box/> -->
-        <mdc-checkbox label="Premium Ships" v-model="settings.premium"/>
+        <mdc-headline>Ship selection</mdc-headline>
 
-        <mdc-headline>Filters</mdc-headline>
+        <mdc-layout-grid>
+          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+            <mdc-select class="fullwidth" v-model="bulkAdd.nations" label="Nation">
+              <template v-for="nation in filters.nations">
+                <option :key="nation">{{nation}}</option>
+              </template>
+            </mdc-select>
+          </mdc-layout-cell>
+          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+            <mdc-select class="fullwidth" v-model="bulkAdd.tiers" label="Tier">
+              <template v-for="tier in filters.tiers">
+                <option :key="tier">{{tier}}</option>
+              </template>
+            </mdc-select>
+          </mdc-layout-cell>
+          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+            <mdc-select class="fullwidth" v-model="bulkAdd.types" label="Class">
+              <template v-for="type in filters.types">
+                <option :key="type">{{type}}</option>
+              </template>
+            </mdc-select>
+          </mdc-layout-cell>
+          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+            <mdc-checkbox label="Premiums" v-model="bulkAdd.premiums"/>
+          </mdc-layout-cell>
 
-        <div class="mdc-tab-bar" role="tablist">
-          <div class="mdc-tab-scroller">
-            <div class="mdc-tab-scroller__scroll-area">
-              <div class="mdc-tab-scroller__scroll-content">
-                <button
-                  class="mdc-tab"
-                  :class="{'mdc-tab--active': viewSetting === 0}"
-                  role="tab"
-                  :aria-selected="viewSetting === 0"
-                  @click="() => this.viewSetting = 0"
-                  tabindex="0"
-                >
-                  <span class="mdc-tab__content">
-                    <span class="mdc-tab__text-label">Tier</span>
-                  </span>
-                  <span
-                    v-if="viewSetting === 0"
-                    class="mdc-tab-indicator mdc-tab-indicator--active"
-                  >
-                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                  </span>
-                  <span class="mdc-tab__ripple"></span>
-                </button>
-                <button
-                  class="mdc-tab"
-                  :class="{'mdc-tab--active': viewSetting === 1}"
-                  role="tab"
-                  :aria-selected="viewSetting === 1"
-                  @click="() => this.viewSetting = 1"
-                  tabindex="1"
-                >
-                  <span class="mdc-tab__content">
-                    <span class="mdc-tab__text-label">Type</span>
-                  </span>
-                  <span
-                    v-if="viewSetting === 1"
-                    class="mdc-tab-indicator mdc-tab-indicator--active"
-                  >
-                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                  </span>
-                  <span class="mdc-tab__ripple"></span>
-                </button>
-                <button
-                  class="mdc-tab"
-                  :class="{'mdc-tab--active': viewSetting === 2}"
-                  role="tab"
-                  :aria-selected="viewSetting === 2"
-                  @click="() => this.viewSetting = 2"
-                  tabindex="2"
-                >
-                  <span class="mdc-tab__content">
-                    <span class="mdc-tab__text-label">Nation</span>
-                  </span>
-                  <span
-                    v-if="viewSetting === 2"
-                    class="mdc-tab-indicator mdc-tab-indicator--active"
-                  >
-                    <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                  </span>
-                  <span class="mdc-tab__ripple"></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <mdc-layout-grid v-if="viewSetting === 0">
-          <template v-for="(v,key) in settings.tiers">
-            <mdc-layout-cell :key="key">
-              <mdc-checkbox :label="`Tier ${key + 1}`" v-model="settings.tiers[key]"/>
-            </mdc-layout-cell>
-          </template>
+          <mdc-layout-cell :span=6>
+            <mdc-button raised class="fullwidth" @click="doBulkAdd" :disabled="bulkAddShips.length === 0">Add {{bulkAddShips.length}} ships</mdc-button>
+          </mdc-layout-cell>
+          <mdc-layout-cell :span=6>
+            <mdc-button class="fullwidth" @click="selectedShips = []" :disabled="selectedShips.length === 0"><i class="material-icons">delete</i> reset</mdc-button>
+          </mdc-layout-cell>
         </mdc-layout-grid>
 
-        <mdc-layout-grid v-if="viewSetting === 1">
-          <template v-for="key in Object.keys(settings.types)">
-            <mdc-layout-cell :key="key">
-              <mdc-checkbox :label="key" v-model="settings.types[key]"/>
-            </mdc-layout-cell>
-          </template>
+        <mdc-layout-grid>
+          <mdc-layout-cell :phone=4 :tablet=8 :desktop=12>
+            <mdc-textfield box class="fullwidth" v-model="search" label="Ship name" trailing-icon="search"/>
+          </mdc-layout-cell>
         </mdc-layout-grid>
 
-        <mdc-layout-grid v-if="viewSetting === 2">
-          <template v-for="key in Object.keys(settings.nations)">
-            <mdc-layout-cell :key="key">
-              <mdc-checkbox class="checkbox" :label="key" v-model="settings.nations[key]"/>
-            </mdc-layout-cell>
-          </template>
-        </mdc-layout-grid>
+        <mdc-list bordered two-line>
+          <mdc-list-item v-for="ship in searchedSelectedShips" :key="ship.id">
+            <img
+              slot="start-detail"
+              :src="ship.image"
+              width="56"
+              height="auto"
+              :alt="`Image of ${ship.name}`"
+            >
+            <span>
+              <strong>{{ship.name}}</strong>
+            </span>
+            <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
+
+            <mdc-button
+              slot="end-detail"
+              raised
+              @click="deselect(ship)"
+            >remove</mdc-button>
+          </mdc-list-item>
+          <mdc-list-item v-for="ship in availableShips" :key="ship.id">
+            <img
+              slot="start-detail"
+              :src="ship.image"
+              width="56"
+              height="auto"
+              :alt="`Image of ${ship.name}`"
+            >
+            <span>
+              <strong>{{ship.name}}</strong>
+            </span>
+            <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
+
+            <mdc-button
+              slot="end-detail"
+              @click="select(ship)"
+            >add</mdc-button>
+          </mdc-list-item>
+        </mdc-list>
       </div>
 
       <mdc-card class="mdc-card--flat">
@@ -225,30 +219,21 @@ window.App = {
       loaded_configuration: false,
       error: false,
 
-      settings: {
-        duration: '60',
-        premium: true,
-        tiers: [true, true, true, true, true, true, true, true, true, true],
-        types: {
-          Battleship: true,
-          Cruiser: true,
-          Destroyer: true,
-          AirCarrier: true
-        },
-        nations: {
-          commonwealth: true,
-          france: true,
-          germany: true,
-          italy: true,
-          japan: true,
-          pan_america: true,
-          pan_asia: true,
-          poland: true,
-          uk: true,
-          usa: true,
-          ussr: true
-        }
+      search: '',
+      filterReworkDialog: true,
+      bulkAdd: {
+        nations: 'all',
+        tiers: 'all',
+        types: 'all',
+        premiums: true,
       },
+      filters: {
+        nations: ['all', 'commonwealth', 'france', 'germany', 'italy', 'japan', 'pan_america', 'pan_asia', 'poland', 'uk', 'usa', 'ussr'],
+        tiers: ['all', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'],
+        types: ['all', 'Battleship', 'Cruiser', 'Destroyer', 'AirCarrier'],
+      },
+      selectedShips: [],
+
 
       stats: {
         votes: 0,
@@ -260,6 +245,10 @@ window.App = {
     };
   },
   created() {
+    if (window.localStorage.getItem('filterReworkDialogDismissed')) {
+      this.filterReworkDialog = false;
+    }
+
     window.Twitch.ext.onContext(ctx => {
       this.theme = ctx.theme;
     });
@@ -280,6 +269,10 @@ window.App = {
             .getOpenVote()
             .then(vote => {
               this.vote = vote;
+
+              if (!vote) {
+                return;
+              }
 
               this.stats.ship_votes = vote.votes;
 
@@ -302,18 +295,31 @@ window.App = {
     voting() {
       return this.vote !== undefined && this.vote.status === 'open';
     },
-    filteredShips() {
+    bulkAddShips() {
       return this.ships
         .filter(s => s.enabled)
-        .filter(s => this.settings.tiers[s.tier - 1] === true)
-        .filter(s => this.settings.types[s.type] === true)
-        .filter(
-          s =>
-            this.settings.premium ||
-            (!this.settings.premium && s.premium === false)
-        )
-        .filter(s => this.settings.nations[s.nation] === true)
-        .map(s => s.id);
+        .filter(s => !this.selectedShips.includes(s))
+        .filter(s => this.bulkAdd.premiums || !s.premium)
+        .filter(s => this.bulkAdd.nations === 'all' || s.nation === this.bulkAdd.nations)
+        .filter(s => this.bulkAdd.tiers === 'all' || s.tier === tierToInt(this.bulkAdd.tiers))
+        .filter(s => this.bulkAdd.types === 'all' || s.type === this.bulkAdd.types);
+    },
+    searchedSelectedShips() {
+      return this.selectedShips.filter(s => s.name.startsWith(this.search));
+    },
+    availableShips() {
+      return this.ships
+        .filter(s => s.enabled)
+        .filter(s => s.name.startsWith(this.search))
+        .filter(s => !this.selectedShips.includes(s))
+        .sort((a, b) => {
+          if (a.tier < b.tier) {
+            return 1;
+          } else if (a.tier === b.tier) {
+            return 0;
+          }
+          return -1;
+        });
     },
     sortedVotes() {
       if (this.ships.length === 0) {
@@ -401,7 +407,7 @@ window.App = {
     openVote() {
       this.stats.votes = 0;
       this.stats.ship_votes = {};
-      this.api.openVote(this.filteredShips).then(vote => {
+      this.api.openVote(this.selectedShips.map(s => s.id)).then(vote => {
         this.vote = vote;
       });
     },
@@ -409,9 +415,51 @@ window.App = {
       this.api.closeVote(this.vote.id).then(vote => {
         this.vote = vote;
       });
-    }
+    },
+    doBulkAdd() {
+      this.selectedShips.push(...this.bulkAddShips);
+      this.sortSelectedShips();
+    },
+    select(ship) {
+      this.selectedShips.push(ship);
+      this.sortSelectedShips();
+    },
+    deselect(ship) {
+      const idx = this.selectedShips.findIndex(s => s.id === ship.id);
+
+      this.selectedShips.splice(idx, 1);
+    },
+    sortSelectedShips() {
+      this.selectedShips = this.selectedShips.sort((a, b) => {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier == b.tier) {
+          return 0;
+        }
+        return -1;
+      });
+    },
+    dismissFilterReworkDialog() {
+      window.localStorage.setItem('filterReworkDialogDismissed', true);
+      this.filterReworkDialog = false;
+    },
   }
 };
+
+function tierToInt(tier) {
+  return {
+    'I': 1,
+    'II': 2,
+    'III': 3,
+    'IV': 4,
+    'V': 5,
+    'VI': 6,
+    'VII': 7,
+    'VIII': 8,
+    'IX': 9,
+    'X': 10
+  }[tier] || 0;
+}
 
 export default window.App;
 </script>
@@ -469,5 +517,9 @@ export default window.App;
 :root {
   --mdc-theme-secondary: #6441a4;
   --mdc-theme-primary: #6441a4;
+}
+
+.fullwidth {
+  width: 100%;
 }
 </style>
