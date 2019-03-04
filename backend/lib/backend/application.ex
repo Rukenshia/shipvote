@@ -15,6 +15,7 @@ defmodule Backend.Application do
       # Start your own worker by calling: Backend.Worker.start_link(arg1, arg2, arg3)
       # worker(Backend.Worker, [arg1, arg2, arg3]),
       worker(Backend.Wows.BackgroundRefresh, []),
+      worker(Backend.Stream.ChannelShipRefresh, []),
       Supervisor.child_spec(
         {ConCache, [name: :ships_cache, ttl_check_interval: 500, global_ttl: 5000]},
         id: :ships_cache
