@@ -202,11 +202,15 @@ defmodule Backend.Stream do
         from(s in Backend.Wows.Warship, where: s.id in ^ships)
         |> Repo.all()
 
+      ship_ids = Enum.map(ships, fn s -> s.id end)
+
       Logger.debug("update_channel_ships.ships_after_filter=#{ships |> length}")
 
       # save the current ships so that we can use them to retain settings
-      current_ships = from(s in Backend.Stream.ChannelShip, where: s.channel_id == ^channel.id)
-      current_ship_ids = Enum.map(current_ships, fn s -> s.id end)
+      current_ships =
+        from(s in Backend.Stream.ChannelShip, where: s.channel_id == ^channel.id) |> Repo.all()
+
+      current_ship_ids = Enum.map(current_ships, fn s -> s.ship_id end)
 
       Logger.debug("update_channel_ships.inserting.ships=#{ships |> length}")
 
@@ -221,6 +225,12 @@ defmodule Backend.Stream do
           enabled: true
         })
         |> Repo.insert()
+      end
+
+      # remove ships that we don't need
+      for ship <- Enum.filter(current_ships, fn s -> not (s.ship_id in ship_ids) end) do
+        ship
+        |> Repo.delete!()
       end
 
       {:ok, get_channel!(channel.id) |> Repo.preload(:ships)}
