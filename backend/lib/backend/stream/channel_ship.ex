@@ -17,6 +17,7 @@ defmodule Backend.Stream.ChannelShip do
     |> cast(attrs, [:channel_id, :ship_id, :enabled])
     |> validate_required([:channel_id, :ship_id, :enabled])
     |> foreign_key_constraint(:ship_id)
+    |> unique_constraint(:ship_id, :channel_ships_channel_id_ship_id_index)
   end
 
   @doc false
