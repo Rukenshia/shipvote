@@ -195,34 +195,33 @@ defmodule Backend.Stream do
 
     with {:ok, ships} <-
            Backend.Wows.Api.get_account_ships(channel.wows_account_id, channel.wows_realm) do
-      # Because we can't error in a transaction (db aborts the transaction, duh), we filter out
-      # ships that don't exist by getting all ships that are in that list
       Logger.debug("update_channel_ships.ships_before_filter=#{ships |> length}")
 
+      # only insert ships that exist in our database
       ships =
         from(s in Backend.Wows.Warship, where: s.id in ^ships)
         |> Repo.all()
 
       Logger.debug("update_channel_ships.ships_after_filter=#{ships |> length}")
 
-      Repo.transaction(fn ->
-        from(s in Backend.Stream.ChannelShip, where: s.channel_id == ^channel.id)
-        |> Repo.delete_all()
+      # save the current ships so that we can use them to retain settings
+      current_ships = from(s in Backend.Stream.ChannelShip, where: s.channel_id == ^channel.id)
+      current_ship_ids = Enum.map(current_ships, fn s -> s.id end)
 
-        Logger.debug("update_channel_ships.inserting.ships=#{ships |> length}")
+      Logger.debug("update_channel_ships.inserting.ships=#{ships |> length}")
 
-        for ship <- ships do
-          Logger.debug("update_channel_ships.inserting.channel_id=#{channel.id},ship=#{ship.id}")
+      # insert ships that don't exist
+      for ship <- Enum.filter(ships, fn s -> not (s.id in current_ship_ids) end) do
+        Logger.debug("update_channel_ships.inserting.channel_id=#{channel.id},ship=#{ship.id}")
 
-          %Backend.Stream.ChannelShip{}
-          |> Backend.Stream.ChannelShip.changeset(%{
-            channel_id: channel.id,
-            ship_id: ship.id,
-            enabled: true
-          })
-          |> Repo.insert()
-        end
-      end)
+        %Backend.Stream.ChannelShip{}
+        |> Backend.Stream.ChannelShip.changeset(%{
+          channel_id: channel.id,
+          ship_id: ship.id,
+          enabled: true
+        })
+        |> Repo.insert()
+      end
 
       {:ok, get_channel!(channel.id) |> Repo.preload(:ships)}
     else
