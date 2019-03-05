@@ -27,17 +27,27 @@
 
     <h1>Controlling the extension during a stream</h1>
 
-    <img src="<%= static_path(@conn, "/images/shipvote_settings.png") %>" width="60%">
-
     <p>You can open the configuration by navigating to https://twitch.tv/<strong>YOURNAME</strong>/dashboard/live.</p>
     <p><strong>You can only use this extension while you are live.</strong> This is a Twitch limitation.</p>
 
-    <h2>UI Elements</h2>
-    <ul>
-        <li>The top box shows you the current status of your vote. This is where you open and close votes.</li>
-        <li>There are various filters you can apply. The top box will show you how many ships a vote will contain.</li>
-        <li>During the vote, you can easily see the most voted ship. You will also find a detailed list of vote results further below.</li>
-        <li>Personally, I recommend using the Pop-Out extension settings. You can then make the window a bit taller which makes usage easier.</li>
-    </ul>
+    <p>Personally, I recommend using the Pop-Out extension settings. You can then make the window a bit taller which makes usage easier.</p>
+
+    <h2>Configuring and starting votes</h2>
+
+    <img src="<%= static_path(@conn, "/images/shipvote_live_config_closed.png") %>" width="30%">
+
+    <p>The box at the top always shows you the current status of your vote. The button is used to open or close a vote.</p>
     
+    <p>You need to add ships to a vote. This can be done using the "Ship selection" section. You can either add ships by using a filter, for example <em>Nation: france</em> to add all french ships.
+    You can narrow this down by also requiring a specific tier, like <em>Nation: france, Tier: VII</em> which will add all french tier 7 ships. Press the "Add X ships" button to add the ships.</p>
+
+    <p>Further down, you see a list of all your ships. You can use the search bar to add or remove a specific ship by its name.</p>
+
+    <p>Use the <em>Reset</em> button to reset your vote configuration.</p>
+
+    <h2>During the vote</h2>
+
+    <img src="<%= static_path(@conn, "/images/shipvote_live_config_open.png") %>" width="30%">
+
+    <p>Below the vote status box, you can see the current vote results and participants.</p>
 </div>
