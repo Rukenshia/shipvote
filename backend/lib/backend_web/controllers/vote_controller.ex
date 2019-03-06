@@ -15,7 +15,7 @@ defmodule BackendWeb.VoteController do
   def index(conn, %{"id" => channel_id, "status" => status})
       when status == "open" or status == "closed" do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "index_status_#{channel_id}", fn ->
+      ConCache.get_or_store(:rest_vote_cache, "index_status_#{channel_id}_#{status}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.channel_id == ^channel_id and p.status == ^status
@@ -75,7 +75,8 @@ defmodule BackendWeb.VoteController do
          |> Repo.insert() do
       {:ok, vote} ->
         ConCache.delete(:rest_vote_cache, vote.id)
-        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}")
+        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
+        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
         ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
         conn
@@ -99,7 +100,8 @@ defmodule BackendWeb.VoteController do
            |> Repo.update() do
         {:ok, vote} ->
           ConCache.delete(:rest_vote_cache, vote.id)
-          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}")
+          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
+          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
           ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
           conn

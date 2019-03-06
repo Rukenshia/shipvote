@@ -10,7 +10,13 @@ defmodule BackendWeb.VoteView do
   end
 
   def render("vote.json", %{vote: vote}) do
-    %{id: vote.id, status: vote.status, ships: vote.ships, votes: []}
+    %{
+      id: vote.id,
+      status: vote.status,
+      ships: vote.ships,
+      votes: %{},
+      updated_at: vote.updated_at
+    }
     |> render_voted_ships(vote)
   end
 
