@@ -36,6 +36,11 @@ export class ShipvoteApi {
       .then(res => res.data.data[0]);
   }
 
+  getClosedVotes() {
+    return get(this.buildUrl('/votes?status=closed'), { headers: this.headers() })
+      .then(res => res.data.data);
+  }
+
   getVote(id) {
     return get(this.buildUrl(`/votes/${id}`), { headers: this.headers() })
       .then(res => res.data.data);

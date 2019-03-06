@@ -1,8 +1,11 @@
 <template>
   <mdc-layout-grid :class="theme">
-    <mdc-dialog v-model="filterReworkDialog"
-      title="Year of the Filter Rework" accept="Alright"
-      @accept="dismissFilterReworkDialog">
+    <mdc-dialog
+      v-model="filterReworkDialog"
+      title="Year of the Filter Rework"
+      accept="Alright"
+      @accept="dismissFilterReworkDialog"
+    >
       The filters for selecting ships for votes have been reworked to allow more customization.
       Please submit feedback so I can keep improving it!
     </mdc-dialog>
@@ -60,6 +63,10 @@
         </mdc-card-header>
       </mdc-card>
 
+      <mdc-headline>Previous results</mdc-headline>
+
+      <VoteResults :votes="closedVotes"></VoteResults>
+
       <div v-if="voting">
         <mdc-headline>Vote Statistics</mdc-headline>
         <mdc-list two-line bordered>
@@ -98,43 +105,59 @@
         <mdc-headline>Ship selection</mdc-headline>
 
         <mdc-layout-grid>
-          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+          <mdc-layout-cell :phone="2" :tablet="2" :desktop="2">
             <mdc-select class="fullwidth" v-model="bulkAdd.nations" label="Nation">
               <template v-for="nation in filters.nations">
                 <option :key="nation">{{nation}}</option>
               </template>
             </mdc-select>
           </mdc-layout-cell>
-          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+          <mdc-layout-cell :phone="2" :tablet="2" :desktop="2">
             <mdc-select class="fullwidth" v-model="bulkAdd.tiers" label="Tier">
               <template v-for="tier in filters.tiers">
                 <option :key="tier">{{tier}}</option>
               </template>
             </mdc-select>
           </mdc-layout-cell>
-          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+          <mdc-layout-cell :phone="2" :tablet="2" :desktop="2">
             <mdc-select class="fullwidth" v-model="bulkAdd.types" label="Class">
               <template v-for="type in filters.types">
                 <option :key="type">{{type}}</option>
               </template>
             </mdc-select>
           </mdc-layout-cell>
-          <mdc-layout-cell :phone=2 :tablet=2 :desktop=2>
+          <mdc-layout-cell :phone="2" :tablet="2" :desktop="2">
             <mdc-checkbox label="Premiums" v-model="bulkAdd.premiums"/>
           </mdc-layout-cell>
 
-
-          <mdc-layout-cell :span=6>
-            <mdc-button raised class="fullwidth" @click="doBulkAdd" :disabled="bulkAddShips.length === 0">Add {{bulkAddShips.length}} ships</mdc-button>
+          <mdc-layout-cell :span="6">
+            <mdc-button
+              raised
+              class="fullwidth"
+              @click="doBulkAdd"
+              :disabled="bulkAddShips.length === 0"
+            >Add {{bulkAddShips.length}} ships</mdc-button>
           </mdc-layout-cell>
-          <mdc-layout-cell :span=6>
-            <mdc-button class="fullwidth" @click="selectedShips = []" :disabled="selectedShips.length === 0"><i class="material-icons">delete</i> reset</mdc-button>
+          <mdc-layout-cell :span="6">
+            <mdc-button
+              class="fullwidth"
+              @click="selectedShips = []"
+              :disabled="selectedShips.length === 0"
+            >
+              <i class="material-icons">delete</i> reset
+            </mdc-button>
           </mdc-layout-cell>
         </mdc-layout-grid>
 
         <mdc-layout-grid>
-          <mdc-layout-cell :phone=4 :tablet=8 :desktop=12>
-            <mdc-textfield box class="fullwidth" v-model="search" label="Ship name" trailing-icon="search"/>
+          <mdc-layout-cell :phone="4" :tablet="8" :desktop="12">
+            <mdc-textfield
+              box
+              class="fullwidth"
+              v-model="search"
+              label="Ship name"
+              trailing-icon="search"
+            />
           </mdc-layout-cell>
         </mdc-layout-grid>
 
@@ -152,11 +175,7 @@
             </span>
             <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
 
-            <mdc-button
-              slot="end-detail"
-              raised
-              @click="deselect(ship)"
-            >remove</mdc-button>
+            <mdc-button slot="end-detail" raised @click="deselect(ship)">remove</mdc-button>
           </mdc-list-item>
           <mdc-list-item v-for="ship in availableShips" :key="ship.id">
             <img
@@ -171,10 +190,7 @@
             </span>
             <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
 
-            <mdc-button
-              slot="end-detail"
-              @click="select(ship)"
-            >add</mdc-button>
+            <mdc-button slot="end-detail" @click="select(ship)">add</mdc-button>
           </mdc-list-item>
         </mdc-list>
       </div>
@@ -196,11 +212,15 @@
 <script>
 import { Socket } from 'phoenix';
 import { BASE_WS_URL, BASE_URL, ShipvoteApi } from '../shipvote';
+import VoteResults from './VoteResults';
 
 const get = window.axios.get;
 
 window.App = {
   name: 'app',
+  components: {
+    VoteResults,
+  },
   data() {
     return {
       socket: undefined,
@@ -210,6 +230,7 @@ window.App = {
       theme: 'light',
       api: undefined,
       vote: undefined,
+      closedVotes: undefined,
 
       viewSetting: 0,
 
@@ -263,6 +284,10 @@ window.App = {
 
       this.loadChannelConfig().then(() => {
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
+
+        setInterval(() => {
+          this.updateClosedVotes();
+        }, 5000);
 
         const updateOpenVote = () => {
           this.api
@@ -414,6 +439,11 @@ window.App = {
     closeVote() {
       this.api.closeVote(this.vote.id).then(vote => {
         this.vote = vote;
+      });
+    },
+    updateClosedVotes() {
+      this.api.getClosedVotes().then(votes => {
+        this.closedVotes = votes;
       });
     },
     doBulkAdd() {
