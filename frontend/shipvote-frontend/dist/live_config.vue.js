@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 45);
+/******/ 	return __webpack_require__(__webpack_require__.s = 46);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1216,11 +1216,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-//import * as twitchMock from './twitch_mock.js';
+// import * as twitchMock from './twitch_mock.js';
 
-//setTimeout(() => {
-//window.simulateTwitch();
-//}, 500);
+// setTimeout(() => {
+//   window.simulateTwitch();
+// }, 500);
 
 /***/ }),
 /* 12 */
@@ -1280,6 +1280,13 @@ var ShipvoteApi = function () {
     value: function getOpenVote() {
       return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes?status=open'), { headers: this.headers() }).then(function (res) {
         return res.data.data[0];
+      });
+    }
+  }, {
+    key: 'getClosedVotes',
+    value: function getClosedVotes() {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes?status=closed'), { headers: this.headers() }).then(function (res) {
+        return res.data.data;
       });
     }
   }, {
@@ -3837,6 +3844,7 @@ var Timer = function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_phoenix__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_phoenix___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_phoenix__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shipvote__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__VoteResults__ = __webpack_require__(49);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -4036,6 +4044,32 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -4044,6 +4078,9 @@ var get = window.axios.get;
 
 window.App = {
   name: 'app',
+  components: {
+    VoteResults: __WEBPACK_IMPORTED_MODULE_2__VoteResults__["a" /* default */]
+  },
   data: function data() {
     return {
       socket: undefined,
@@ -4053,6 +4090,9 @@ window.App = {
       theme: 'light',
       api: undefined,
       vote: undefined,
+
+      loadingClosedVotes: true,
+      closedVotes: [],
 
       viewSetting: 0,
 
@@ -4107,6 +4147,11 @@ window.App = {
 
       _this.loadChannelConfig().then(function () {
         _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], _this.token, _this.channelId);
+        _this.updateClosedVotes();
+
+        setInterval(function () {
+          _this.updateClosedVotes();
+        }, 5000);
 
         var updateOpenVote = function updateOpenVote() {
           _this.api.getOpenVote().then(function (vote) {
@@ -4294,6 +4339,14 @@ window.App = {
         _this9.vote = vote;
       });
     },
+    updateClosedVotes: function updateClosedVotes() {
+      var _this10 = this;
+
+      this.api.getClosedVotes().then(function (votes) {
+        _this10.closedVotes = votes;
+        _this10.loadingClosedVotes = false;
+      });
+    },
     doBulkAdd: function doBulkAdd() {
       var _selectedShips;
 
@@ -4346,7 +4399,94 @@ function tierToInt(tier) {
 /* harmony default export */ __webpack_exports__["a"] = (window.App);
 
 /***/ }),
-/* 36 */,
+/* 36 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["a"] = ({
+  props: ['votes', 'ships'],
+  data: function data() {
+    return {};
+  },
+
+  methods: {
+    topVoted: function topVoted(votes) {
+      var _this = this;
+
+      var sorted = Object.keys(votes).map(function (v) {
+        return _extends({}, _this.ships.find(function (s) {
+          return s.id === parseInt(v, 10);
+        }), {
+          votes: votes[v]
+        });
+      });
+
+      sorted.sort(function (a, b) {
+        var av = votes[a.id] || 0;
+        var bv = votes[b.id] || 0;
+
+        if (av < bv) {
+          return 1;
+        } else if (av === bv) {
+          return 0;
+        }
+        return -1;
+      });
+
+      if (sorted.length === 0 || typeof sorted[0] === 'undefined') {
+        return 'none';
+      }
+
+      var max = votes[sorted[0].id];
+
+      return sorted.filter(function (s) {
+        return s.votes === max;
+      }).map(function (s) {
+        return s.name;
+      }).join(', ');
+    },
+    relativeTime: function relativeTime(since) {
+
+      var msPerMinute = 60 * 1000;
+      var msPerHour = msPerMinute * 60;
+      var msPerDay = msPerHour * 24;
+      var msPerMonth = msPerDay * 30;
+      var msPerYear = msPerDay * 365;
+
+      var elapsed = new Date() - new Date(since);
+
+      if (elapsed < msPerMinute) {
+        var rounded = Math.round(elapsed / 1000);
+        return rounded + ' second' + (rounded !== 1 ? 's' : '') + ' ago';
+      } else if (elapsed < msPerHour) {
+        var _rounded = Math.round(elapsed / msPerMinute);
+        return _rounded + ' minute' + (_rounded !== 1 ? 's' : '') + ' ago';
+      } else if (elapsed < msPerDay) {
+        var _rounded2 = Math.round(elapsed / msPerHour);
+        return _rounded2 + ' hour' + (_rounded2 !== 1 ? 's' : '') + ' ago';
+      } else {
+        return 'some days ago';
+      }
+    }
+  }
+});
+
+/***/ }),
 /* 37 */,
 /* 38 */,
 /* 39 */,
@@ -4355,16 +4495,17 @@ function tierToInt(tier) {
 /* 42 */,
 /* 43 */,
 /* 44 */,
-/* 45 */
+/* 45 */,
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(35);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1e98d593_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_152ecb30_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(51);
 function injectStyle (ssrContext) {
-  __webpack_require__(46)
+  __webpack_require__(47)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -4382,7 +4523,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1e98d593_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_152ecb30_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4393,20 +4534,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(47);
+var content = __webpack_require__(48);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("36739ae6", content, true, {});
+var update = __webpack_require__(4)("70061996", content, true, {});
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(3)(false);
@@ -4420,11 +4561,55 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-dialog',{attrs:{"title":"Year of the Filter Rework","accept":"Alright"},on:{"accept":_vm.dismissFilterReworkDialog},model:{value:(_vm.filterReworkDialog),callback:function ($$v) {_vm.filterReworkDialog=$$v},expression:"filterReworkDialog"}},[_vm._v("\n    The filters for selecting ships for votes have been reworked to allow more customization.\n    Please submit feedback so I can keep improving it!\n  ")]),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("You have selected "+_vm._s(_vm.selectedShips.length)+" ships for the next vote.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("Ship selection")]),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Nation"},model:{value:(_vm.bulkAdd.nations),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "nations", $$v)},expression:"bulkAdd.nations"}},[_vm._l((_vm.filters.nations),function(nation){return [_c('option',{key:nation},[_vm._v(_vm._s(nation))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Tier"},model:{value:(_vm.bulkAdd.tiers),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "tiers", $$v)},expression:"bulkAdd.tiers"}},[_vm._l((_vm.filters.tiers),function(tier){return [_c('option',{key:tier},[_vm._v(_vm._s(tier))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Class"},model:{value:(_vm.bulkAdd.types),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "types", $$v)},expression:"bulkAdd.types"}},[_vm._l((_vm.filters.types),function(type){return [_c('option',{key:type},[_vm._v(_vm._s(type))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-checkbox',{attrs:{"label":"Premiums"},model:{value:(_vm.bulkAdd.premiums),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "premiums", $$v)},expression:"bulkAdd.premiums"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"raised":"","disabled":_vm.bulkAddShips.length === 0},on:{"click":_vm.doBulkAdd}},[_vm._v("Add "+_vm._s(_vm.bulkAddShips.length)+" ships")])],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"disabled":_vm.selectedShips.length === 0},on:{"click":function($event){_vm.selectedShips = []}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete")]),_vm._v(" reset")])],1)],1),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"tablet":8,"desktop":12}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"box":"","label":"Ship name","trailing-icon":"search"},model:{value:(_vm.search),callback:function ($$v) {_vm.search=$$v},expression:"search"}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"bordered":"","two-line":""}},[_vm._l((_vm.searchedSelectedShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":""},on:{"click":function($event){_vm.deselect(ship)}},slot:"end-detail"},[_vm._v("remove")])],1)}),_vm._v(" "),_vm._l((_vm.availableShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail"},on:{"click":function($event){_vm.select(ship)}},slot:"end-detail"},[_vm._v("add")])],1)})],2)],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],1):_vm._e()],1)}
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_VoteResults_vue__ = __webpack_require__(36);
+/* unused harmony namespace reexport */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_fc7dff92_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_VoteResults_vue__ = __webpack_require__(50);
+var normalizeComponent = __webpack_require__(2)
+/* script */
+
+
+/* template */
+
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_VoteResults_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_fc7dff92_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_VoteResults_vue__["a" /* default */],
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+
+/* harmony default export */ __webpack_exports__["a"] = (Component.exports);
+
+
+/***/ }),
+/* 50 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.votes.slice(_vm.votes.length - 3, _vm.votes.length).reverse()),function(vote){return _c('mdc-list-item',{key:vote.id},[_c('span',[_vm._v(_vm._s(_vm.topVoted(vote.votes)))]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(_vm.relativeTime(vote.updated_at)))])])}))}
+var staticRenderFns = []
+var esExports = { render: render, staticRenderFns: staticRenderFns }
+/* harmony default export */ __webpack_exports__["a"] = (esExports);
+
+/***/ }),
+/* 51 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-dialog',{attrs:{"title":"Year of the Filter Rework","accept":"Alright"},on:{"accept":_vm.dismissFilterReworkDialog},model:{value:(_vm.filterReworkDialog),callback:function ($$v) {_vm.filterReworkDialog=$$v},expression:"filterReworkDialog"}},[_vm._v("\n    The filters for selecting ships for votes have been reworked to allow more customization.\n    Please submit feedback so I can keep improving it!\n  ")]),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{attrs:{"outlined":""}},[_c('mdc-card-header',{staticClass:"typography__color--error",staticStyle:{"padding":"8px"}},[_vm._v("No personal configuration")]),_vm._v(" "),_c('mdc-card-text',{staticStyle:{"padding":"8px"}},[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          Vote is\n          "),(_vm.voting)?_c('span',{staticClass:"typography__color--success"},[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("You have selected "+_vm._s(_vm.selectedShips.length)+" ships for the next vote.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true},on:{"click":_vm.openVote}},[_vm._v("Open")]):_vm._e(),_vm._v(" "),(_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]):_vm._e(),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Previous results")]),_vm._v(" "),(_vm.loadingClosedVotes)?[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1)]:[_c('VoteResults',{attrs:{"votes":_vm.closedVotes,"ships":_vm.ships}})],_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("Ship selection")]),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Nation"},model:{value:(_vm.bulkAdd.nations),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "nations", $$v)},expression:"bulkAdd.nations"}},[_vm._l((_vm.filters.nations),function(nation){return [_c('option',{key:nation},[_vm._v(_vm._s(nation))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Tier"},model:{value:(_vm.bulkAdd.tiers),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "tiers", $$v)},expression:"bulkAdd.tiers"}},[_vm._l((_vm.filters.tiers),function(tier){return [_c('option',{key:tier},[_vm._v(_vm._s(tier))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Class"},model:{value:(_vm.bulkAdd.types),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "types", $$v)},expression:"bulkAdd.types"}},[_vm._l((_vm.filters.types),function(type){return [_c('option',{key:type},[_vm._v(_vm._s(type))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-checkbox',{attrs:{"label":"Premiums"},model:{value:(_vm.bulkAdd.premiums),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "premiums", $$v)},expression:"bulkAdd.premiums"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"raised":"","disabled":_vm.bulkAddShips.length === 0},on:{"click":_vm.doBulkAdd}},[_vm._v("Add "+_vm._s(_vm.bulkAddShips.length)+" ships")])],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"disabled":_vm.selectedShips.length === 0},on:{"click":function($event){_vm.selectedShips = []}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete")]),_vm._v(" reset\n          ")])],1)],1),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"tablet":8,"desktop":12}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"box":"","label":"Ship name","trailing-icon":"search"},model:{value:(_vm.search),callback:function ($$v) {_vm.search=$$v},expression:"search"}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"bordered":"","two-line":""}},[_vm._l((_vm.searchedSelectedShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":""},on:{"click":function($event){_vm.deselect(ship)}},slot:"end-detail"},[_vm._v("remove")])],1)}),_vm._v(" "),_vm._l((_vm.availableShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail"},on:{"click":function($event){_vm.select(ship)}},slot:"end-detail"},[_vm._v("add")])],1)})],2)],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],2):_vm._e()],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
