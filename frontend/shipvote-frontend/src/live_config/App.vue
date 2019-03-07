@@ -65,7 +65,16 @@
 
       <mdc-headline>Previous results</mdc-headline>
 
-      <VoteResults :votes="closedVotes"></VoteResults>
+      <template v-if="loadingClosedVotes">
+        <mdc-layout-grid>
+          <mdc-layout-cell :span="4">
+            <mdc-linear-progress indeterminate></mdc-linear-progress>
+          </mdc-layout-cell>
+        </mdc-layout-grid>
+      </template>
+      <template v-else>
+        <VoteResults :votes="closedVotes" :ships="ships"></VoteResults>
+      </template>
 
       <div v-if="voting">
         <mdc-headline>Vote Statistics</mdc-headline>
@@ -230,7 +239,9 @@ window.App = {
       theme: 'light',
       api: undefined,
       vote: undefined,
-      closedVotes: undefined,
+
+      loadingClosedVotes: true,
+      closedVotes: [],
 
       viewSetting: 0,
 
@@ -284,6 +295,7 @@ window.App = {
 
       this.loadChannelConfig().then(() => {
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
+        this.updateClosedVotes();
 
         setInterval(() => {
           this.updateClosedVotes();
@@ -444,6 +456,7 @@ window.App = {
     updateClosedVotes() {
       this.api.getClosedVotes().then(votes => {
         this.closedVotes = votes;
+        this.loadingClosedVotes = false;
       });
     },
     doBulkAdd() {

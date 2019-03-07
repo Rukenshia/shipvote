@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 41);
+/******/ 	return __webpack_require__(__webpack_require__.s = 42);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1216,11 +1216,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-//import * as twitchMock from './twitch_mock.js';
+// import * as twitchMock from './twitch_mock.js';
 
-//setTimeout(() => {
-//window.simulateTwitch();
-//}, 500);
+// setTimeout(() => {
+//   window.simulateTwitch();
+// }, 500);
 
 /***/ }),
 /* 12 */
@@ -1280,6 +1280,13 @@ var ShipvoteApi = function () {
     value: function getOpenVote() {
       return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes?status=open'), { headers: this.headers() }).then(function (res) {
         return res.data.data[0];
+      });
+    }
+  }, {
+    key: 'getClosedVotes',
+    value: function getClosedVotes() {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes?status=closed'), { headers: this.headers() }).then(function (res) {
+        return res.data.data;
       });
     }
   }, {
@@ -2667,16 +2674,17 @@ window.App = {
 /* 38 */,
 /* 39 */,
 /* 40 */,
-/* 41 */
+/* 41 */,
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(34);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(45);
 function injectStyle (ssrContext) {
-  __webpack_require__(42)
+  __webpack_require__(43)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -2705,20 +2713,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(43);
+var content = __webpack_require__(44);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("b7255310", content, true, {});
+var update = __webpack_require__(4)("61192497", content, true, {});
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(3)(false);
@@ -2732,7 +2740,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
