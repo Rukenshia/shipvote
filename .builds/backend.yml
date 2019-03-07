@@ -18,7 +18,7 @@ tasks:
   - mirror: |
       cd shipvote
       git remote set-url origin git@github.com:Rukenshia/shipvote.git
-      git push origin master
+      git push origin master --force
       git push origin --tags
 
   - setup: |
