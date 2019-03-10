@@ -50,6 +50,7 @@
             v-if="!voting"
             @click="openVote"
             class="mdc-button--primary"
+            :disabled="selectedShips.length === 0"
           >Open</mdc-button>
           <mdc-button
             :unelevated="true"

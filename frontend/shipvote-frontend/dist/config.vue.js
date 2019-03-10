@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 44);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1206,6 +1206,8 @@ module.exports = function listToStyles (parentId, list) {
 /* unused harmony export BASE_WS_URL */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_js__ = __webpack_require__(12);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__twitch_mock_js__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__twitch_mock_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__twitch_mock_js__);
 var BASE_URL = "https://shipvote.in.fkn.space";
 var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 // export const BASE_URL = 'http://localhost:4000';
@@ -1216,11 +1218,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-//import * as twitchMock from './twitch_mock.js';
 
-//setTimeout(() => {
-//window.simulateTwitch();
-//}, 500);
+
+setTimeout(function () {
+  window.simulateTwitch();
+}, 500);
 
 /***/ }),
 /* 12 */
@@ -2399,8 +2401,35 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 33 */,
-/* 34 */
+/* 33 */
+/***/ (function(module, exports) {
+
+var token = '***REMOVED***';
+
+var authHandlers = [];
+
+window.Twitch = {
+  ext: {
+    onAuthorized: function onAuthorized(fn) {
+      authHandlers.push(fn);
+    },
+    onContext: function onContext() {}
+  }
+};
+
+window.simulateTwitch = function () {
+  authHandlers.forEach(function (fn) {
+    return fn({
+      token: token,
+      channelId: '27995184',
+      userId: 'fakeUser'
+    });
+  });
+};
+
+/***/ }),
+/* 34 */,
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2668,7 +2697,6 @@ window.App = {
 /* harmony default export */ __webpack_exports__["a"] = (window.App);
 
 /***/ }),
-/* 35 */,
 /* 36 */,
 /* 37 */,
 /* 38 */,
@@ -2676,16 +2704,17 @@ window.App = {
 /* 40 */,
 /* 41 */,
 /* 42 */,
-/* 43 */
+/* 43 */,
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(35);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(47);
 function injectStyle (ssrContext) {
-  __webpack_require__(44)
+  __webpack_require__(45)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -2714,20 +2743,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(45);
+var content = __webpack_require__(46);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
 var update = __webpack_require__(9)("b7255310", content, true, {});
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(8)(false);
@@ -2741,7 +2770,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

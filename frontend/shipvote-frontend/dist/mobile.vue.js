@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 71);
+/******/ 	return __webpack_require__(__webpack_require__.s = 72);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1206,6 +1206,8 @@ module.exports = function listToStyles (parentId, list) {
 /* unused harmony export BASE_WS_URL */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__api_js__ = __webpack_require__(12);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__api_js__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__twitch_mock_js__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__twitch_mock_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__twitch_mock_js__);
 var BASE_URL = "https://shipvote.in.fkn.space";
 var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 // export const BASE_URL = 'http://localhost:4000';
@@ -1216,11 +1218,11 @@ var BASE_WS_URL = "wss://shipvote.in.fkn.space";
 
 
 // Remove comments from the below to enable simulation
-//import * as twitchMock from './twitch_mock.js';
 
-//setTimeout(() => {
-//window.simulateTwitch();
-//}, 500);
+
+setTimeout(function () {
+  window.simulateTwitch();
+}, 500);
 
 /***/ }),
 /* 12 */
@@ -2399,7 +2401,33 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 33 */,
+/* 33 */
+/***/ (function(module, exports) {
+
+var token = '***REMOVED***';
+
+var authHandlers = [];
+
+window.Twitch = {
+  ext: {
+    onAuthorized: function onAuthorized(fn) {
+      authHandlers.push(fn);
+    },
+    onContext: function onContext() {}
+  }
+};
+
+window.simulateTwitch = function () {
+  authHandlers.forEach(function (fn) {
+    return fn({
+      token: token,
+      channelId: '27995184',
+      userId: 'fakeUser'
+    });
+  });
+};
+
+/***/ }),
 /* 34 */,
 /* 35 */,
 /* 36 */,
@@ -2408,13 +2436,21 @@ module.exports = function spread(callback) {
 /* 39 */,
 /* 40 */,
 /* 41 */,
-/* 42 */
+/* 42 */,
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shipvote__ = __webpack_require__(11);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2459,11 +2495,15 @@ window.App = {
   data: function data() {
     return {
       loading: true,
-      theme: 'light',
+      theme: 'dark',
       api: undefined,
+
+      updateVotesTimeout: null,
+      checkOpenVoteTimeout: null,
 
       // Active vote
       vote: undefined,
+      voting: false,
 
       // User is selecting a ship
       selecting: true,
@@ -2515,23 +2555,24 @@ window.App = {
           }).catch(function (e) {
             return console.error('updateVotes: ' + e);
           }).then(function () {
-            if (_this.voting) {
-              setTimeout(function () {
+            if (_this.vote && _this.vote.status !== 'closed' && _this.vote.id === voteId) {
+              _this.updateVotesTimeout = setTimeout(function () {
                 return updateVotes(voteId);
               }, 2500);
             }
+            _this.loading = false;
           });
         };
 
         var checkOpenVote = function checkOpenVote() {
           _this.api.getOpenVote().then(function (vote) {
-            _this.vote = vote;
+            _this.loading = true;
             if (vote && !_this.voting) {
-              _this.voteStarted = true;
-              setTimeout(function () {
-                _this.voteStarted = false;
-              }, 5000);
+              clearTimeout(_this.updateVotesTimeout);
+              clearTimeout(_this.checkOpenVoteTimeout);
+
               _this.voting = true;
+              _this.selecting = true;
 
               // Get ships
               // Update votes in an interval
@@ -2548,21 +2589,23 @@ window.App = {
                   return byTier;
                 });
 
-                _this.loading = false;
                 updateVotes(vote.id);
               });
             } else {
+              _this.voting = false;
               _this.loading = false;
               _this.selecting = false;
               _this.selectedShip = undefined;
               _this.totalVotes = 0;
               _this.ships = [];
             }
+
+            _this.vote = vote;
           }).catch(function (e) {
             return console.error('checkOpenVote: ' + e);
           }).then(function () {
-            if (!_this.voting) {
-              setTimeout(function () {
+            if (!_this.vote) {
+              _this.checkOpenVoteTimeout = setTimeout(function () {
                 return checkOpenVote();
               }, 5000);
             }
@@ -2591,7 +2634,6 @@ window.App = {
 /* harmony default export */ __webpack_exports__["a"] = (window.App);
 
 /***/ }),
-/* 43 */,
 /* 44 */,
 /* 45 */,
 /* 46 */,
@@ -2619,16 +2661,17 @@ window.App = {
 /* 68 */,
 /* 69 */,
 /* 70 */,
-/* 71 */
+/* 71 */,
+/* 72 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(43);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_485d2e6a_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(74);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_31aa203b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
-  __webpack_require__(72)
+  __webpack_require__(73)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -2646,7 +2689,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_485d2e6a_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_31aa203b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -2657,20 +2700,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(73);
+var content = __webpack_require__(74);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(9)("10806290", content, true, {});
+var update = __webpack_require__(9)("369c8292", content, true, {});
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(8)(false);
@@ -2678,17 +2721,17 @@ exports = module.exports = __webpack_require__(8)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-list-item__graphic {\n  margin-bottom: 10px;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-list-item__graphic {\n  margin-bottom: 10px;\n}\nbody {\n  height: 100vh;\n  width: 100vw;\n  margin: 0;\n  padding: 0;\n}\n.app {\n  padding: 1em;\n  min-height: 100vh;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.theme},[(_vm.loading)?_c('mdc-linear-progress',{attrs:{"indeterminate":""}}):[_c('mdc-list',{attrs:{"two-line":"","interactive":_vm.selecting}},_vm._l((_vm.ships),function(ship){return _c('mdc-list-item',{key:ship.id,attrs:{"selected":_vm.selectedShip && _vm.selectedShip.id === ship.id},on:{"click":function($event){_vm.voteForShip(ship)}}},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56px","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_vm._v("\n          "+_vm._s(ship.name)+"\n        ")]),_vm._v(" "),(_vm.selectedShip && _vm.selectedShip.id === ship.id)?_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("You voted for this ship")]):_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(ship.votes > 0),expression:"ship.votes > 0"}],attrs:{"slot":"end-detail"},slot:"end-detail"},[_c('span',{staticClass:"mdc-typography"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes > 1 ? 's' : ''))]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"progress":ship.votes === 0 ? 0 : ship.votes / _vm.totalVotes}})],1)])}))]],2)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app",class:_vm.theme},[(_vm.loading)?_c('mdc-linear-progress',{attrs:{"indeterminate":""}}):[(!_vm.vote)?[_c('mdc-headline',[_vm._v("No vote available")]),_vm._v(" "),_c('span',{staticClass:"mdc-typography"},[_vm._v("Wait for the streamer to open a new vote.")])]:[_c('mdc-list',{attrs:{"two-line":"","interactive":_vm.selecting}},_vm._l((_vm.ships),function(ship){return _c('mdc-list-item',{key:ship.id,attrs:{"selected":_vm.selectedShip && _vm.selectedShip.id === ship.id},on:{"click":function($event){_vm.voteForShip(ship)}}},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56px","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_vm._v("\n            "+_vm._s(ship.name)+"\n          ")]),_vm._v(" "),(_vm.selectedShip && _vm.selectedShip.id === ship.id)?_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("You voted for this ship")]):_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(ship.votes > 0),expression:"ship.votes > 0"}],attrs:{"slot":"end-detail"},slot:"end-detail"},[_c('span',{staticClass:"mdc-typography"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes > 1 ? 's' : ''))]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"progress":ship.votes === 0 ? 0 : ship.votes / _vm.totalVotes}})],1)])}))]]],2)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);

@@ -1,4 +1,4 @@
-const token = '';
+const token = '***REMOVED***';
 
 const authHandlers = [];
 
