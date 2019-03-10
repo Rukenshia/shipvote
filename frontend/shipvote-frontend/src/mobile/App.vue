@@ -1,33 +1,40 @@
 <template>
-  <div :class="theme">
+  <div class="app" :class="theme">
     <mdc-linear-progress indeterminate v-if="loading"></mdc-linear-progress>
     <template v-else>
-      <mdc-list two-line :interactive="selecting">
-        <mdc-list-item v-for="ship in ships"
-          :key="ship.id" :selected="selectedShip && selectedShip.id === ship.id"
-          @click="voteForShip(ship)"
-          >
+      <template v-if="!vote">
+        <mdc-headline>No vote available</mdc-headline>
 
-          <img
-            slot="start-detail"
-            :src="ship.image"
-            width="56px"
-            height="auto"
-            :alt="`Image of ${ship.name}`"
-          >
-          <span>
-            {{ship.name}}
-          </span>
-          <span slot="secondary" v-if="selectedShip && selectedShip.id === ship.id">You voted for this ship</span>
-          <span slot="secondary" v-else>Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
+        <span class="mdc-typography">Wait for the streamer to open a new vote.</span>
+      </template>
+      <template v-else>
+        <mdc-list two-line :interactive="selecting">
+          <mdc-list-item v-for="ship in ships"
+            :key="ship.id" :selected="selectedShip && selectedShip.id === ship.id"
+            @click="voteForShip(ship)"
+            >
 
-          <div slot="end-detail" v-show="ship.votes > 0">
-            <span class="mdc-typography">{{ship.votes}} vote{{ship.votes > 1 ? 's' : ''}}</span>
+            <img
+              slot="start-detail"
+              :src="ship.image"
+              width="56px"
+              height="auto"
+              :alt="`Image of ${ship.name}`"
+            >
+            <span>
+              {{ship.name}}
+            </span>
+            <span slot="secondary" v-if="selectedShip && selectedShip.id === ship.id">You voted for this ship</span>
+            <span slot="secondary" v-else>Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
 
-            <mdc-linear-progress :progress="ship.votes === 0 ? 0 : ship.votes / totalVotes"></mdc-linear-progress>
-          </div>
-        </mdc-list-item>
-      </mdc-list>
+            <div slot="end-detail" v-show="ship.votes > 0">
+              <span class="mdc-typography">{{ship.votes}} vote{{ship.votes > 1 ? 's' : ''}}</span>
+
+              <mdc-linear-progress :progress="ship.votes === 0 ? 0 : ship.votes / totalVotes"></mdc-linear-progress>
+            </div>
+          </mdc-list-item>
+        </mdc-list>
+      </template>
     </template>
   </div>
 </template>
@@ -42,11 +49,15 @@ window.App = {
   data() {
     return {
       loading: true,
-      theme: 'light',
+      theme: 'dark',
       api: undefined,
+
+      updateVotesTimeout: null,
+      checkOpenVoteTimeout: null,
 
       // Active vote
       vote: undefined,
+      voting: false,
 
       // User is selecting a ship
       selecting: true,
@@ -94,21 +105,22 @@ window.App = {
             this.totalVotes = totalVotes;
           }).catch(e => console.error(`updateVotes: ${e}`))
             .then(() => {
-              if (this.voting) {
-                setTimeout(() => updateVotes(voteId), 2500);
+              if (this.vote && this.vote.status !== 'closed' && this.vote.id === voteId) {
+                this.updateVotesTimeout = setTimeout(() => updateVotes(voteId), 2500);
               }
+              this.loading = false;
             });
         };
 
         const checkOpenVote = () => {
           this.api.getOpenVote().then(vote => {
-            this.vote = vote;
+            this.loading = true;
             if (vote && !this.voting) {
-              this.voteStarted = true;
-              setTimeout(() => {
-                this.voteStarted = false;
-              }, 5000);
+              clearTimeout(this.updateVotesTimeout);
+              clearTimeout(this.checkOpenVoteTimeout);
+
               this.voting = true;
+              this.selecting = true;
 
               // Get ships
               // Update votes in an interval
@@ -123,20 +135,22 @@ window.App = {
                   return byTier;
                 });
 
-                this.loading = false;
                 updateVotes(vote.id);
               });
             } else {
+              this.voting = false;
               this.loading = false;
               this.selecting = false;
               this.selectedShip = undefined;
               this.totalVotes = 0;
               this.ships = [];
             }
+
+            this.vote = vote;
           }).catch(e => console.error(`checkOpenVote: ${e}`))
             .then(() => {
-              if (!this.voting) {
-                setTimeout(() => checkOpenVote(), 5000);
+              if (!this.vote) {
+                this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), 5000);
               }
             });
         };
@@ -175,5 +189,17 @@ export default window.App;
 
 .mdc-list-item__graphic {
   margin-bottom: 10px;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  padding: 1em;
+  min-height: 100vh;
 }
 </style>
