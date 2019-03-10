@@ -6,6 +6,7 @@ module.exports = {
     'config.vue': './src/config/App.vue',
     'live_config.vue': './src/live_config/App.vue',
     'video_overlay.vue': './src/video_overlay/App.vue',
+    'mobile.vue': './src/mobile/App.vue',
   },
   output: {
     path: path.resolve(__dirname, './dist'),

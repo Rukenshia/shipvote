@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 71);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2400,274 +2400,7 @@ module.exports = function spread(callback) {
 
 /***/ }),
 /* 33 */,
-/* 34 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shipvote__ = __webpack_require__(11);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-var _window$axios = window.axios,
-    get = _window$axios.get,
-    post = _window$axios.post,
-    put = _window$axios.put;
-
-
-window.App = {
-  name: 'app',
-  data: function data() {
-    return {
-      loading: true,
-      saving: false,
-      loadingError: false,
-
-      error: undefined,
-      validations: {
-        username: true,
-        realm: true
-      },
-
-      configured: false,
-      token: '',
-      theme: 'light',
-      config: {}
-    };
-  },
-  created: function created() {
-    var _this = this;
-
-    window.Twitch.ext.onContext(function (ctx) {
-      _this.theme = ctx.theme;
-    });
-
-    window.Twitch.ext.onAuthorized(function (data) {
-      _this.config.id = data.channelId;
-      _this.token = data.token;
-
-      get(__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */] + '/api/settings/channels/' + data.channelId, {
-        headers: {
-          authorization: 'Bearer ' + data.token
-        }
-      }).then(function (res) {
-        _this.loading = false;
-        _this.configured = true;
-
-        _this.config = res.data['data'];
-      }).catch(function (e) {
-        if (e.response.status === 404) {
-          _this.loading = false;
-          _this.config = {
-            id: data.channelId,
-            wows_username: '',
-            wows_realm: 'eu',
-            ships: []
-          };
-        } else {
-          _this.loadingError = true;
-          _this.loading = false;
-        }
-      });
-    });
-  },
-
-  methods: {
-    updateInfo: function updateInfo() {
-      var _this2 = this;
-
-      this.error = undefined;
-      this.validations.username = true;
-      this.validations.realm = true;
-      this.saving = true;
-
-      put(__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */] + '/api/settings/channels/' + this.config.id, {
-        channel: this.config
-      }, {
-        headers: {
-          authorization: 'Bearer ' + this.token
-        }
-      }).then(function (res) {
-        _this2.loading = false;
-
-        _this2.config = res.data['data'];
-      }).catch(function (res) {
-        _this2.error = 'could not save information';
-
-        if (res.response.status === 404) {
-          _this2.validations.username = false;
-          _this2.validations.realm = false;
-          _this2.error = 'Please check your username and realm';
-        }
-      }).then(function () {
-        _this2.saving = false;
-      });
-    },
-    createInfo: function createInfo() {
-      var _this3 = this;
-
-      this.error = undefined;
-      this.validations.username = true;
-      this.validations.realm = true;
-      this.saving = true;
-
-      post(__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */] + '/api/settings/channels', this.config, {
-        headers: {
-          authorization: 'Bearer ' + this.token
-        }
-      }).then(function (res) {
-        _this3.loading = false;
-
-        _this3.config = res.data['data'];
-        _this3.configured = true;
-      }).catch(function (res) {
-        _this3.error = 'could not save information';
-
-        if (res.response.status === 404) {
-          _this3.validations.username = false;
-          _this3.validations.realm = false;
-          _this3.error = 'Please check your username and realm';
-        }
-      }).then(function () {
-        _this3.saving = false;
-      });
-    },
-    toggleShip: function toggleShip(ship) {
-      var _this4 = this;
-
-      var newState = !ship.enabled;
-
-      this.error = undefined;
-
-      console.log(this.token);
-
-      put(__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */] + '/api/settings/channels/' + this.config.id + '/ships/' + ship.id + '/enabled', { enabled: newState }, {
-        headers: {
-          authorization: 'Bearer ' + this.token
-        }
-      }).then(function () {
-        ship.enabled = newState;
-      }).catch(function (res) {
-        _this4.error = 'could not write ship information';
-      });
-    }
-  },
-  computed: {
-    enabledShips: function enabledShips() {
-      return this.config.ships.filter(function (s) {
-        return s.enabled === true;
-      });
-    }
-  }
-};
-/* harmony default export */ __webpack_exports__["a"] = (window.App);
-
-/***/ }),
+/* 34 */,
 /* 35 */,
 /* 36 */,
 /* 37 */,
@@ -2675,17 +2408,227 @@ window.App = {
 /* 39 */,
 /* 40 */,
 /* 41 */,
-/* 42 */,
-/* 43 */
+/* 42 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__shipvote__ = __webpack_require__(11);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+var get = window.axios.get;
+
+window.App = {
+  name: 'app',
+  data: function data() {
+    return {
+      loading: true,
+      theme: 'light',
+      api: undefined,
+
+      // Active vote
+      vote: undefined,
+
+      // User is selecting a ship
+      selecting: true,
+
+      // The user selected ship
+      selectedShip: null,
+
+      // total votes
+      totalVotes: 0,
+
+      // Ships available to vote
+      ships: []
+    };
+  },
+  created: function created() {
+    var _this = this;
+
+    window.Twitch.ext.onContext(function (data) {
+      _this.theme = data.theme;
+    });
+    window.Twitch.ext.onAuthorized(function (authData) {
+      _this.api = new __WEBPACK_IMPORTED_MODULE_0__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_0__shipvote__["a" /* BASE_URL */], authData.token, authData.channelId);
+
+      _this.api.getChannelInfo().then(function (info) {
+        var updateVotes = function updateVotes(voteId) {
+          _this.api.getVote(voteId).then(function (vote) {
+            if (!vote || vote.status === 'closed') {
+              checkOpenVote();
+              return;
+            }
+
+            var totalVotes = 0;
+            Object.keys(vote.votes).forEach(function (shipId) {
+              totalVotes += vote.votes[shipId];
+              shipId = parseInt(shipId, 10);
+              var shipIdx = _this.ships.findIndex(function (s) {
+                return s.id === shipId;
+              });
+
+              if (shipIdx !== -1) {
+                Vue.set(_this.ships, shipIdx, _extends({}, _this.ships[shipIdx], {
+                  votes: vote.votes[shipId]
+                }));
+              }
+            });
+
+            _this.vote = vote;
+            _this.totalVotes = totalVotes;
+          }).catch(function (e) {
+            return console.error('updateVotes: ' + e);
+          }).then(function () {
+            if (_this.voting) {
+              setTimeout(function () {
+                return updateVotes(voteId);
+              }, 2500);
+            }
+          });
+        };
+
+        var checkOpenVote = function checkOpenVote() {
+          _this.api.getOpenVote().then(function (vote) {
+            _this.vote = vote;
+            if (vote && !_this.voting) {
+              _this.voteStarted = true;
+              setTimeout(function () {
+                _this.voteStarted = false;
+              }, 5000);
+              _this.voting = true;
+
+              // Get ships
+              // Update votes in an interval
+              // Terminate interval
+              _this.api.getWarships(vote.ships).then(function (ships) {
+                _this.ships = ships.map(function (s) {
+                  return _extends({}, s, { votes: 0 });
+                }).sort(function (a, b) {
+                  var byTier = a.tier < b.tier ? 1 : a.tier == b.tier ? 0 : -1;
+
+                  if (byTier === 0) {
+                    return a.name < b.name ? -1 : 1;
+                  }
+                  return byTier;
+                });
+
+                _this.loading = false;
+                updateVotes(vote.id);
+              });
+            } else {
+              _this.loading = false;
+              _this.selecting = false;
+              _this.selectedShip = undefined;
+              _this.totalVotes = 0;
+              _this.ships = [];
+            }
+          }).catch(function (e) {
+            return console.error('checkOpenVote: ' + e);
+          }).then(function () {
+            if (!_this.voting) {
+              setTimeout(function () {
+                return checkOpenVote();
+              }, 5000);
+            }
+          });
+        };
+
+        checkOpenVote();
+      });
+    });
+  },
+
+  methods: {
+    voteForShip: function voteForShip(ship) {
+      if (this.voted) {
+        return;
+      }
+
+      this.selecting = false;
+      this.selectedShip = ship;
+
+      this.api.voteForShip(this.vote.id, ship.id);
+    }
+  }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (window.App);
+
+/***/ }),
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(34);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(42);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_485d2e6a_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(74);
 function injectStyle (ssrContext) {
-  __webpack_require__(44)
+  __webpack_require__(72)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -2703,7 +2646,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ec1f46ea_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_485d2e6a_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -2714,20 +2657,20 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 44 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(45);
+var content = __webpack_require__(73);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(9)("b7255310", content, true, {});
+var update = __webpack_require__(9)("10806290", content, true, {});
 
 /***/ }),
-/* 45 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(8)(false);
@@ -2735,17 +2678,17 @@ exports = module.exports = __webpack_require__(8)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.fullwidth,\n.fullwidth .mdc-textfield {\n  width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n    color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.mdc-list-item__graphic {\n  margin-bottom: 10px;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 46 */
+/* 74 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-left":"16px"}},[_c('mdc-body',[_vm._v("\n          Learn how to use this extension\n          "),_c('a',{attrs:{"target":"_blank","href":"https://shipvote.in.fkn.space/getting-started"}},[_vm._v("here")]),_vm._v(".\n        ")])],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Shipvote Settings")]),_vm._v(" "),(_vm.loading)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("Loading your config")]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1):_vm._e(),_vm._v(" "),(_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("Configuration could not be loaded. Please contact rukenshia for support.")])],1)],1):_vm._e(),_vm._v(" "),(!_vm.loading && !_vm.loadingError)?_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":4,"tablet":4}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"label":"WoWS Username","valid":_vm.validations.username,"required":"","box":""},model:{value:(_vm.config.wows_username),callback:function ($$v) {_vm.$set(_vm.config, "wows_username", $$v)},expression:"config.wows_username"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":4,"desktop":2,"tablet":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"WoWS Server","valid":_vm.validations.realm},model:{value:(_vm.config.wows_realm),callback:function ($$v) {_vm.$set(_vm.config, "wows_realm", $$v)},expression:"config.wows_realm"}},[_c('option',[_vm._v("eu")]),_vm._v(" "),_c('option',[_vm._v("na")]),_vm._v(" "),_c('option',[_vm._v("asia")]),_vm._v(" "),_c('option',[_vm._v("ru")])])],1),_vm._v(" "),(_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":"","disabled":_vm.saving},on:{"click":_vm.updateInfo}},[_vm._v("Save")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":"","disabled":_vm.saving},on:{"click":_vm.updateInfo}},[_vm._v("Refresh ships")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e(),_vm._v(" "),(!_vm.configured)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-button',{attrs:{"raised":"","disabled":_vm.config.wows_username === '' || _vm.saving},on:{"click":_vm.createInfo}},[_vm._v("Setup")]),_vm._v(" "),(_vm.error)?_c('mdc-body',[_vm._v("An error occured: "+_vm._s(_vm.error))]):_vm._e()],1):_vm._e()],1),_vm._v(" "),(_vm.configured)?[_c('mdc-body',{attrs:{"typo":"body1"}},[_vm._v("\n            You currently own "+_vm._s(_vm.config.ships.length)+" ships. "+_vm._s(_vm.enabledShips.length)+" ships are currently enabled.\n            Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.\n          ")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.config.ships),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":!ship.enabled},on:{"click":function($event){_vm.toggleShip(ship)}},slot:"end-detail"},[_vm._v(_vm._s(ship.enabled ? 'disable' : 'enable'))])],1)}))]:_vm._e()],2)],1):_vm._e()],1)],1)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{class:_vm.theme},[(_vm.loading)?_c('mdc-linear-progress',{attrs:{"indeterminate":""}}):[_c('mdc-list',{attrs:{"two-line":"","interactive":_vm.selecting}},_vm._l((_vm.ships),function(ship){return _c('mdc-list-item',{key:ship.id,attrs:{"selected":_vm.selectedShip && _vm.selectedShip.id === ship.id},on:{"click":function($event){_vm.voteForShip(ship)}}},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56px","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_vm._v("\n          "+_vm._s(ship.name)+"\n        ")]),_vm._v(" "),(_vm.selectedShip && _vm.selectedShip.id === ship.id)?_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("You voted for this ship")]):_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(ship.votes > 0),expression:"ship.votes > 0"}],attrs:{"slot":"end-detail"},slot:"end-detail"},[_c('span',{staticClass:"mdc-typography"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes > 1 ? 's' : ''))]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"progress":ship.votes === 0 ? 0 : ship.votes / _vm.totalVotes}})],1)])}))]],2)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
