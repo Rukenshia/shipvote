@@ -4,4 +4,4 @@ TODO: Description
 
 ## Backend Architecture
 
-![Backend Architecture Diagram](docs/Shipvote Architecture.png)
+![Backend Architecture Diagram](docs/Shipvote%20Architecture.png)
