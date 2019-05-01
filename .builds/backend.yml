@@ -10,7 +10,7 @@ sources:
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
-  - c7e549a9-3b06-449d-ab54-51c492c28ca2
+  - fff7c36b-ef57-4fa1-bb47-4a896f68473a
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
 environment:
   MIX_ENV: test
@@ -36,9 +36,9 @@ tasks:
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
   - deploy: |
-      echo "104.248.101.163 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwM48NgaEpbJv1C1FoQlmzm4YeMvwDtAO0er8LCYCBQGKxGTDt6TyFdbXGWsXRnioG/Uqz3jtJs1+4LDRWYbcOe43kKcBDcQSewZmTc1W4nXrFE9sRrRXxinBzGoTEB66W4z5BQyKwTxQ4pcp84Ym3iUuQwESIUR0l7PAtKeHDWn4N2qF9uTh1q2XOknoF5Yc3TF2+OA8rZtGuIRohHOR2NrWAeta487TziYzwd0eg9wlt6jwsigeb/FpdvW3THG/0cb3tgTQ32INs/MYVlT8z96AOC1AdzQpy4q1/BKbxdav2RLIkPJq2slmAEUbwfZwUtrLfQm9FgvZ1tZfU5hCz" >> known_hosts
+      echo "142.93.97.76 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDLlyhEAGzPgI96V4c1A9eRBLoMfERvu4LfTSYM1gUfodxAjmrI97VsN9gVPgaDwPtNMiODrpX4TuZdeIBba2sUwz39d7nE2NB529X60pM+8o+RHuFz9M1jcRDli04WpfV14UomrWVCjWIFINGzsrXOEBnML6iELkW3uJRm5N8o1gCRxTp606R/+VHIT6qICn225G1Mhronqm0nGe3gX3zz1afyS0XSX+/WmnHjqJ2hMWVR6xhMDJowkND5sIDqQTg9V91q7yBLofbzxRjmI0FGWf46wjma9uIe1cmHtu6yNrszS8Qy24wK47tKKLKhgjtEJMAH9ml35FGt2/oBcDG5" >> known_hosts
 
-      ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@104.248.101.163 < shipvote/backend/scripts/deploy.sh
+      ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@142.93.97.76 < shipvote/backend/scripts/deploy.sh
 triggers:
   - action: email
     condition: always
