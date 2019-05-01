@@ -1,10 +1,10 @@
 <template>
   <mdc-layout-grid :class="theme">
     <mdc-dialog
-      v-model="filterReworkDialog"
+      v-model="showDialog"
       title="Year of the Filter Rework"
       accept="Alright"
-      @accept="dismissFilterReworkDialog"
+      @accept="dismissDialog"
     >
       The filters for selecting ships for votes have been reworked to allow more customization.
       Please submit feedback so I can keep improving it!
@@ -36,9 +36,9 @@
       <mdc-card class="mdc-card--flat" style="text-align: center">
         <mdc-card-header>
           <mdc-headline>
-            Vote is
-            <span v-if="voting" class="typography__color--success">open</span>
-            <span v-if="!voting" class="typography__color--error">closed</span>
+            The vote is
+            <strong v-if="voting">open</strong>
+            <strong v-if="!voting">closed</strong>
           </mdc-headline>
 
           <mdc-body
@@ -54,7 +54,7 @@
           >Open</mdc-button>
           <mdc-button
             :unelevated="true"
-            v-if="voting"
+            v-else
             @click="closeVote"
             class="mdc-button--danger"
           >Close</mdc-button>
@@ -206,7 +206,7 @@
       </div>
 
       <mdc-card class="mdc-card--flat">
-        <mdc-card-text>
+        <mdc-card-text style="padding-bottom: 8px">
           <mdc-body typo="body2">
             Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or
             <a
@@ -253,7 +253,7 @@ window.App = {
       error: false,
 
       search: '',
-      filterReworkDialog: true,
+      showDialog: false,
       bulkAdd: {
         nations: 'all',
         tiers: 'all',
@@ -278,10 +278,6 @@ window.App = {
     };
   },
   created() {
-    if (window.localStorage.getItem('filterReworkDialogDismissed')) {
-      this.filterReworkDialog = false;
-    }
-
     window.Twitch.ext.onContext(ctx => {
       this.theme = ctx.theme;
     });
@@ -483,9 +479,9 @@ window.App = {
         return -1;
       });
     },
-    dismissFilterReworkDialog() {
-      window.localStorage.setItem('filterReworkDialogDismissed', true);
-      this.filterReworkDialog = false;
+    dismissDialog() {
+      window.localStorage.setItem('showDialogDismissed', true);
+      this.showDialog = false;
     },
   }
 };

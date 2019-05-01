@@ -1,9 +1,9 @@
 export const BASE_URL = "https://shipvote.in.fkn.space";
 export const BASE_WS_URL = "wss://shipvote.in.fkn.space";
-// export const BASE_URL = 'http://localhost:4000';
+ //export const BASE_URL = 'http://localhost:4000';
 // export const BASE_WS_URL = 'ws://localhost:4000';
-// export const BASE_URL = 'http://100.115.92.198:4000';
-// export const BASE_WS_URL = 'ws://100.115.92.198:4000';
+ //export const BASE_URL = 'http://100.115.92.205:4000';
+ //export const BASE_WS_URL = 'ws://100.115.92.205:4000';
 
 export { ShipvoteApi } from './api.js';
 

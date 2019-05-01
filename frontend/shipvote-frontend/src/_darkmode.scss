@@ -51,9 +51,16 @@
     }
   }
 
+  .mdc-button {
+    color: $color--text-highlight;
+
+    &[disabled] {
+      color: darken($color--text, 40%);
+    }
+  }
+
   .mdc-button.mdc-button--outlined {
     border-color: $color--text-highlight;
-    color: $color--text-highlight;
   }
 
   .mdc-list {

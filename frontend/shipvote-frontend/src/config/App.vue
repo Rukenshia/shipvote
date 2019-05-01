@@ -2,13 +2,12 @@
   <mdc-layout-grid :class="theme">
     <mdc-layout-cell :span="12">
       <mdc-card class="mdc-card--flat">
-        <mdc-card-text style="padding-left: 16px">
+        <mdc-card-text style="padding-left: 16px; padding-bottom: 8px">
           <mdc-body>
             Learn how to use this extension
             <a
-              target="_blank"
               href="https://shipvote.in.fkn.space/getting-started"
-            >here</a>.
+            >here</a> (please Ctrl+Click this link).
           </mdc-body>
         </mdc-card-text>
       </mdc-card>
