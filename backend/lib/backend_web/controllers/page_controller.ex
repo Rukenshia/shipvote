@@ -4,4 +4,8 @@ defmodule BackendWeb.PageController do
   def index(conn, _params) do
     text(conn, "tbd")
   end
+
+  def health(conn, _params) do
+    text(conn, "")
+  end
 end
