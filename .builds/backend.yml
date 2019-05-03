@@ -44,8 +44,8 @@ tasks:
       set -x
 
       for ip in $ips; do
-        ssh-keyscan -t rsa $ip >> ~/.ssh/known_hosts
-        ssh -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
+        ssh-keyscan -t rsa $ip >> known_hosts
+        ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
       done
 triggers:
   - action: email
