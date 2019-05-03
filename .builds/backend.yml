@@ -13,7 +13,7 @@ secrets:
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - b516f798-17a6-4308-ad79-136b4f1b5ec7
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
-  - ac36885f-c5ac-4b06-9a68-510f573be1c9
+  - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
 environment:
   MIX_ENV: test
 tasks:
@@ -39,8 +39,9 @@ tasks:
       MIX_ENV=prod mix compile
   - deploy: |
       # Retrieve currently deployed instances
-      CURL_OPTS="-H 'Authorization: Bearer $(cat ~/.digitalocean_api_key)'"
-      ips="$(curl $CURL_OPTS "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
+      set +x
+      ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
+      set -x
 
       for ip in $ips; do
         ssh-keyscan -t rsa $ip >> ~/.ssh/known_hosts
