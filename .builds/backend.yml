@@ -10,7 +10,7 @@ sources:
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
-  - fff7c36b-ef57-4fa1-bb47-4a896f68473a
+  - b516f798-17a6-4308-ad79-136b4f1b5ec7
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
 environment:
   MIX_ENV: test
