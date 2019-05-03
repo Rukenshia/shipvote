@@ -5,6 +5,7 @@ packages:
   - erlang-runtime-tools
   - erlang-tools
   - postgresql
+  - jq
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -12,6 +13,7 @@ secrets:
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - b516f798-17a6-4308-ad79-136b4f1b5ec7
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
+  - ac36885f-c5ac-4b06-9a68-510f573be1c9
 environment:
   MIX_ENV: test
 tasks:
@@ -36,9 +38,14 @@ tasks:
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
   - deploy: |
-      echo "142.93.97.76 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDLlyhEAGzPgI96V4c1A9eRBLoMfERvu4LfTSYM1gUfodxAjmrI97VsN9gVPgaDwPtNMiODrpX4TuZdeIBba2sUwz39d7nE2NB529X60pM+8o+RHuFz9M1jcRDli04WpfV14UomrWVCjWIFINGzsrXOEBnML6iELkW3uJRm5N8o1gCRxTp606R/+VHIT6qICn225G1Mhronqm0nGe3gX3zz1afyS0XSX+/WmnHjqJ2hMWVR6xhMDJowkND5sIDqQTg9V91q7yBLofbzxRjmI0FGWf46wjma9uIe1cmHtu6yNrszS8Qy24wK47tKKLKhgjtEJMAH9ml35FGt2/oBcDG5" >> known_hosts
+      # Retrieve currently deployed instances
+      CURL_OPTS="-H 'Authorization: Bearer $(cat ~/.digitalocean_api_key)'"
+      ips="$(curl $CURL_OPTS "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
 
-      ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@142.93.97.76 < shipvote/backend/scripts/deploy.sh
+      for ip in $ips; do
+        ssh-keyscan -t rsa $ip >> ~/.ssh/known_hosts
+        ssh -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
+      done
 triggers:
   - action: email
     condition: always
