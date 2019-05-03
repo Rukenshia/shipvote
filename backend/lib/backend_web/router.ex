@@ -17,6 +17,8 @@ defmodule BackendWeb.Router do
   scope "/", BackendWeb do
     get("/privacy-policy", NoticeController, :privacy_policy)
     get("/getting-started", NoticeController, :getting_started)
+
+    get("/_health", PageController, :health)
   end
 
   scope "/api", BackendWeb do
