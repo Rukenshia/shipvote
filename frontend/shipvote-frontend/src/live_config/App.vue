@@ -17,12 +17,8 @@
       <mdc-linear-progress indeterminate></mdc-linear-progress>
     </mdc-layout-cell>
     <mdc-layout-cell :span="12" v-if="!configured && loaded_configuration">
-      <mdc-card outlined>
-        <mdc-card-header
-          style="padding: 8px"
-          class="typography__color--error"
-        >No personal configuration</mdc-card-header>
-        <mdc-card-text style="padding: 8px">
+      <mdc-card class="mdc-card--flat">
+        <mdc-card-text>
           <mdc-body>
             You did not configure this extension yet. Head over to your twitch dashboard, then go to "Extensions", "My Extensions"
             and Click on the cog icon to configure this extension.
