@@ -31,7 +31,7 @@
 
 <script>
 import Ship from './Ship';
-import Filters from './Filters';
+import Filters from '../shared/Filters';
 
 export default {
   props: ['ships', 'enableVoting', 'voted', 'maxHeight', 'totalVotes'],
