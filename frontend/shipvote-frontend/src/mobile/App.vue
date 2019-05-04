@@ -8,6 +8,20 @@
         <span class="mdc-typography">Wait for the streamer to open a new vote.</span>
       </template>
       <template v-else>
+        <div class="top-bar">
+          <mdc-layout-grid style="padding: 0">
+            <mdc-layout-cell span=12>
+              <mdc-button @click="toggleFilters"><i class="material-icons">filter_list</i> Filter</mdc-button>
+              <mdc-button v-if="filtered" @click="resetFilters" :unelevated="true"><i class="material-icons">clear</i> Reset</mdc-button>
+            </mdc-layout-cell>
+          </mdc-layout-grid>
+
+          <div class="card__divider"></div>
+
+          <div v-show="filtering" class="filters">
+            <Filters ref="refFilter" :tiers="availableTiers" :nations="availableNations" @updateFilter="updateFilter"></Filters>
+          </div>
+        </div>
         <mdc-list two-line :interactive="selecting">
           <mdc-list-item v-for="ship in ships"
             :key="ship.id" :selected="selectedShip && selectedShip.id === ship.id"
@@ -41,11 +55,13 @@
 
 <script>
 import { BASE_WS_URL, BASE_URL, ShipvoteApi } from '../shipvote';
+import Filters from '../shared/Filters';
 
 const get = window.axios.get;
 
 window.App = {
   name: 'app',
+  components: { Filters },
   data() {
     return {
       loading: true,
@@ -69,7 +85,11 @@ window.App = {
       totalVotes: 0,
 
       // Ships available to vote
-      ships: []
+      ships: [],
+
+      // Filters
+      filters: {},
+      filtering: false,
     };
   },
   created() {
@@ -159,6 +179,38 @@ window.App = {
       });
     });
   },
+  computed: {
+    filtered() {
+      return typeof this.filters['tier'] !== 'undefined' && this.filters.tier !== 'any' || typeof this.filters['nation'] !== 'undefined' && this.filters.nation !== 'any';
+    },
+    availableTiers() {
+      const tiers = new Set();
+      this.ships.forEach(s => tiers.add(s.tier));
+
+      return [...tiers].sort((a, b) => a - b);
+    },
+    availableNations() {
+      const nations = new Set();
+      this.ships.forEach(s => nations.add(s.nation));
+
+      return [...nations].sort((a, b) => a - b);
+    },
+    filteredShips() {
+      return this.ships.filter(s => {
+        if (typeof this.filters.tier === 'undefined' || this.filters.tier === 'any') {
+          return true;
+        }
+
+        return s.tier === this.filters.tier;
+      }).filter(s => {
+        if (typeof this.filters.nation === 'undefined' || this.filters.nation === 'any') {
+          return true;
+        }
+
+        return s.nation === this.filters.nation;
+      });
+    },
+  },
   methods: {
     voteForShip(ship) {
       if (this.voted) {
@@ -169,7 +221,19 @@ window.App = {
       this.selectedShip = ship;
 
       this.api.voteForShip(this.vote.id, ship.id);
-    }
+    },
+    toggleFilters() {
+      this.filtering = !this.filtering;
+    },
+    resetFilters() {
+      this.$refs.refFilter.reset();
+    },
+    updateFilter({name, value}) {
+      this.filters = {
+        ...this.filters,
+        [name]: value,
+      };
+    },
   }
 };
 
