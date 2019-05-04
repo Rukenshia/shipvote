@@ -2588,6 +2588,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 
 var get = window.axios.get;
+var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 
 window.App = {
   name: 'app',
@@ -2595,7 +2596,7 @@ window.App = {
   data: function data() {
     return {
       loading: true,
-      theme: 'light',
+      theme: 'dark',
       api: undefined,
 
       updateVotesTimeout: null,
@@ -2760,6 +2761,31 @@ window.App = {
         }
 
         return s.nation === _this2.filters.nation;
+      }).sort(function (a, b) {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier > b.tier) {
+          return -1;
+        } else {
+          // sort by type
+          var aTypePrio = shipTypePriority.indexOf(a.type);
+          var bTypePrio = shipTypePriority.indexOf(b.type);
+
+          if (aTypePrio < bTypePrio) {
+            return -1;
+          } else if (aTypePrio > bTypePrio) {
+            return 1;
+          } else {
+            // sort alphabetically
+            if (a.name < b.name) {
+              return -1;
+            } else if (a.name == b.name) {
+              return 0;
+            } else {
+              return 1;
+            }
+          }
+        }
       });
     }
   },
@@ -2825,7 +2851,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(44);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_78b7a374_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(74);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2cc08520_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(74);
 function injectStyle (ssrContext) {
   __webpack_require__(72)
 }
@@ -2845,7 +2871,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_78b7a374_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2cc08520_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -2866,7 +2892,7 @@ var content = __webpack_require__(73);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(9)("e2e82568", content, true, {});
+var update = __webpack_require__(9)("3cc75ca0", content, true, {});
 
 /***/ }),
 /* 73 */
@@ -2887,7 +2913,7 @@ exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.top-bar
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app",class:_vm.theme},[(_vm.loading)?_c('mdc-linear-progress',{attrs:{"indeterminate":""}}):[(!_vm.vote)?[_c('mdc-headline',[_vm._v("No vote available")]),_vm._v(" "),_c('span',{staticClass:"mdc-typography"},[_vm._v("Wait for the streamer to open a new vote.")])]:[_c('div',{staticClass:"top-bar"},[_c('mdc-layout-grid',{staticStyle:{"padding":"0"}},[_c('mdc-layout-cell',{attrs:{"span":"12"}},[_c('mdc-button',{on:{"click":_vm.toggleFilters}},[_c('i',{staticClass:"material-icons"},[_vm._v("filter_list")]),_vm._v(" Filter")]),_vm._v(" "),(_vm.filtered)?_c('mdc-button',{attrs:{"unelevated":true},on:{"click":_vm.resetFilters}},[_c('i',{staticClass:"material-icons"},[_vm._v("clear")]),_vm._v(" Reset")]):_vm._e()],1)],1),_vm._v(" "),_c('div',{staticClass:"card__divider"}),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.filtering),expression:"filtering"}],staticClass:"filters"},[_c('Filters',{ref:"refFilter",attrs:{"tiers":_vm.availableTiers,"nations":_vm.availableNations},on:{"updateFilter":_vm.updateFilter}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","interactive":_vm.selecting}},_vm._l((_vm.ships),function(ship){return _c('mdc-list-item',{key:ship.id,attrs:{"selected":_vm.selectedShip && _vm.selectedShip.id === ship.id},on:{"click":function($event){_vm.voteForShip(ship)}}},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56px","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_vm._v("\n            "+_vm._s(ship.name)+"\n          ")]),_vm._v(" "),(_vm.selectedShip && _vm.selectedShip.id === ship.id)?_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("You voted for this ship")]):_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(ship.votes > 0),expression:"ship.votes > 0"}],attrs:{"slot":"end-detail"},slot:"end-detail"},[_c('span',{staticClass:"mdc-typography"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes > 1 ? 's' : ''))]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"progress":ship.votes === 0 ? 0 : ship.votes / _vm.totalVotes}})],1)])}))]]],2)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"app",class:_vm.theme},[(_vm.loading)?_c('mdc-linear-progress',{attrs:{"indeterminate":""}}):[(!_vm.vote)?[_c('mdc-headline',[_vm._v("No vote available")]),_vm._v(" "),_c('span',{staticClass:"mdc-typography"},[_vm._v("Wait for the streamer to open a new vote.")])]:[_c('div',{staticClass:"top-bar"},[_c('mdc-layout-grid',{staticStyle:{"padding":"0"}},[_c('mdc-layout-cell',{attrs:{"span":"12"}},[_c('mdc-button',{on:{"click":_vm.toggleFilters}},[_c('i',{staticClass:"material-icons"},[_vm._v("filter_list")]),_vm._v(" Filter")]),_vm._v(" "),(_vm.filtered)?_c('mdc-button',{attrs:{"unelevated":true},on:{"click":_vm.resetFilters}},[_c('i',{staticClass:"material-icons"},[_vm._v("clear")]),_vm._v(" Reset")]):_vm._e()],1)],1),_vm._v(" "),_c('div',{staticClass:"card__divider"}),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.filtering),expression:"filtering"}],staticClass:"filters"},[_c('Filters',{ref:"refFilter",attrs:{"tiers":_vm.availableTiers,"nations":_vm.availableNations},on:{"updateFilter":_vm.updateFilter}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","interactive":_vm.selecting}},_vm._l((_vm.filteredShips),function(ship){return _c('mdc-list-item',{key:ship.id,attrs:{"selected":_vm.selectedShip && _vm.selectedShip.id === ship.id},on:{"click":function($event){_vm.voteForShip(ship)}}},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56px","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_vm._v("\n            "+_vm._s(ship.name)+"\n          ")]),_vm._v(" "),(_vm.selectedShip && _vm.selectedShip.id === ship.id)?_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("You voted for this ship")]):_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(ship.votes > 0),expression:"ship.votes > 0"}],attrs:{"slot":"end-detail"},slot:"end-detail"},[_c('span',{staticClass:"mdc-typography"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes > 1 ? 's' : ''))]),_vm._v(" "),_c('mdc-linear-progress',{attrs:{"progress":ship.votes === 0 ? 0 : ship.votes / _vm.totalVotes}})],1)])}))]]],2)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
