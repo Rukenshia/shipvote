@@ -11,6 +11,10 @@
 
   color: $color--text;
 
+  option {
+    background-color: $color--background;
+  }
+
   a {
     color: $color--text-highlight;
   }
