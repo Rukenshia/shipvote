@@ -33,6 +33,8 @@
 import Ship from './Ship';
 import Filters from '../shared/Filters';
 
+const shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
+
 export default {
   props: ['ships', 'enableVoting', 'voted', 'maxHeight', 'totalVotes'],
   components: { Ship, Filters },
@@ -71,6 +73,31 @@ export default {
         }
 
         return s.nation === this.filters.nation;
+      }).sort((a, b) => {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier > b.tier) {
+          return -1;
+        } else {
+          // sort by type
+          const aTypePrio = shipTypePriority.indexOf(a.type);
+          const bTypePrio = shipTypePriority.indexOf(b.type);
+
+          if (aTypePrio < bTypePrio) {
+            return  -1;
+          } else if (aTypePrio > bTypePrio) {
+            return 1;
+          } else {
+            // sort alphabetically
+            if (a.name < b.name) {
+              return -1;
+            } else if (a.name == b.name) {
+              return 0;
+            } else {
+              return 1;
+            }
+          }
+        }
       });
     },
   },

@@ -23,7 +23,7 @@
           </div>
         </div>
         <mdc-list two-line :interactive="selecting">
-          <mdc-list-item v-for="ship in ships"
+          <mdc-list-item v-for="ship in filteredShips"
             :key="ship.id" :selected="selectedShip && selectedShip.id === ship.id"
             @click="voteForShip(ship)"
             >
@@ -58,6 +58,7 @@ import { BASE_WS_URL, BASE_URL, ShipvoteApi } from '../shipvote';
 import Filters from '../shared/Filters';
 
 const get = window.axios.get;
+const shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 
 window.App = {
   name: 'app',
@@ -208,6 +209,31 @@ window.App = {
         }
 
         return s.nation === this.filters.nation;
+      }).sort((a, b) => {
+        if (a.tier < b.tier) {
+          return 1;
+        } else if (a.tier > b.tier) {
+          return -1;
+        } else {
+          // sort by type
+          const aTypePrio = shipTypePriority.indexOf(a.type);
+          const bTypePrio = shipTypePriority.indexOf(b.type);
+
+          if (aTypePrio < bTypePrio) {
+            return  -1;
+          } else if (aTypePrio > bTypePrio) {
+            return 1;
+          } else {
+            // sort alphabetically
+            if (a.name < b.name) {
+              return -1;
+            } else if (a.name == b.name) {
+              return 0;
+            } else {
+              return 1;
+            }
+          }
+        }
       });
     },
   },
