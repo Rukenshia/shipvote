@@ -104,4 +104,9 @@
   .mdc-typography {
     color: $color--text;
   }
+
+  .mdc-text-field__icon.material-icons {
+    color: $color--text-highlight;
+  }
+
 }
