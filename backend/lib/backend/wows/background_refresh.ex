@@ -16,11 +16,7 @@ defmodule Backend.Wows.BackgroundRefresh do
   end
 
   def handle_info(:work, state) do
-    if Application.get_env(:backend, Backend.Wows.BackgroundRefresh)[:disabled] == true do
-      {:noreply, state}
-    else
-      do_work(state)
-    end
+    do_work(state)
   end
 
   def do_work(state) do
@@ -60,11 +56,7 @@ defmodule Backend.Wows.BackgroundRefresh do
       )
       |> Repo.delete_all()
 
-    Logger.debug(
-      "BackgroundRefresh: deleting #{deleted_ships} ships from the database: #{
-        deleted_ships |> Enum.map(fn s -> s.name end) |> Enum.join(", ")
-      }"
-    )
+    Logger.debug("BackgroundRefresh: deleting #{deleted_ships} ships from the database")
 
     Logger.debug("BackgroundRefresh.handle_info.ships_updated")
 

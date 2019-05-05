@@ -20,8 +20,6 @@ config :backend, BackendWeb.Endpoint,
     ]
   ]
 
-config :backend, Backend.Wows.BackgroundRefresh, disabled: true
-
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

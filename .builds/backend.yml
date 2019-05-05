@@ -6,6 +6,7 @@ packages:
   - erlang-tools
   - postgresql
   - jq
+  - nodejs
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -33,20 +34,28 @@ tasks:
       mix local.rebar --force
       mix deps.get
       mix test --cover
-  - compile: |
+  - package: |
       cd shipvote/backend
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
-  - deploy: |
-      # Retrieve currently deployed instances
-      set +x
-      ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
-      set -x
+      cd assets
+      npm ci
+      npm run deploy
+      cd ..
+      mix phx.digest
 
-      for ip in $ips; do
-        ssh-keyscan -t rsa $ip >> known_hosts
-        ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
-      done
+      MIX_ENV=prod mix release --env=prod
+  - deploy: |
+      echo "not reimplemented yet"
+      # Retrieve currently deployed instances
+      #set +x
+      #ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
+      #set -x
+
+      #for ip in $ips; do
+        #ssh-keyscan -t rsa $ip >> known_hosts
+        #ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
+      #done
 triggers:
   - action: email
     condition: always

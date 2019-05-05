@@ -24,11 +24,7 @@ defmodule Backend.Stream.ChannelShipRefresh do
       "ChannelShipRefresh.handle_info.channel=#{channel.id},wows_username=#{channel.wows_username}"
     )
 
-    if Application.get_env(:backend, Backend.Stream.ChannelShipRefresh)[:disabled] == true do
-      {:noreply, state}
-    else
-      do_work(channel, state)
-    end
+    do_work(channel, state)
   end
 
   def do_work(channel, state) do
