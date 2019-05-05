@@ -8,6 +8,7 @@ packages:
   - jq
   - nodejs
   - nodejs-npm
+  - aws-cli
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -46,6 +47,10 @@ tasks:
       mix phx.digest
 
       MIX_ENV=prod mix release --env=prod
+  - upload: |
+      source ~/.shipvote.artifacts
+
+      aws s3 cp _build/prod/rel/backend/releases/*/backend.tar.gz s3://shipvote.artifacts/backend.tar.gz
   - deploy: |
       echo "not reimplemented yet"
       # Retrieve currently deployed instances
