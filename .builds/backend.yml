@@ -17,7 +17,7 @@ secrets:
   - 069cbae6-7c07-4da8-9a57-04561f56c663
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
   - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
-  - cc5a3e66-8c69-4e9b-b7d6-e2d8325e58b0
+  - e7b37602-b272-4c68-a5aa-3c1f5a4ddbff
 environment:
   MIX_ENV: test
 tasks:
@@ -49,9 +49,11 @@ tasks:
 
       MIX_ENV=prod mix release --env=prod
   - upload: |
+      set +x
       source ~/.shipvote.artifacts
+      set -x
 
-      aws s3 cp _build/prod/rel/backend/releases/*/backend.tar.gz s3://shipvote.artifacts/backend.tar.gz
+      aws s3 cp shipvote/backend/_build/prod/rel/backend/releases/*/backend.tar.gz s3://shipvote.artifacts/backend.tar.gz
   - deploy: |
       echo "not reimplemented yet"
       # Retrieve currently deployed instances
