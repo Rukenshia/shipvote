@@ -1,0 +1,17 @@
+[Unit]
+Description=Shipvote Backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/shipvote
+ExecStart=/root/shipvote/bin/backend foreground
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/root/shipvote.env
+SyslogIdentifier=shipvote
+LimitNOFILE=65535
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
