@@ -17,7 +17,7 @@ secrets:
   - 069cbae6-7c07-4da8-9a57-04561f56c663
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
   - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
-  - e7b37602-b272-4c68-a5aa-3c1f5a4ddbff
+  - aec48a53-0c38-4386-979f-40affe39a77f
 environment:
   MIX_ENV: test
 tasks:
