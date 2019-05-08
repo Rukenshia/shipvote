@@ -1,0 +1,18 @@
+image: alpine/edge
+packages:
+  - git
+sources:
+  - https://git.sr.ht/~rukenshia/shipvote
+secrets:
+  - 39526075-910f-4eef-98f4-bfa9788aec0f
+environment: {}
+tasks:
+  - mirror: |
+      cd shipvote
+      git remote set-url origin git@github.com:Rukenshia/shipvote.git
+      git push origin master --force
+      git push origin --tags
+triggers:
+  - action: email
+    condition: failure
+    to: "Jan Christophersen <jan@chrstphrsn.cc>"
