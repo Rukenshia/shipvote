@@ -5,6 +5,7 @@ sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
+  - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
 environment: {}
 tasks:
   - mirror: |
