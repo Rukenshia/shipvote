@@ -41,7 +41,9 @@ defmodule BackendWeb.Endpoint do
   plug(Plug.Session,
     store: :cookie,
     key: "_backend_key",
-    signing_salt: "JZUzjavG"
+    signing_salt: "JZUzjavG",
+    # 1 hour max age
+    max_age: 60 * 60
   )
 
   plug(BackendWeb.Router)
