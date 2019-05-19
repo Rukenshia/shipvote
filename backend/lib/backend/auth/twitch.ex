@@ -9,6 +9,10 @@ defmodule Backend.Auth.Twitch do
   def init(options), do: options
 
   def call(conn, opts) do
+    conn |> authorize(opts)
+  end
+
+  def authorize(conn, opts) do
     conn = conn |> fetch_session()
 
     # Check if we have an existing session, otherwise go and check JWT again
@@ -17,7 +21,7 @@ defmodule Backend.Auth.Twitch do
       |> assign(:user_data, user_data)
     else
       nil ->
-        check_jwt(conn, opts)
+        Backend.Auth.Twitch.check_jwt(conn, opts)
 
       v ->
         Logger.error("Auth.Twitch invalid :user_data match #{inspect(v)}")
