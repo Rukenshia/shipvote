@@ -13,31 +13,21 @@
       <Filters ref="refFilter" :tiers="availableTiers" :nations="availableNations" @updateFilter="updateFilter"></Filters>
     </div>
 
-    <div class="ships">
-      <template v-for="ship in filteredShips">
-        <Ship
-          v-bind:key="ship.id"
-          :image="ship.image"
-          :name="ship.name"
-          :votes="ship.votes"
-          @vote="vote(ship)"
-          :canBeVoted="enableVoting && !voted"
-          :totalVotes="totalVotes"
-        />
-      </template>
-    </div>
+    <template v-for="ships,nation in filteredSections">
+      <Section :nation="nation" :ships="ships" @vote="vote" :enableVoting="enableVoting" :voted="voted" :totalVotes="totalVotes"></Section>
+    </template>
   </div>
 </template>
 
 <script>
-import Ship from './Ship';
+import Section from '../shared/Section';
 import Filters from '../shared/Filters';
 
 const shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 
 export default {
   props: ['ships', 'enableVoting', 'voted', 'maxHeight', 'totalVotes'],
-  components: { Ship, Filters },
+  components: { Section, Filters },
   data() {
     return {
       filtering: false,
@@ -100,6 +90,19 @@ export default {
         }
       });
     },
+    filteredSections() {
+      const ships = this.filteredShips;
+
+      return ships.reduce((acc, ship) => {
+        if (acc[ship.nation]) {
+          acc[ship.nation].push(ship);
+        } else {
+          acc[ship.nation] = [ship];
+        }
+
+        return acc;
+      }, {});
+    },
   },
   methods: {
     vote(ship) {
@@ -123,10 +126,4 @@ export default {
 
 <style lang="scss">
 @import '../card';
-
-.ships {
-  display: flex;
-  flex-flow: row wrap;
-  margin-right: -12px;
-}
 </style>
