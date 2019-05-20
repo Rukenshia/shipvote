@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "/dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 49);
+/******/ 	return __webpack_require__(__webpack_require__.s = 50);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,7 +70,7 @@
 "use strict";
 
 
-var bind = __webpack_require__(3);
+var bind = __webpack_require__(5);
 var isBuffer = __webpack_require__(15);
 
 /*global toString:true*/
@@ -397,10 +397,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(4);
+    adapter = __webpack_require__(6);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(4);
+    adapter = __webpack_require__(6);
   }
   return adapter;
 }
@@ -588,274 +588,6 @@ module.exports = function normalizeComponent (
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(19);
-var buildURL = __webpack_require__(21);
-var parseHeaders = __webpack_require__(22);
-var isURLSameOrigin = __webpack_require__(23);
-var createError = __webpack_require__(5);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(24);
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if ("production" !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(25);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(20);
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports) {
 
 /*
@@ -937,7 +669,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 9 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -1165,6 +897,274 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__(0);
+var settle = __webpack_require__(19);
+var buildURL = __webpack_require__(21);
+var parseHeaders = __webpack_require__(22);
+var isURLSameOrigin = __webpack_require__(23);
+var createError = __webpack_require__(7);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(24);
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if ("production" !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(25);
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(20);
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
 /* 10 */
 /***/ (function(module, exports) {
 
@@ -1334,7 +1334,7 @@ module.exports = __webpack_require__(14);
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(3);
+var bind = __webpack_require__(5);
 var Axios = __webpack_require__(16);
 var defaults = __webpack_require__(1);
 
@@ -1369,9 +1369,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(7);
+axios.Cancel = __webpack_require__(9);
 axios.CancelToken = __webpack_require__(31);
-axios.isCancel = __webpack_require__(6);
+axios.isCancel = __webpack_require__(8);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -1714,7 +1714,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(5);
+var createError = __webpack_require__(7);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -2147,7 +2147,7 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(28);
-var isCancel = __webpack_require__(6);
+var isCancel = __webpack_require__(8);
 var defaults = __webpack_require__(1);
 var isAbsoluteURL = __webpack_require__(29);
 var combineURLs = __webpack_require__(30);
@@ -2307,7 +2307,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(7);
+var Cancel = __webpack_require__(9);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -3847,11 +3847,14 @@ var Timer = function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_phoenix__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_phoenix___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_phoenix__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__shipvote__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__VoteResults__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__VoteResults__ = __webpack_require__(53);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+//
+//
+//
 //
 //
 //
@@ -4142,6 +4145,9 @@ window.App = {
       _this.token = data.token;
 
       _this.loadChannelConfig().then(function () {
+        // Restore ships from localStorage
+        _this.loadPreviouslySelectedShips();
+
         _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], _this.token, _this.channelId);
         _this.updateClosedVotes();
 
@@ -4294,6 +4300,20 @@ window.App = {
     }
   },
   methods: {
+    loadPreviouslySelectedShips: function loadPreviouslySelectedShips() {
+      var ids = JSON.parse(window.localStorage.getItem('selectedShips')) || [];
+      console.log(this.ships);
+
+      this.selectedShips = this.ships.filter(function (_ref) {
+        var id = _ref.id;
+        return ids.includes(id);
+      });
+    },
+    storeSelectedShips: function storeSelectedShips() {
+      window.localStorage.setItem('selectedShips', JSON.stringify(this.selectedShips.map(function (s) {
+        return s.id;
+      })));
+    },
     loadChannelConfig: function loadChannelConfig() {
       var _this7 = this;
 
@@ -4326,6 +4346,7 @@ window.App = {
         return s.id;
       })).then(function (vote) {
         _this8.vote = vote;
+        _this8.storeSelectedShips();
       });
     },
     closeVote: function closeVote() {
@@ -4492,16 +4513,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 /* 46 */,
 /* 47 */,
 /* 48 */,
-/* 49 */
+/* 49 */,
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(38);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1117b44e_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_53fe1126_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(55);
 function injectStyle (ssrContext) {
-  __webpack_require__(50)
+  __webpack_require__(51)
 }
 var normalizeComponent = __webpack_require__(2)
 /* script */
@@ -4519,7 +4541,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1117b44e_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_53fe1126_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4530,40 +4552,40 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(51);
+var content = __webpack_require__(52);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(9)("2acba95b", content, true, {});
+var update = __webpack_require__(4)("56748a23", content, true, {});
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(8)(false);
+exports = module.exports = __webpack_require__(3)(false);
 // imports
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.top-bar {\n  margin: -1em -1em 0 -1em;\n  padding: .5em;\n  background-color: #f8f9fa;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark .top-bar {\n    background-color: #6441a4;\n}\n.dark option {\n    background-color: #201c2b;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button {\n    color: #e2dbf0;\n}\n.dark .mdc-button[disabled] {\n      color: #7d738c;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.dark .mdc-text-field__icon.material-icons {\n    color: #e2dbf0;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.fullwidth {\n  width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.top-bar {\n  margin: -1em -1em 0 -1em;\n  padding: .5em;\n  background-color: #f8f9fa;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark .top-bar {\n    background-color: #6441a4;\n}\n.dark option {\n    background-color: #201c2b;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button {\n    color: #e2dbf0;\n}\n.dark .mdc-button[disabled] {\n      color: #7d738c;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.dark .mdc-text-field__icon.material-icons {\n    color: #e2dbf0;\n}\n.dark .section-title--line {\n    border-color: #6441a4 !important;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.mdc-list .mdc-list-item {\n  padding-top: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__graphic {\n    padding-left: 8px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__text {\n    margin-top: 4px;\n}\n.mdc-list .mdc-list-item .mdc-list-item__meta {\n    margin-top: -8px;\n}\n.button {\n  border-radius: 4px;\n  padding: 8px;\n  background-color: #6441a4;\n  cursor: pointer;\n  font-weight: normal;\n  color: white;\n  text-transform: uppercase;\n}\n.button:hover {\n    background-color: #6f48b6;\n}\n.mdc-list.mdc-list--bordered li:first-child {\n  border-top-left-radius: 8px;\n  border-top-right-radius: 8px;\n}\n.mdc-list.mdc-list--bordered li:last-child {\n  border-bottom-left-radius: 8px;\n  border-bottom-right-radius: 8px;\n}\n.mdc-card.mdc-card--flat {\n  padding: 4px;\n  box-shadow: none;\n  border-radius: 8px;\n  background-color: #f8f9fa;\n  color: #5f6368;\n}\n.mdc-button.mdc-button--danger {\n  --mdc-theme-primary: rgba(210, 77, 87, 1);\n}\n.mdc-button.mdc-button--primary {\n  --mdc-theme-primary: rgba(63, 195, 128, 1);\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n.fullwidth {\n  width: 100%;\n}\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_VoteResults_vue__ = __webpack_require__(39);
 /* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_fc7dff92_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_VoteResults_vue__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_fc7dff92_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_VoteResults_vue__ = __webpack_require__(54);
 var normalizeComponent = __webpack_require__(2)
 /* script */
 
@@ -4591,7 +4613,7 @@ var Component = normalizeComponent(
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4601,11 +4623,11 @@ var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-dialog',{attrs:{"title":"Year of the Filter Rework","accept":"Alright"},on:{"accept":_vm.dismissDialog},model:{value:(_vm.showDialog),callback:function ($$v) {_vm.showDialog=$$v},expression:"showDialog"}},[_vm._v("\n    The filters for selecting ships for votes have been reworked to allow more customization.\n    Please submit feedback so I can keep improving it!\n  ")]),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          The vote is\n          "),(_vm.voting)?_c('strong',[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('strong',[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("You have selected "+_vm._s(_vm.selectedShips.length)+" ships for the next vote.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true,"disabled":_vm.selectedShips.length === 0},on:{"click":_vm.openVote}},[_vm._v("Open")]):_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Previous results")]),_vm._v(" "),(_vm.loadingClosedVotes)?[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1)]:[_c('VoteResults',{attrs:{"votes":_vm.closedVotes,"ships":_vm.ships}})],_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])}))],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("Ship selection")]),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Nation"},model:{value:(_vm.bulkAdd.nations),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "nations", $$v)},expression:"bulkAdd.nations"}},[_vm._l((_vm.filters.nations),function(nation){return [_c('option',{key:nation},[_vm._v(_vm._s(nation))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Tier"},model:{value:(_vm.bulkAdd.tiers),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "tiers", $$v)},expression:"bulkAdd.tiers"}},[_vm._l((_vm.filters.tiers),function(tier){return [_c('option',{key:tier},[_vm._v(_vm._s(tier))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Class"},model:{value:(_vm.bulkAdd.types),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "types", $$v)},expression:"bulkAdd.types"}},[_vm._l((_vm.filters.types),function(type){return [_c('option',{key:type},[_vm._v(_vm._s(type))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-checkbox',{attrs:{"label":"Premiums"},model:{value:(_vm.bulkAdd.premiums),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "premiums", $$v)},expression:"bulkAdd.premiums"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"raised":"","disabled":_vm.bulkAddShips.length === 0},on:{"click":_vm.doBulkAdd}},[_vm._v("Add "+_vm._s(_vm.bulkAddShips.length)+" ships")])],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"disabled":_vm.selectedShips.length === 0},on:{"click":function($event){_vm.selectedShips = []}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete")]),_vm._v(" reset\n          ")])],1)],1),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"tablet":8,"desktop":12}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"box":"","label":"Ship name","trailing-icon":"search"},model:{value:(_vm.search),callback:function ($$v) {_vm.search=$$v},expression:"search"}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"bordered":"","two-line":""}},[_vm._l((_vm.searchedSelectedShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":""},on:{"click":function($event){_vm.deselect(ship)}},slot:"end-detail"},[_vm._v("remove")])],1)}),_vm._v(" "),_vm._l((_vm.availableShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail"},on:{"click":function($event){_vm.select(ship)}},slot:"end-detail"},[_vm._v("add")])],1)})],2)],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-bottom":"8px"}},[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],2):_vm._e()],1)}
+var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('mdc-layout-grid',{class:_vm.theme},[_c('mdc-dialog',{attrs:{"title":"Year of the Filter Rework","accept":"Alright"},on:{"accept":_vm.dismissDialog},model:{value:(_vm.showDialog),callback:function ($$v) {_vm.showDialog=$$v},expression:"showDialog"}},[_vm._v("\n    The filters for selecting ships for votes have been reworked to allow more customization.\n    Please submit feedback so I can keep improving it!\n  ")]),_vm._v(" "),(_vm.error)?_c('mdc-layout-cell',{attrs:{"span":12}},[(!_vm.voting)?_c('span',{staticClass:"typography__color--error"},[_vm._v("Could not load configuration")]):_vm._e()]):_vm._e(),_vm._v(" "),(!_vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1):_vm._e(),_vm._v(" "),(!_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',[_c('mdc-body',[_vm._v("\n          You did not configure this extension yet. Head over to your twitch dashboard, then go to \"Extensions\", \"My Extensions\"\n          and Click on the cog icon to configure this extension.\n        ")]),_vm._v(" "),_c('mdc-button',{attrs:{"outlined":""},on:{"click":_vm.loadChannelConfig}},[_vm._v("Reload")])],1)],1)],1):_vm._e(),_vm._v(" "),(_vm.configured && _vm.loaded_configuration)?_c('mdc-layout-cell',{attrs:{"span":12}},[_c('mdc-card',{staticClass:"mdc-card--flat",staticStyle:{"text-align":"center"}},[_c('mdc-card-header',[_c('mdc-headline',[_vm._v("\n          The vote is\n          "),(_vm.voting)?_c('strong',[_vm._v("open")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('strong',[_vm._v("closed")]):_vm._e()]),_vm._v(" "),(!_vm.voting)?_c('mdc-body',[_vm._v("You have selected "+_vm._s(_vm.selectedShips.length)+" ships for the next vote.")]):_vm._e(),_vm._v(" "),(!_vm.voting)?_c('mdc-button',{staticClass:"mdc-button--primary",attrs:{"unelevated":true,"disabled":_vm.selectedShips.length === 0},on:{"click":_vm.openVote}},[_vm._v("Open")]):_c('mdc-button',{staticClass:"mdc-button--danger",attrs:{"unelevated":true},on:{"click":_vm.closeVote}},[_vm._v("Close")]),_vm._v(" "),_c('br'),_vm._v(" "),_c('br')],1)],1),_vm._v(" "),_c('mdc-headline',[_vm._v("Previous results")]),_vm._v(" "),(_vm.loadingClosedVotes)?[_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"span":4}},[_c('mdc-linear-progress',{attrs:{"indeterminate":""}})],1)],1)]:[_c('VoteResults',{attrs:{"votes":_vm.closedVotes,"ships":_vm.ships}})],_vm._v(" "),(_vm.voting)?_c('div',[_c('mdc-headline',[_vm._v("Vote Statistics")]),_vm._v(" "),_c('mdc-list',{attrs:{"two-line":"","bordered":""}},[_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.stats.votes))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Participants")])]),_vm._v(" "),_c('mdc-list-item',[_c('span',[_c('strong',[_vm._v(_vm._s(_vm.mostVoted))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Most Votes")])])],1),_vm._v(" "),_c('mdc-headline',{attrs:{"tag":"h3"}},[_vm._v("Vote results")]),_vm._v(" "),(_vm.sortedVotes.length > 0)?_c('mdc-list',{attrs:{"two-line":"","bordered":""}},_vm._l((_vm.sortedVotes),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v(_vm._s(ship.votes)+" vote"+_vm._s(ship.votes === 1 ? '' : 's'))])])})):_c('mdc-text',{staticStyle:{"padding-left":"8px"},attrs:{"typo":"body"}},[_vm._v("\n        Nothing to show yet\n      ")])],1):_vm._e(),_vm._v(" "),_c('div',{directives:[{name:"show",rawName:"v-show",value:(!_vm.voting),expression:"!voting"}]},[_c('mdc-headline',[_vm._v("Ship selection")]),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Nation"},model:{value:(_vm.bulkAdd.nations),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "nations", $$v)},expression:"bulkAdd.nations"}},[_vm._l((_vm.filters.nations),function(nation){return [_c('option',{key:nation},[_vm._v(_vm._s(nation))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Tier"},model:{value:(_vm.bulkAdd.tiers),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "tiers", $$v)},expression:"bulkAdd.tiers"}},[_vm._l((_vm.filters.tiers),function(tier){return [_c('option',{key:tier},[_vm._v(_vm._s(tier))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-select',{staticClass:"fullwidth",attrs:{"label":"Class"},model:{value:(_vm.bulkAdd.types),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "types", $$v)},expression:"bulkAdd.types"}},[_vm._l((_vm.filters.types),function(type){return [_c('option',{key:type},[_vm._v(_vm._s(type))])]})],2)],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"phone":2,"tablet":2,"desktop":2}},[_c('mdc-checkbox',{attrs:{"label":"Premiums"},model:{value:(_vm.bulkAdd.premiums),callback:function ($$v) {_vm.$set(_vm.bulkAdd, "premiums", $$v)},expression:"bulkAdd.premiums"}})],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"raised":"","disabled":_vm.bulkAddShips.length === 0},on:{"click":_vm.doBulkAdd}},[_vm._v("Add "+_vm._s(_vm.bulkAddShips.length)+" ships")])],1),_vm._v(" "),_c('mdc-layout-cell',{attrs:{"span":6}},[_c('mdc-button',{staticClass:"fullwidth",attrs:{"disabled":_vm.selectedShips.length === 0},on:{"click":function($event){_vm.selectedShips = []}}},[_c('i',{staticClass:"material-icons"},[_vm._v("delete")]),_vm._v(" reset\n          ")])],1)],1),_vm._v(" "),_c('mdc-layout-grid',[_c('mdc-layout-cell',{attrs:{"phone":4,"tablet":8,"desktop":12}},[_c('mdc-textfield',{staticClass:"fullwidth",attrs:{"box":"","label":"Ship name","trailing-icon":"search"},model:{value:(_vm.search),callback:function ($$v) {_vm.search=$$v},expression:"search"}})],1)],1),_vm._v(" "),_c('mdc-list',{attrs:{"bordered":"","two-line":""}},[_vm._l((_vm.searchedSelectedShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail","raised":""},on:{"click":function($event){_vm.deselect(ship)}},slot:"end-detail"},[_vm._v("remove")])],1)}),_vm._v(" "),_vm._l((_vm.availableShips),function(ship){return _c('mdc-list-item',{key:ship.id},[_c('img',{attrs:{"slot":"start-detail","src":ship.image,"width":"56","height":"auto","alt":("Image of " + (ship.name))},slot:"start-detail"}),_vm._v(" "),_c('span',[_c('strong',[_vm._v(_vm._s(ship.name))])]),_vm._v(" "),_c('span',{attrs:{"slot":"secondary"},slot:"secondary"},[_vm._v("Tier: "+_vm._s(ship.tier)+", Nation: "+_vm._s(ship.nation))]),_vm._v(" "),_c('mdc-button',{attrs:{"slot":"end-detail"},on:{"click":function($event){_vm.select(ship)}},slot:"end-detail"},[_vm._v("add")])],1)})],2)],1),_vm._v(" "),_c('mdc-card',{staticClass:"mdc-card--flat"},[_c('mdc-card-text',{staticStyle:{"padding-bottom":"8px"}},[_c('mdc-body',{attrs:{"typo":"body2"}},[_vm._v("\n          Got feedback, need help or want to give me some love? Contact me on Twitch(rukenshia), Discord (Rukenshia#4396), or\n          "),_c('a',{attrs:{"href":"mailto:jan@ruken.pw"}},[_vm._v("via mail")])])],1)],1)],2):_vm._e()],1)}
 var staticRenderFns = []
 var esExports = { render: render, staticRenderFns: staticRenderFns }
 /* harmony default export */ __webpack_exports__["a"] = (esExports);

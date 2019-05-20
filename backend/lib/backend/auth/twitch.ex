@@ -9,7 +9,24 @@ defmodule Backend.Auth.Twitch do
   def init(options), do: options
 
   def call(conn, opts) do
-    check_jwt(conn, opts)
+    conn |> authorize(opts)
+  end
+
+  def authorize(conn, opts) do
+    conn = conn |> fetch_session()
+
+    # Check if we have an existing session, otherwise go and check JWT again
+    with %{} = user_data <- get_session(conn, :user_data) do
+      conn
+      |> assign(:user_data, user_data)
+    else
+      nil ->
+        Backend.Auth.Twitch.check_jwt(conn, opts)
+
+      v ->
+        Logger.error("Auth.Twitch invalid :user_data match #{inspect(v)}")
+        conn
+    end
   end
 
   def check_jwt(%{params: %{"id" => channel_id}} = conn, _) do
@@ -33,14 +50,16 @@ defmodule Backend.Auth.Twitch do
         |> json(%{ok: false, message: "unauthorized"})
         |> halt()
       else
-        conn
-        |> assign(:token, jwt)
-        |> assign(:user_data, %{
+        user_data = %{
           channel_id: claims["channel_id"],
           user_id: claims["user_id"],
           opaque_user_id: claims["opaque_user_id"],
           role: claims["role"]
-        })
+        }
+
+        conn
+        |> put_session(:user_data, user_data)
+        |> assign(:user_data, user_data)
       end
     else
       %{error: e} ->

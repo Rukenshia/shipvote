@@ -91,7 +91,7 @@
         </mdc-list>
 
         <mdc-headline tag="h3">Vote results</mdc-headline>
-        <mdc-list two-line bordered>
+        <mdc-list two-line bordered v-if="sortedVotes.length > 0">
           <mdc-list-item v-for="ship in sortedVotes" :key="ship.id">
             <img
               slot="start-detail"
@@ -106,6 +106,9 @@
             <span slot="secondary">{{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}}</span>
           </mdc-list-item>
         </mdc-list>
+        <mdc-text typo="body" style="padding-left: 8px" v-else>
+          Nothing to show yet
+        </mdc-text>
       </div>
       <div v-show="!voting">
         <mdc-headline>Ship selection</mdc-headline>
@@ -287,6 +290,9 @@ window.App = {
       this.token = data.token;
 
       this.loadChannelConfig().then(() => {
+        // Restore ships from localStorage
+        this.loadPreviouslySelectedShips();
+
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
         this.updateClosedVotes();
 
@@ -410,6 +416,15 @@ window.App = {
     }
   },
   methods: {
+    loadPreviouslySelectedShips() {
+      const ids = JSON.parse(window.localStorage.getItem('selectedShips')) || [];
+      console.log(this.ships);
+
+      this.selectedShips = this.ships.filter(({ id }) => ids.includes(id));
+    },
+    storeSelectedShips() {
+      window.localStorage.setItem('selectedShips', JSON.stringify(this.selectedShips.map(s => s.id)));
+    },
     loadChannelConfig() {
       this.loaded_configuration = false;
       return get(`${BASE_URL}/api/settings/channels/${this.channelId}`, {
@@ -439,6 +454,7 @@ window.App = {
       this.stats.ship_votes = {};
       this.api.openVote(this.selectedShips.map(s => s.id)).then(vote => {
         this.vote = vote;
+        this.storeSelectedShips();
       });
     },
     closeVote() {

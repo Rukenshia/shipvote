@@ -40,7 +40,7 @@ defmodule BackendWeb.VoteController do
           |> Repo.all()
           |> Repo.preload(:votes)
 
-        %ConCache.Item{value: votes, ttl: :timer.seconds(1)}
+        %ConCache.Item{value: votes, ttl: :timer.seconds(2)}
       end)
 
     conn
@@ -53,8 +53,8 @@ defmodule BackendWeb.VoteController do
     vote =
       ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
         case Repo.get(Vote, vote_id) do
-          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(1)}
-          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(1)}
+          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(2)}
+          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(2)}
         end
       end)
 
