@@ -7,6 +7,7 @@ packages:
   - python
   - python-pip
   - awscli
+  - curl
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
