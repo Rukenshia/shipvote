@@ -57,17 +57,21 @@ tasks:
       set -x
 
       aws s3 cp shipvote/backend/_build/prod/rel/backend/releases/*/backend.tar.gz s3://shipvote.artifacts/backend.tar.gz
+
+      # Generate a presigned URL that we can use from new droplets
+      #aws s3 presign s3://shipvote.artifacts/backend.tar.gz --region eu-central-1 --expires-in 600 > .presigned_archive
   - deploy: |
       echo "not reimplemented yet"
       # Retrieve currently deployed instances
-      #set +x
-      #ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
-      #set -x
+      set +x
+      ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
+      set -x
 
-      #for ip in $ips; do
-        #ssh-keyscan -t rsa $ip >> known_hosts
-        #ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
-      #done
+      for ip in $ips; do
+        ssh-keyscan -t rsa $ip >> known_hosts
+        scp -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy shipvote/backend/_build/prod/rel/backend/releases/*/backend.tar.gz root@$ip:/root/shipvote/backend/_build/prod/rel/backend
+        ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
+      done
 triggers:
   - action: email
     condition: always
