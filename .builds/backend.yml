@@ -16,8 +16,8 @@ secrets:
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
   - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
-  - aec48a53-0c38-4386-979f-40affe39a77f
   - cb616abf-ff36-488d-8e2c-1c3b2d34226f
+  - 1832b31e-e954-415c-b49d-5e0421875440
 environment:
   MIX_ENV: test
 tasks:
@@ -62,7 +62,9 @@ tasks:
 
       mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
   - packer: |
-      source ~/.shipvote.artifacts
+      set +x
+      source ~/.shipvote.aws.builds.sr.ht
+      set -x
 
       cd shipvote/infra
       packer build ami.json
