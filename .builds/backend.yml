@@ -8,15 +8,16 @@ packages:
   - python-pip
   - awscli
   - curl
+  - unzip
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
-  - a682a54f-005d-4306-bbd0-2d825243e4eb
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
   - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
   - aec48a53-0c38-4386-979f-40affe39a77f
+  - cb616abf-ff36-488d-8e2c-1c3b2d34226f
 environment:
   MIX_ENV: test
 tasks:
@@ -30,6 +31,12 @@ tasks:
       sudo apt install -yq ./elixir_1.8.1-2~ubuntu~cosmic_amd64.deb
       rm elixir_1.8.1-2~ubuntu~cosmic_amd64.deb
 
+      wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
+      unzip packer_1.4.1_linux_amd64.zip
+      rm packer_1.4.1_linux_amd64.zip
+      chmod +x ./packer
+      sudo mv ./packer /usr/bin/packer
+
       sudo update-locale LANG=C.UTF-8
       sudo service postgresql start
       sudo su - postgres -c 'createdb shipvote'
@@ -41,7 +48,7 @@ tasks:
       mix local.rebar --force
       mix deps.get
       mix test --cover
-  - package: |
+  - build: |
       cd shipvote/backend
       mv ~/.prod.secret.exs config/prod.secret.exs
       MIX_ENV=prod mix compile
@@ -52,27 +59,13 @@ tasks:
       mix phx.digest
 
       MIX_ENV=prod mix release --env=prod
-  - upload: |
-      set +x
+
+      mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
+  - packer: |
       source ~/.shipvote.artifacts
-      set -x
 
-      aws s3 cp shipvote/backend/_build/prod/rel/backend/releases/*/backend.tar.gz s3://shipvote.artifacts/backend.tar.gz
-
-      # Generate a presigned URL that we can use from new droplets
-      #aws s3 presign s3://shipvote.artifacts/backend.tar.gz --region eu-central-1 --expires-in 600 > .presigned_archive
-  - deploy: |
-      echo "not reimplemented yet"
-      # Retrieve currently deployed instances
-      set +x
-      ips="$(curl -H "Authorization: Bearer $(cat ~/.digitalocean_api_key)" "https://api.digitalocean.com/v2/droplets?tag_name=tier:web" | jq -r '.droplets[].networks.v4[0].ip_address')"
-      set -x
-
-      for ip in $ips; do
-        ssh-keyscan -t rsa $ip >> known_hosts
-        scp -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy shipvote/backend/_build/prod/rel/backend/releases/*/backend.tar.gz root@$ip:/root/shipvote/backend/_build/prod/rel/backend
-        ssh -o "UserKnownHostsFile=known_hosts" -i ~/.ssh/deploy root@$ip < shipvote/backend/scripts/deploy.sh
-      done
+      cd shipvote/infra
+      packer build ami.json
 triggers:
   - action: email
     condition: always

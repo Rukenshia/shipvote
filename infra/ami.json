@@ -1,0 +1,71 @@
+{
+	"variables": {
+		"aws_access_key": "",
+		"aws_secret_key": ""
+	},
+	"builders": [{
+		"type": "amazon-ebs",
+		"access_key": "{{user `aws_access_key`}}",
+		"secret_key": "{{user `aws_secret_key`}}",
+		"region": "eu-central-1",
+		"force_deregister": "true",
+		"force_delete_snapshot": "true",
+		"source_ami": "ami-0ebe657bc328d4e82",
+		"instance_type": "t2.micro",
+		"ssh_username": "ec2-user",
+		"ami_name": "shipvote"
+	}],
+	"provisioners": [
+		{
+			"type": "file",
+			"source": "shipvote.service",
+			"destination": "/tmp/shipvote.service"
+		},
+		{
+			"type": "file",
+			"source": "shipvote.env",
+			"destination": "/tmp/shipvote.env"
+		},
+		{
+			"type": "file",
+			"source": "backend.tar.gz",
+			"destination": "/tmp/backend.tar.gz"
+		},
+		{
+			"type": "file",
+			"source": "limits.conf",
+			"destination": "/tmp/limits.conf"
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"sudo yum group install -y 'Development Tools'",
+				"sudo yum install perl-core zlib-devel -y",
+				"wget -O /tmp/openssl.tar.gz https://www.openssl.org/source/openssl-1.1.1b.tar.gz",
+				"tar -C /tmp -xzf /tmp/openssl.tar.gz",
+				"cd /tmp/openssl-1.1.1b",
+				"./config --prefix=/usr/local --openssldir=/usr/local --libdir=/usr/lib64 shared zlib",
+				"make && sudo make install"
+			]
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"sudo mv /tmp/shipvote.service /etc/systemd/system/shipvote.service",
+				"sudo mkdir -p /opt/shipvote",
+				"sudo chown -R ec2-user /opt/shipvote",
+				"mv /tmp/shipvote.env /opt/shipvote",
+				"tar -C /opt/shipvote -xzf /tmp/backend.tar.gz",
+				"sudo systemctl daemon-reload",
+				"sudo systemctl enable shipvote.service"
+			]
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"sudo mv /tmp/limits.conf /etc/security/limits.conf",
+				"ulimit -n"
+			]
+		}
+	]
+}
