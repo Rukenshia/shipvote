@@ -4,11 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/root/shipvote
-ExecStart=/root/shipvote/bin/backend foreground
+WorkingDirectory=/opt/shipvote
+ExecStart=/opt/shipvote/bin/backend foreground
 Restart=on-failure
 RestartSec=5
-EnvironmentFile=/root/shipvote.env
+EnvironmentFile=/opt/shipvote.env
 SyslogIdentifier=shipvote
 LimitNOFILE=65535
 RemainAfterExit=no
