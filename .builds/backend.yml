@@ -77,6 +77,7 @@ tasks:
 
       export AWS_DEFAULT_REGION=eu-central-1
       export NEW_AMI="$(cat manifest.json | jq -r '.builds[0].artifact_id' | awk -F':' '{print $2}')"
+      export NEW_SNAPSHOT_ID="$(aws ec2 describe-snapshots --owner-ids self --filter Name=tag:app,Values=shipvote,Name=tag:tier,Values=web --query 'Snapshots[0].SnapshotId' --output text)"
 
       ./deploy.sh
 triggers:
