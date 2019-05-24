@@ -68,6 +68,12 @@ tasks:
 
       cd shipvote/infra
       packer build ami.json
+  - deploy: |
+      set +x
+      source ~/.shipvote.aws.builds.sr.ht
+      set -x
+
+      shipvote/infra/deploy.sh
 triggers:
   - action: email
     condition: always
