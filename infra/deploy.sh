@@ -17,7 +17,7 @@ if [ -z "${NEW_SNAPSHOT_ID}" ]; then
 fi
 
 # create new version
-aws ec2 create-launch-template-version --launch-template-name "${LAUNCH_TEMPLATE_NAME}" --source-version '$Latest' --launch-template-data '{"ImageId":"'"${NEW_AMI}"'", "BlockDeviceMappings": [{"Ebs": {"SnapshotId": "'"${NEW_SNAPSHOT_ID}"'"}}]}' > /dev/null
+aws ec2 create-launch-template-version --launch-template-name "${LAUNCH_TEMPLATE_NAME}" --source-version '$Latest' --launch-template-data '{"ImageId":"'"${NEW_AMI}"'", "BlockDeviceMappings": [{"DeviceName": "/dev/xvda", "Ebs": {"SnapshotId": "'"${NEW_SNAPSHOT_ID}"'", "Encrypted": false, "DeleteOnTermination": true, "VolumeSize": 8, "VolumeType": "gp2"}}]}' > /dev/null
 
 # delete policy
 aws autoscaling delete-policy --auto-scaling-group-name "${SCALING_GROUP_NAME}" --policy-name "${SCALING_POLICY_NAME}"
