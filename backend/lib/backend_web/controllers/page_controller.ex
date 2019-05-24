@@ -6,6 +6,6 @@ defmodule BackendWeb.PageController do
   end
 
   def health(conn, _params) do
-    text(conn, "#{Application.spec(:backend, :vsn)}")
+    text(conn, "#{Application.spec(:backend, :vsn)}_aws")
   end
 end
