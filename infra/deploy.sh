@@ -3,15 +3,20 @@ set -x
 
 set -e -o pipefail
 
-NEW_AMI="${NEW_AMI:-ami-0b49e2c4b652f31ae}"
 LAUNCH_TEMPLATE_NAME="${LAUNCH_TEMPLATE_NAME:-shipvote-web}"
 SCALING_GROUP_NAME="${SCALING_GROUP_NAME:-shipvote-web}"
+SCALING_POLICY_NAME="${SCALING_POLICY_NAME:-high-cpu}"
 
-# get current version
-current_lc_version="$(aws ec2 describe-launch-template-versions --launch-template-name "${LAUNCH_TEMPLATE_NAME}" | jq '.LaunchTemplateVersions[] | select(.DefaultVersion == true)') | .VersionNumber)"
+if [ -z "${NEW_AMI}" ]; then
+	echo "[!] NEW_AMI is not set."
+	exit
+fi
 
 # create new version
 aws ec2 create-launch-template-version --launch-template-name "${LAUNCH_TEMPLATE_NAME}" --source-version '$Latest' --launch-template-data '{"ImageId":"'"${NEW_AMI}"'"}' > /dev/null
+
+# delete policy
+aws autoscaling delete-policy --auto-scaling-group-name "${SCALING_GROUP_NAME}" --policy-name "${SCALING_POLICY_NAME}"
 
 # get ASG current desired scale
 desired_instances="$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names "${SCALING_GROUP_NAME}" --query 'AutoScalingGroups[0].DesiredCapacity' --output text)"
@@ -54,6 +59,9 @@ while true; do
 
         # set ASG to default termination policy again
         aws autoscaling update-auto-scaling-group --auto-scaling-group-name shipvote-web --termination-policies "OldestLaunchTemplate" "Default" --default-cooldown 300 > /dev/null
+
+	    # apply scaling policy
+	    aws autoscaling put-scaling-policy --auto-scaling-group-name "${SCALING_GROUP_NAME}" --policy-name "${SCALING_POLICY_NAME}" --cli-input-json '{"PolicyType":"TargetTrackingScaling", "TargetTrackingConfiguration":{"TargetValue":85, "DisableScaleIn":false, "PredefinedMetricSpecification":{"PredefinedMetricType":"ASGAverageCPUUtilization"}}, "EstimatedInstanceWarmup":300}'
         exit 1
     fi
     let tries=tries+1
@@ -77,6 +85,9 @@ while true; do
 
         # return ASG termination policy back to normal
         aws autoscaling update-auto-scaling-group --auto-scaling-group-name shipvote-web --termination-policies "OldestLaunchTemplate" "Default" --default-cooldown 300 > /dev/null
+
+	    # apply scaling policy
+	    aws autoscaling put-scaling-policy --auto-scaling-group-name "${SCALING_GROUP_NAME}" --policy-name "${SCALING_POLICY_NAME}" --cli-input-json '{"PolicyType":"TargetTrackingScaling", "TargetTrackingConfiguration":{"TargetValue":85, "DisableScaleIn":false, "PredefinedMetricSpecification":{"PredefinedMetricType":"ASGAverageCPUUtilization"}}, "EstimatedInstanceWarmup":300}'
         break
     else
         sleep 20
