@@ -75,6 +75,7 @@ tasks:
 
       cd shipvote/infra
 
+      export AWS_DEFAULT_REGION=eu-central-1
       export NEW_AMI="$(cat manifest.json | jq -r '.builds[0].artifact_id' | awk -F':' '{print $2}')"
 
       ./deploy.sh
