@@ -16,7 +16,7 @@
 		"spot_price_auto_product": "Linux/UNIX",
 		"ssh_username": "ec2-user",
 		"ami_name": "shipvote",
-		"snapshot_tags": {
+		"tags": {
 			"app": "shipvote",
 			"tier": "web"
 		}
