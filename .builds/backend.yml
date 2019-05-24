@@ -73,7 +73,11 @@ tasks:
       source ~/.shipvote.aws.builds.sr.ht
       set -x
 
-      shipvote/infra/deploy.sh
+      cd shipvote/infra
+
+      export NEW_AMI="$(cat manifest.json | jq -r '.builds[0].artifact_id' | awk -F':' '{print $2}')"
+
+      ./deploy.sh
 triggers:
   - action: email
     condition: always
