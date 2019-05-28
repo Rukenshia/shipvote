@@ -4005,6 +4005,9 @@ window.App = {
       theme: 'light',
       api: undefined,
 
+      // Flag to only do API calls when the game is set
+      gameIsWows: true,
+
       // Active vote
       vote: undefined,
 
@@ -4034,16 +4037,38 @@ window.App = {
   created: function created() {
     var _this = this;
 
-    window.Twitch.ext.onContext(function (data) {
-      _this.theme = data.theme;
+    window.Twitch.ext.onContext(function (data, changed) {
+      if (changed.includes('theme')) {
+        _this.theme = data.theme;
+      }
 
-      _this.maxHeight = parseInt(data['displayResolution'].slice(data['displayResolution'].indexOf('x') + 1), 10) - 160;
+      if (changed.includes('game')) {
+        _this.gameIsWows = data.game === 'World of Warships';
+      }
+
+      if (changed.includes('displayResolution')) {
+        _this.maxHeight = parseInt(data['displayResolution'].slice(data['displayResolution'].indexOf('x') + 1), 10) - 160;
+      }
     });
     window.Twitch.ext.onAuthorized(function (authData) {
       _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], authData.token, authData.channelId);
 
       _this.api.getChannelInfo().then(function (info) {
         var updateVotes = function updateVotes(voteId) {
+          if (!_this.gameIsWows) {
+            _this.voting = false;
+            _this.noteDismissed = false;
+            _this.voted = false;
+            _this.selecting = false;
+            _this.totalVotes = 0;
+            _this.ships = [];
+
+            setTimeout(function () {
+              return checkOpenVote();
+            }, 5000);
+            return;
+          }
+
           _this.api.getVote(voteId).then(function (vote) {
             if (!vote || vote.status === 'closed') {
               checkOpenVote();
@@ -4073,12 +4098,19 @@ window.App = {
             if (_this.voting) {
               setTimeout(function () {
                 return updateVotes(voteId);
-              }, 2500);
+              }, 3000);
             }
           });
         };
 
         var checkOpenVote = function checkOpenVote() {
+          if (!_this.gameIsWows) {
+            setTimeout(function () {
+              return checkOpenVote();
+            }, 10000);
+            return;
+          }
+
           _this.api.getOpenVote().then(function (vote) {
             _this.vote = vote;
             if (vote && !_this.voting) {
@@ -4433,7 +4465,7 @@ var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(40);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3f99acae_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_42e0f909_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
   __webpack_require__(57)
 }
@@ -4453,7 +4485,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3f99acae_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_42e0f909_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4474,7 +4506,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("335f9842", content, true, {});
+var update = __webpack_require__(4)("52a13936", content, true, {});
 
 /***/ }),
 /* 58 */
