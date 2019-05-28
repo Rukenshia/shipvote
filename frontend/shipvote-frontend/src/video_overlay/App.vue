@@ -44,6 +44,9 @@ window.App = {
       theme: 'light',
       api: undefined,
 
+      // Flag to only do API calls when the game is set
+      gameIsWows: true,
+
       // Active vote
       vote: undefined,
 
@@ -71,22 +74,42 @@ window.App = {
     };
   },
   created() {
-    window.Twitch.ext.onContext(data => {
-      this.theme = data.theme;
+    window.Twitch.ext.onContext((data, changed) => {
+      if (changed.includes('theme')) {
+        this.theme = data.theme;
+      }
 
-      this.maxHeight =
-        parseInt(
-          data['displayResolution'].slice(
-            data['displayResolution'].indexOf('x') + 1
-          ),
-          10
-        ) - 160;
+      if (changed.includes('game')) {
+        this.gameIsWows = data.game === 'World of Warships';
+      }
+
+      if (changed.includes('displayResolution')) {
+        this.maxHeight =
+          parseInt(
+            data['displayResolution'].slice(
+              data['displayResolution'].indexOf('x') + 1
+            ),
+            10
+          ) - 160;
+      }
     });
     window.Twitch.ext.onAuthorized(authData => {
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
 
       this.api.getChannelInfo().then(info => {
         const updateVotes = voteId => {
+          if (!this.gameIsWows) {
+            this.voting = false;
+            this.noteDismissed = false;
+            this.voted = false;
+            this.selecting = false;
+            this.totalVotes = 0;
+            this.ships = [];
+
+            setTimeout(() => checkOpenVote(), 5000);
+            return;
+          }
+
           this.api.getVote(voteId).then(vote => {
             if (!vote || vote.status === 'closed') {
               checkOpenVote();
@@ -112,12 +135,17 @@ window.App = {
           }).catch(e => console.error(`updateVotes: ${e}`))
             .then(() => {
               if (this.voting) {
-                setTimeout(() => updateVotes(voteId), 2500);
+                setTimeout(() => updateVotes(voteId), 3000);
               }
             });
         };
 
         const checkOpenVote = () => {
+          if (!this.gameIsWows) {
+            setTimeout(() => checkOpenVote(), 10000);
+            return;
+          }
+
           this.api.getOpenVote().then(vote => {
             this.vote = vote;
             if (vote && !this.voting) {
