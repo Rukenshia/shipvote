@@ -27,11 +27,11 @@ tasks:
       erlang_version="22.0.1-1"
       elixir_version="1.8.2-1"
 
-      wget -q https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
+      wget -q https://packages.erlang-solutions.com/erlang/debian/pool/esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
       sudo apt install -yq ./esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
       rm esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
 
-      wget -q https://packages.elixir-solutions.com/elixir/elixir/FLAVOUR_2_download/elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
+      wget -q https://packages.elixir-solutions.com/elixir/debian/pool/elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
       sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
       rm elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
 
