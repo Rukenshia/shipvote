@@ -31,7 +31,7 @@ tasks:
       sudo apt install -yq ./esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
       rm esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
 
-      wget -q https://packages.elixir-solutions.com/elixir/debian/pool/elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
+      wget -q https://packages.erlang-solutions.com/elixir/debian/pool/elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
       sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
       rm elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
 
