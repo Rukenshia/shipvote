@@ -17,6 +17,8 @@ defmodule BackendWeb.ChannelView do
   def render("channel.public.json", %{channel: channel}) do
     %{
       id: channel.id,
+      vote_status_delay: channel.vote_status_delay,
+      vote_progress_delay: channel.vote_progress_delay,
       ships: []
     }
     |> render_ships(channel)

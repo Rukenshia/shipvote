@@ -39,7 +39,6 @@ window.App = {
   components: { ShipSelection, VoteProgress },
   data() {
     return {
-      socket: undefined,
       channel: undefined,
       theme: 'light',
       api: undefined,
@@ -97,6 +96,8 @@ window.App = {
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
 
       this.api.getChannelInfo().then(info => {
+        this.channel = info;
+
         const updateVotes = voteId => {
           if (!this.gameIsWows) {
             this.voting = false;
@@ -106,7 +107,7 @@ window.App = {
             this.totalVotes = 0;
             this.ships = [];
 
-            setTimeout(() => checkOpenVote(), 5000);
+            setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
             return;
           }
 
@@ -115,6 +116,10 @@ window.App = {
               checkOpenVote();
               return;
             }
+
+            // an open vote exists, reset the delays to the default values
+            this.channel.vote_status_delay = 7500;
+            this.channel.vote_progress_delay = 4000;
 
             let totalVotes = 0;
             Object.keys(vote.votes).forEach(shipId => {
@@ -135,14 +140,14 @@ window.App = {
           }).catch(e => console.error(`updateVotes: ${e}`))
             .then(() => {
               if (this.voting) {
-                setTimeout(() => updateVotes(voteId), 3000);
+                setTimeout(() => updateVotes(voteId), this.channel.vote_progress_delay);
               }
             });
         };
 
         const checkOpenVote = () => {
           if (!this.gameIsWows) {
-            setTimeout(() => checkOpenVote(), 10000);
+            setTimeout(() => checkOpenVote(), 60000);
             return;
           }
 
@@ -173,7 +178,7 @@ window.App = {
           }).catch(e => console.error(`checkOpenVote: ${e}`))
             .then(() => {
               if (!this.voting) {
-                setTimeout(() => checkOpenVote(), 5000);
+                setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
               }
             });
         };

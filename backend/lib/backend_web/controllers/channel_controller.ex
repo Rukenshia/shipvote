@@ -1,5 +1,6 @@
 defmodule BackendWeb.ChannelController do
   require Logger
+  import Ecto.Query, only: [from: 2]
 
   use BackendWeb, :controller
 
@@ -86,7 +87,50 @@ defmodule BackendWeb.ChannelController do
 
     case channel do
       %Channel{} = channel ->
-        conn |> render("show.public.json", %{channel: channel})
+        # get the last opened vote
+        last_vote =
+          from(v in Backend.Stream.Vote,
+            where: v.channel_id == ^channel.id,
+            select: v.inserted_at,
+            order_by: [desc: v.inserted_at],
+            limit: 1
+          )
+          |> Repo.one()
+
+        if is_nil(last_vote) do
+          channel = Map.merge(channel, %{vote_progress_delay: 2500, vote_status_delay: 30000})
+          conn |> render("show.public.json", %{channel: channel})
+        else
+          now = DateTime.utc_now()
+
+          diff = NaiveDateTime.diff(now, last_vote)
+
+          polling_times =
+            case diff do
+              # had a vote today
+              diff when diff in 0..(60 * 60 * 24) ->
+                %{
+                  vote_status_delay: 7500,
+                  vote_progress_delay: 4000
+                }
+
+              # had a vote yesterday
+              diff when diff in 0..(60 * 60 * 24 * 2) ->
+                %{
+                  vote_status_delay: 15000,
+                  vote_progress_delay: 5000
+                }
+
+              _ ->
+                %{
+                  vote_status_delay: 30000,
+                  vote_progress_delay: 5000
+                }
+            end
+
+          channel = Map.merge(channel, polling_times)
+          conn |> render("show.public.json", %{channel: channel})
+        end
 
       :not_found ->
         conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
