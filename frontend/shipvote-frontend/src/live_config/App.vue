@@ -296,10 +296,6 @@ window.App = {
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
         this.updateClosedVotes();
 
-        setInterval(() => {
-          this.updateClosedVotes();
-        }, 5000);
-
         const updateOpenVote = () => {
           this.api
             .getOpenVote()
@@ -460,6 +456,7 @@ window.App = {
     closeVote() {
       this.api.closeVote(this.vote.id).then(vote => {
         this.vote = vote;
+        this.updateClosedVotes();
       });
     },
     updateClosedVotes() {

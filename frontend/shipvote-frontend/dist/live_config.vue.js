@@ -1292,7 +1292,9 @@ var ShipvoteApi = function () {
   }, {
     key: 'getVote',
     value: function getVote(id) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes/' + id), { headers: this.headers() }).then(function (res) {
+      var full = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes/' + id + '?full=' + full), { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }
@@ -4151,10 +4153,6 @@ window.App = {
         _this.api = new __WEBPACK_IMPORTED_MODULE_1__shipvote__["b" /* ShipvoteApi */](__WEBPACK_IMPORTED_MODULE_1__shipvote__["a" /* BASE_URL */], _this.token, _this.channelId);
         _this.updateClosedVotes();
 
-        setInterval(function () {
-          _this.updateClosedVotes();
-        }, 5000);
-
         var updateOpenVote = function updateOpenVote() {
           _this.api.getOpenVote().then(function (vote) {
             _this.vote = vote;
@@ -4354,6 +4352,7 @@ window.App = {
 
       this.api.closeVote(this.vote.id).then(function (vote) {
         _this9.vote = vote;
+        _this9.updateClosedVotes();
       });
     },
     updateClosedVotes: function updateClosedVotes() {
@@ -4521,7 +4520,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(38);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_74f3f878_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e8fe4594_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(55);
 function injectStyle (ssrContext) {
   __webpack_require__(51)
 }
@@ -4541,7 +4540,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_74f3f878_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e8fe4594_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4562,7 +4561,7 @@ var content = __webpack_require__(52);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("0a78f172", content, true, {});
+var update = __webpack_require__(4)("f6677b94", content, true, {});
 
 /***/ }),
 /* 52 */

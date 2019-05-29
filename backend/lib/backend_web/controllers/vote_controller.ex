@@ -26,8 +26,13 @@ defmodule BackendWeb.VoteController do
         %ConCache.Item{value: votes, ttl: :timer.seconds(2)}
       end)
 
-    conn
-    |> render("votes.json", %{votes: votes})
+    if status == "closed" do
+      conn
+      |> render("votes.json", %{votes: Enum.take(votes, -5)})
+    else
+      conn
+      |> render("votes.json", %{votes: votes})
+    end
   end
 
   def index(conn, %{"id" => channel_id}) do
@@ -45,6 +50,26 @@ defmodule BackendWeb.VoteController do
 
     conn
     |> render("votes.json", %{votes: votes})
+  end
+
+  def show(conn, %{"id" => channel_id, "vote_id" => vote_id, "full" => "false"}) do
+    vote_id = String.to_integer(vote_id)
+
+    vote =
+      ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
+        case Repo.get(Vote, vote_id) do
+          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(2)}
+          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(2)}
+        end
+      end)
+
+    case vote do
+      %Vote{} = vote ->
+        conn |> render("show.slim.json", %{vote: vote})
+
+      :not_found ->
+        conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
+    end
   end
 
   def show(conn, %{"id" => channel_id, "vote_id" => vote_id}) do

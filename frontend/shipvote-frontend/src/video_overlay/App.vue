@@ -111,7 +111,7 @@ window.App = {
             return;
           }
 
-          this.api.getVote(voteId).then(vote => {
+          this.api.getVote(voteId, false).then(vote => {
             if (!vote || vote.status === 'closed') {
               this.vote = vote;
               this.voting = false;
