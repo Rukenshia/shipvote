@@ -1,4 +1,4 @@
-image: ubuntu/18.10 
+image: ubuntu/18.10
 packages:
   - git
   - postgresql
@@ -23,13 +23,17 @@ environment:
 tasks:
   - setup: |
       sudo apt install -yq npm
-      wget -q https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_21.3.7-1~ubuntu~cosmic_amd64.deb
-      sudo apt install -yq ./esl-erlang_21.3.7-1~ubuntu~cosmic_amd64.deb
-      rm esl-erlang_21.3.7-1~ubuntu~cosmic_amd64.deb
 
-      wget -q https://packages.erlang-solutions.com/erlang/elixir/FLAVOUR_2_download/elixir_1.8.1-2~ubuntu~cosmic_amd64.deb
-      sudo apt install -yq ./elixir_1.8.1-2~ubuntu~cosmic_amd64.deb
-      rm elixir_1.8.1-2~ubuntu~cosmic_amd64.deb
+      erlang_version="22.0.1-1"
+      elixir_version="1.8.2-1"
+
+      wget -q https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
+      sudo apt install -yq ./esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
+      rm esl-erlang_"${erlang_version}"~ubuntu~cosmic_amd64.deb
+
+      wget -q https://packages.elixir-solutions.com/elixir/elixir/FLAVOUR_2_download/elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
+      sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
+      rm elixir_"${elixir_version}"~ubuntu~cosmic_amd64.deb
 
       wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
       unzip packer_1.4.1_linux_amd64.zip
