@@ -108,12 +108,14 @@ window.App = {
 
         const updateVotes = voteId => {
           if (!this.gameIsWows) {
-            this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
+            this.checkOpenVoteTimeout = setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
             return;
           }
 
           this.api.getVote(voteId).then(vote => {
             if (!vote || vote.status === 'closed') {
+              this.vote = vote;
+              this.voting = false;
               checkOpenVote();
               return;
             }
@@ -141,7 +143,7 @@ window.App = {
           }).catch(e => console.error(`updateVotes: ${e}`))
             .then(() => {
               if (this.vote && this.vote.status !== 'closed' && this.vote.id === voteId) {
-                this.updateVotesTimeout = setTimeout(() => updateVotes(voteId), this.channel.vote_progress_delay);
+                this.updateVotesTimeout = setTimeout(() => { updateVotes(voteId) }, this.channel.vote_progress_delay);
               }
               this.loading = false;
             });
@@ -151,7 +153,7 @@ window.App = {
           if (!this.gameIsWows) {
             this.vote = null;
             this.voting = false;
-            this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), 60000);
+            this.checkOpenVoteTimeout = setTimeout(() => { checkOpenVote() }, 60000);
             return;
           }
 
@@ -191,7 +193,7 @@ window.App = {
           }).catch(e => console.error(`checkOpenVote: ${e}`))
             .then(() => {
               if (!this.vote) {
-                this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
+                this.checkOpenVoteTimeout = setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
               }
             });
         };

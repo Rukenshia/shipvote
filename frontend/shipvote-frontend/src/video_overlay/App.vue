@@ -107,12 +107,14 @@ window.App = {
             this.totalVotes = 0;
             this.ships = [];
 
-            setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
+            setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
             return;
           }
 
           this.api.getVote(voteId).then(vote => {
             if (!vote || vote.status === 'closed') {
+              this.vote = vote;
+              this.voting = false;
               checkOpenVote();
               return;
             }
@@ -147,7 +149,7 @@ window.App = {
 
         const checkOpenVote = () => {
           if (!this.gameIsWows) {
-            setTimeout(() => checkOpenVote(), 60000);
+            setTimeout(() => { checkOpenVote() }, 60000);
             return;
           }
 
@@ -178,7 +180,7 @@ window.App = {
           }).catch(e => console.error(`checkOpenVote: ${e}`))
             .then(() => {
               if (!this.voting) {
-                setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
+                setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
               }
             });
         };

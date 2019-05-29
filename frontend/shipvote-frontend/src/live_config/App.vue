@@ -106,7 +106,7 @@
             <span slot="secondary">{{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}}</span>
           </mdc-list-item>
         </mdc-list>
-        <mdc-text typo="body" style="padding-left: 8px" v-else>
+        <mdc-text typo="body1" style="padding-left: 8px" v-else>
           Nothing to show yet
         </mdc-text>
       </div>
