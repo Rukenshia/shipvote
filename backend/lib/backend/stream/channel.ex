@@ -7,6 +7,9 @@ defmodule Backend.Stream.Channel do
     field(:wows_account_id, :integer)
     field(:wows_realm, :string)
 
+    field(:vote_status_delay, :integer, virtual: true)
+    field(:vote_progress_delay, :integer, virtual: true)
+
     has_many(:ships, Backend.Stream.ChannelShip)
     timestamps()
   end

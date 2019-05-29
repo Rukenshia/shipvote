@@ -68,9 +68,12 @@ window.App = {
       loading: true,
       theme: 'dark',
       api: undefined,
+      channel: null,
 
       updateVotesTimeout: null,
       checkOpenVoteTimeout: null,
+
+      gameIsWows: true,
 
       // Active vote
       vote: undefined,
@@ -101,12 +104,23 @@ window.App = {
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
 
       this.api.getChannelInfo().then(info => {
+        this.channel = info;
+
         const updateVotes = voteId => {
+          if (!this.gameIsWows) {
+            this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
+            return;
+          }
+
           this.api.getVote(voteId).then(vote => {
             if (!vote || vote.status === 'closed') {
               checkOpenVote();
               return;
             }
+
+            // an open vote exists, reset the delays to the default values
+            this.channel.vote_status_delay = 7500;
+            this.channel.vote_progress_delay = 4000;
 
             let totalVotes = 0;
             Object.keys(vote.votes).forEach(shipId => {
@@ -127,13 +141,20 @@ window.App = {
           }).catch(e => console.error(`updateVotes: ${e}`))
             .then(() => {
               if (this.vote && this.vote.status !== 'closed' && this.vote.id === voteId) {
-                this.updateVotesTimeout = setTimeout(() => updateVotes(voteId), 2500);
+                this.updateVotesTimeout = setTimeout(() => updateVotes(voteId), this.channel.vote_progress_delay);
               }
               this.loading = false;
             });
         };
 
         const checkOpenVote = () => {
+          if (!this.gameIsWows) {
+            this.vote = null;
+            this.voting = false;
+            this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), 60000);
+            return;
+          }
+
           this.api.getOpenVote().then(vote => {
             this.loading = true;
             if (vote && !this.voting) {
@@ -166,12 +187,11 @@ window.App = {
               this.totalVotes = 0;
               this.ships = [];
             }
-
             this.vote = vote;
           }).catch(e => console.error(`checkOpenVote: ${e}`))
             .then(() => {
               if (!this.vote) {
-                this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), 5000);
+                this.checkOpenVoteTimeout = setTimeout(() => checkOpenVote(), this.channel.vote_status_delay);
               }
             });
         };
