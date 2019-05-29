@@ -1292,7 +1292,9 @@ var ShipvoteApi = function () {
   }, {
     key: 'getVote',
     value: function getVote(id) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes/' + id), { headers: this.headers() }).then(function (res) {
+      var full = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/votes/' + id + '?full=' + full), { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }

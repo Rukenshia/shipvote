@@ -41,8 +41,8 @@ export class ShipvoteApi {
       .then(res => res.data.data);
   }
 
-  getVote(id) {
-    return get(this.buildUrl(`/votes/${id}`), { headers: this.headers() })
+  getVote(id, full = true) {
+    return get(this.buildUrl(`/votes/${id}?full=${full}`), { headers: this.headers() })
       .then(res => res.data.data);
   }
 

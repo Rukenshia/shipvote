@@ -9,6 +9,20 @@ defmodule BackendWeb.VoteView do
     %{ok: true, data: render("vote.json", %{vote: vote})}
   end
 
+  def render("show.slim.json", %{vote: vote}) do
+    %{ok: true, data: render("vote.slim.json", %{vote: vote})}
+  end
+
+  def render("vote.slim.json", %{vote: vote}) do
+    %{
+      id: vote.id,
+      status: vote.status,
+      votes: %{},
+      updated_at: vote.updated_at
+    }
+    |> render_voted_ships(vote)
+  end
+
   def render("vote.json", %{vote: vote}) do
     %{
       id: vote.id,
