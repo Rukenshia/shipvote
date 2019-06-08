@@ -97,8 +97,12 @@ window.App = {
     };
   },
   created() {
-    window.Twitch.ext.onContext(data => {
-      this.theme = data.theme;
+    window.Twitch.ext.onContext((data, changed) => {
+      if (changed.includes('theme')) {
+        this.theme = data.theme;
+      }
+
+      this.gameIsWows = data.game === 'World of Warships' || data.game === '';
     });
     window.Twitch.ext.onAuthorized(authData => {
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
