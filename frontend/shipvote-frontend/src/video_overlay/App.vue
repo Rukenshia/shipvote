@@ -78,9 +78,7 @@ window.App = {
         this.theme = data.theme;
       }
 
-      if (changed.includes('game')) {
-        this.gameIsWows = data.game === 'World of Warships';
-      }
+      this.gameIsWows = data.game === 'World of Warships' || data.game === '';
 
       if (changed.includes('displayResolution')) {
         this.maxHeight =

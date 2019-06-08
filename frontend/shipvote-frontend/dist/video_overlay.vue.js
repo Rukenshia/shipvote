@@ -4043,9 +4043,7 @@ window.App = {
         _this.theme = data.theme;
       }
 
-      if (changed.includes('game')) {
-        _this.gameIsWows = data.game === 'World of Warships';
-      }
+      _this.gameIsWows = data.game === 'World of Warships' || data.game === '';
 
       if (changed.includes('displayResolution')) {
         _this.maxHeight = parseInt(data['displayResolution'].slice(data['displayResolution'].indexOf('x') + 1), 10) - 160;
@@ -4474,7 +4472,7 @@ var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(40);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_28c4e4d8_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_54cd273b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
   __webpack_require__(57)
 }
@@ -4494,7 +4492,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_28c4e4d8_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_54cd273b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4515,7 +4513,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("c5c9a63e", content, true, {});
+var update = __webpack_require__(4)("9db3ed72", content, true, {});
 
 /***/ }),
 /* 58 */
