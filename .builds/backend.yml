@@ -21,6 +21,15 @@ secrets:
 environment:
   MIX_ENV: test
 tasks:
+  - check-build: |
+      # Check if we even want a build
+      cd shipvote
+
+      git log -1 --pretty=%B | grep '\[backend skip\]'
+      if [ "$?" -eq "0" ]; then
+        echo "Skiping backend build as requested in commit"
+        exit 1
+      fi
   - setup: |
       sudo apt install -yq npm
 
