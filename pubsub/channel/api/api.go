@@ -10,19 +10,20 @@ import (
 
 // Vote describes a Vote in Shipvote
 type Vote struct {
-	ID     uint64          `json:"id"`
-	Status string          `json:"status"`
-	Ships  []uint          `json:"ships"`
-	Votes  map[string]uint `json:"votes"`
+	ID        uint64          `json:"id"`
+	ChannelID uint64          `json:"channel_id"`
+	Status    string          `json:"status"`
+	Ships     []uint          `json:"ships"`
+	Votes     map[string]uint `json:"votes"`
 }
 
-// GetOpenVotes returns a list of open votes for a channel
-func GetOpenVotes(authorization, channelID string) ([]Vote, error) {
+// GetOpenVotes returns a list of all open votes in shipvote
+func GetOpenVotes(authorization string) ([]Vote, error) {
 	ro := &grequests.RequestOptions{
 		Headers: map[string]string{"Authorization": authorization},
 	}
 
-	res, err := grequests.Get(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%s/votes?status=open", channelID), ro)
+	res, err := grequests.Get("https://shipvote.in.fkn.space/api/votes?status=open", ro)
 	if err != nil {
 		return nil, err
 	} else if res.StatusCode != 200 {
