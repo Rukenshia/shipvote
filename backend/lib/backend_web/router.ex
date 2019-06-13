@@ -26,6 +26,8 @@ defmodule BackendWeb.Router do
 
     resources("/warships", WarshipController, except: [:new, :edit])
 
+    get("/votes", VoteController, :all)
+
     scope("/channels/:id") do
       pipe_through(:verify_jwt)
 
