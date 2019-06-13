@@ -8,7 +8,8 @@ import (
 
 func main() {
 	controller := channel.NewController()
-	// TODO: on startup, get all channels
+	controller.AddCurrentVotes()
+
 	e := echo.New()
 	e.POST("/api/channels/:channel_id/votes", controller.OpenVote)
 	e.PATCH("/api/channels/:channel_id/votes/:vote_id/status", controller.CloseVote)

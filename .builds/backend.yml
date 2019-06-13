@@ -22,6 +22,7 @@ environment:
   MIX_ENV: test
 tasks:
   - check-build: |
+      set +e 
       # Check if we even want a build
       cd shipvote
 
@@ -30,6 +31,7 @@ tasks:
         echo "Skiping backend build as requested in commit"
         exit 1
       fi
+      set -e
   - setup: |
       sudo apt install -yq npm
 
