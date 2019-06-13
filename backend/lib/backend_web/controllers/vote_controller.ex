@@ -12,6 +12,24 @@ defmodule BackendWeb.VoteController do
   ## * Improve caching, migrate to single cache and pick results
   ## * Changeset error handling for duplicate vote
 
+  def all(conn, %{"status" => status})
+      when status == "open" do
+    votes =
+      ConCache.get_or_store(:rest_vote_cache, "all_status_#{status}", fn ->
+        votes =
+          from(p in Backend.Stream.Vote,
+            where: p.status == ^status
+          )
+          |> Repo.all()
+          |> Repo.preload(:votes)
+
+        %ConCache.Item{value: votes, ttl: :timer.seconds(2)}
+      end)
+
+    conn
+    |> render("votes.json", %{votes: votes})
+  end
+
   def index(conn, %{"id" => channel_id, "status" => status})
       when status == "open" or status == "closed" do
     votes =
@@ -102,6 +120,7 @@ defmodule BackendWeb.VoteController do
         ConCache.delete(:rest_vote_cache, vote.id)
         ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
         ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
+        ConCache.delete(:rest_vote_cache, "all_status_open")
         ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
         conn
@@ -127,6 +146,7 @@ defmodule BackendWeb.VoteController do
           ConCache.delete(:rest_vote_cache, vote.id)
           ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
           ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
+          ConCache.delete(:rest_vote_cache, "all_status_open")
           ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
           conn
