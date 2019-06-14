@@ -105,6 +105,8 @@ window.App = {
 
           this.handlePubSubMessage(data);
         });
+      }).catch(err => {
+        console.error(err);
       });
     });
   },
@@ -121,6 +123,11 @@ window.App = {
     },
     handleVoteStatusMessage(data) {
       if (data.status == "open") {
+        if (this.vote && this.vote.id == data.id) {
+          // The API might have restarted and sent a duplicate event
+          return;
+        }
+
         // Vote started before listening to messages, grab the vote
         this.api.getVote(data.id).then(vote => {
           this.voteStarted = true;
@@ -136,6 +143,8 @@ window.App = {
             this.ships = ships.map(s => ({ ...s, votes: 0 }));
             this.vote = vote;
           });
+        }).catch(err => {
+          console.error(err);
         });
         return;
       }
@@ -173,7 +182,9 @@ window.App = {
       this.voted = true;
       this.selecting = false;
 
-      this.api.voteForShip(this.vote.id, ship.id);
+      this.api.voteForShip(this.vote.id, ship.id).catch(err => {
+        console.error(err);
+      });
     }
   }
 };

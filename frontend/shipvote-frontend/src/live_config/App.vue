@@ -1,15 +1,5 @@
 <template>
   <mdc-layout-grid :class="theme">
-    <mdc-dialog
-      v-model="showDialog"
-      title="Year of the Filter Rework"
-      accept="Alright"
-      @accept="dismissDialog"
-    >
-      The filters for selecting ships for votes have been reworked to allow more customization.
-      Please submit feedback so I can keep improving it!
-    </mdc-dialog>
-
     <mdc-layout-cell :span="12" v-if="error">
       <span v-if="!voting" class="typography__color--error">Could not load configuration</span>
     </mdc-layout-cell>
@@ -29,6 +19,9 @@
       </mdc-card>
     </mdc-layout-cell>
     <mdc-layout-cell :span="12" v-if="configured && loaded_configuration">
+      <mdc-card class="mdc-card--flat mdc-card--info" style="margin-bottom: 1em">
+        <mdc-card-text>This is a new version (2.0.1) that includes some major changes in the background. If you notice anything wrong, please let me know!</mdc-card-text>
+      </mdc-card>
       <mdc-card class="mdc-card--flat" style="text-align: center">
         <mdc-card-header>
           <mdc-headline>
@@ -252,7 +245,6 @@ window.App = {
       error: false,
 
       search: '',
-      showDialog: false,
       bulkAdd: {
         nations: 'all',
         tiers: 'all',
@@ -414,7 +406,6 @@ window.App = {
   methods: {
     loadPreviouslySelectedShips() {
       const ids = JSON.parse(window.localStorage.getItem('selectedShips')) || [];
-      console.log(this.ships);
 
       this.selectedShips = this.ships.filter(({ id }) => ids.includes(id));
     },
@@ -451,18 +442,24 @@ window.App = {
       this.api.openVote(this.selectedShips.map(s => s.id)).then(vote => {
         this.vote = vote;
         this.storeSelectedShips();
+      }).catch(err => {
+        console.error(err);
       });
     },
     closeVote() {
       this.api.closeVote(this.vote.id).then(vote => {
         this.vote = vote;
         this.updateClosedVotes();
+      }).catch(err => {
+        console.error(err);
       });
     },
     updateClosedVotes() {
       this.api.getClosedVotes().then(votes => {
         this.closedVotes = votes;
         this.loadingClosedVotes = false;
+      }).catch(err => {
+        console.error(err);
       });
     },
     doBulkAdd() {
@@ -487,10 +484,6 @@ window.App = {
         }
         return -1;
       });
-    },
-    dismissDialog() {
-      window.localStorage.setItem('showDialogDismissed', true);
-      this.showDialog = false;
     },
   }
 };
