@@ -165,7 +165,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 
 	log.Printf("Added voted ship to vote %d in channel %d with status code %d", voteID, channelID, res.StatusCode)
 
-	channel.AddVotedShip(voteID, fmt.Sprintf("%s", requestBody.ShipID))
+	channel.AddVotedShip(voteID, fmt.Sprintf("%d", requestBody.ShipID))
 
 	ctx.Stream(res.StatusCode, res.Header.Get("Content-Type"), res.Body)
 

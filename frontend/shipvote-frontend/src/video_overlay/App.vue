@@ -135,6 +135,8 @@ window.App = {
             this.voteStarted = false;
           }, 5000);
           this.voting = true;
+          this.voted = false;
+          this.selecting = false;
 
           // Get ships
           // Update votes in an interval
@@ -151,6 +153,8 @@ window.App = {
 
       this.voting = false;
       this.voteStarted = false;
+      this.voted = false;
+      this.selecting = false;
     },
     handleVoteProgressMessage(data) {
       if (!this.vote) {
