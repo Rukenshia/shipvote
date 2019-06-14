@@ -157,9 +157,9 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 	}
 
 	var requestBody voteForShipRequest
-	if err := ctx.Bind(&requestBody); err != nil {
-		log.Printf("Could not bind requestBody %v", err)
-		return err
+	if err := json.Unmarshal(body, &requestBody); err != nil {
+		log.Printf("VoteForShip could not unmarshal requestBody: %v", err)
+		return nil
 	}
 
 	log.Printf("Added voted ship to vote %d in channel %d with status code %d", voteID, channelID, res.StatusCode)
