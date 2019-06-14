@@ -34,11 +34,6 @@
 		},
 		{
 			"type": "file",
-			"source": "shipvote_api",
-			"destination": "/tmp/shipvote_api"
-		},
-		{
-			"type": "file",
 			"source": "backend.tar.gz",
 			"destination": "/tmp/backend.tar.gz"
 		},
@@ -76,13 +71,6 @@
 			"inline": [
 				"sudo mv /tmp/limits.conf /etc/security/limits.conf",
 				"ulimit -n"
-			]
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"sudo mv /tmp/shipvote_api /usr/bin/shipvote_api",
-				"sudo chmod +x /usr/bin/shipvote_api"
 			]
 		}
 	],
