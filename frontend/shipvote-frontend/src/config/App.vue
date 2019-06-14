@@ -235,8 +235,6 @@ window.App = {
 
       this.error = undefined;
 
-      console.log(this.token);
-
       put(
         `${BASE_URL}/api/settings/channels/${this.config.id}/ships/${
           ship.id

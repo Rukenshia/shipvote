@@ -141,6 +141,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 
 	res, err := api.VoteForShip(authorization, channelID, voteID, body)
 	if err != nil {
+		log.Printf("VoteForShip failed for vote %d in channel %d with %v", voteID, channelID, err)
 		return err
 	}
 
@@ -157,6 +158,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 
 	var requestBody voteForShipRequest
 	if err := ctx.Bind(requestBody); err != nil {
+		log.Printf("Could not bind requestBody %v", err)
 		return err
 	}
 

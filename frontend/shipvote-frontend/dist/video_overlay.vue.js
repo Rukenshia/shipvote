@@ -4069,6 +4069,8 @@ window.App = {
 
           _this.handlePubSubMessage(data);
         });
+      }).catch(function (err) {
+        console.error(err);
       });
     });
   },
@@ -4088,6 +4090,11 @@ window.App = {
       var _this2 = this;
 
       if (data.status == "open") {
+        if (this.vote && this.vote.id == data.id) {
+          // The API might have restarted and sent a duplicate event
+          return;
+        }
+
         // Vote started before listening to messages, grab the vote
         this.api.getVote(data.id).then(function (vote) {
           _this2.voteStarted = true;
@@ -4105,6 +4112,8 @@ window.App = {
             });
             _this2.vote = vote;
           });
+        }).catch(function (err) {
+          console.error(err);
         });
         return;
       }
@@ -4145,7 +4154,9 @@ window.App = {
       this.voted = true;
       this.selecting = false;
 
-      this.api.voteForShip(this.vote.id, ship.id);
+      this.api.voteForShip(this.vote.id, ship.id).catch(function (err) {
+        console.error(err);
+      });
     }
   }
 };
@@ -4448,7 +4459,7 @@ var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(40);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2bef6d46_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_10f8a8af_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
   __webpack_require__(57)
 }
@@ -4468,7 +4479,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2bef6d46_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_10f8a8af_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4489,7 +4500,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("9f5b8c0c", content, true, {});
+var update = __webpack_require__(4)("12b6642e", content, true, {});
 
 /***/ }),
 /* 58 */
@@ -4500,7 +4511,7 @@ exports = module.exports = __webpack_require__(3)(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Roboto);", ""]);
 
 // module
-exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.top-bar {\n  margin: -1em -1em 0 -1em;\n  padding: .5em;\n  background-color: #f8f9fa;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark .top-bar {\n    background-color: #6441a4;\n}\n.dark option {\n    background-color: #201c2b;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button {\n    color: #e2dbf0;\n}\n.dark .mdc-button[disabled] {\n      color: #7d738c;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.dark .mdc-text-field__icon.material-icons {\n    color: #e2dbf0;\n}\n.dark .section-title--line {\n    border-color: #6441a4 !important;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.vote-notice {\n  position: fixed;\n  left: 50%;\n  bottom: 88px;\n  transform: translateX(-50%);\n}\n.vote-notice[data-active='true'] .cta {\n    opacity: 1;\n}\n.vote-notice[data-initial='true'] .cta,\n  .vote-notice[data-active='true']:hover .cta {\n    width: 186px;\n}\n.vote-notice[data-active='true']:hover .cta {\n    transition: width 0.5s;\n    cursor: pointer;\n}\n.vote-notice[data-dismissed='true'] .cta {\n    transition: width 0.5s, opacity 0.2s;\n}\n.vote-notice .cta {\n    display: flex;\n    align-items: center;\n    background-color: #ffffff;\n    border-radius: 20px;\n    padding: 8px 12px;\n    width: 24px;\n    height: 24px;\n    overflow: hidden;\n    opacity: 0;\n    transition: width 0.5s 0.8s, opacity 1s ease-in;\n}\n.vote-notice .cta span {\n      margin-left: 4px;\n      font-size: 16px;\n      font-family: Roboto;\n      white-space: nowrap;\n      overflow: hidden;\n}\n.selection {\n  position: fixed;\n  left: 8px;\n  top: 80px;\n  width: 386px;\n}\n.selection .card {\n    height: 0;\n    opacity: 0;\n    visibility: hidden;\n    overflow-y: scroll;\n    transition: visibility 0s linear 0.5s, height 0.5s, opacity 0.45s;\n}\n.selection[data-active='true'] .card {\n    visibility: visible;\n    transition-delay: 0s;\n    opacity: 1;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n", ""]);
+exports.push([module.i, "\n.mdc-text-field--box {\n  margin-top: 0;\n}\n.top-bar {\n  margin: -1em -1em 0 -1em;\n  padding: .5em;\n  background-color: #f8f9fa;\n}\n.dark {\n  background-color: #201c2b;\n  color: #e5e3e8;\n}\n.dark .top-bar {\n    background-color: #6441a4;\n}\n.dark option {\n    background-color: #201c2b;\n}\n.dark a {\n    color: #e2dbf0;\n}\n.dark .mdc-card .mdc-card__supporting-text {\n    color: #e5e3e8;\n}\n.dark .mdc-card.mdc-card--flat {\n    background-color: #6441a4;\n    color: inherit;\n}\n.dark .mdc-tab--active .mdc-tab__text-label {\n    color: #6441a4;\n}\n.dark .mdc-tab__text-label {\n    color: #e5e3e8;\n}\n.dark .mdc-form-field > label {\n    color: #e2dbf0;\n}\n.dark .mdc-text-field, .dark .mdc-select {\n    background-color: #6441a4;\n}\n.dark .mdc-text-field label, .dark .mdc-select label {\n      color: #e2dbf0 !important;\n}\n.dark .mdc-text-field input, .dark .mdc-text-field select, .dark .mdc-select input, .dark .mdc-select select {\n      color: #e5e3e8 !important;\n}\n.dark .mdc-button {\n    color: #e2dbf0;\n}\n.dark .mdc-button[disabled] {\n      color: #7d738c;\n}\n.dark .mdc-button.mdc-button--outlined {\n    border-color: #e2dbf0;\n}\n.dark .mdc-list {\n    color: inherit;\n}\n.dark .mdc-list .mdc-list-item .mdc-list-item__secondary-text {\n      color: #e2dbf0;\n}\n.dark .mdc-list.mdc-list--bordered .mdc-list-item {\n      border-color: #e2dbf0;\n}\n.dark .vote-notice .cta {\n    background-color: #6441a4;\n}\n.dark .selection .card {\n    background-color: #201c2b;\n}\n.dark .selection .card .ship {\n      background-color: #6441a4;\n      border-color: #6441a4;\n}\n.dark .selection .card .ship .vote-button {\n        background-color: #e5e3e8;\n        color: #6441a4;\n}\n.dark .selection .card .ship .progress-bar .progress {\n        background-color: rgba(255, 255, 255, 0.5);\n}\n.dark .mdc-typography {\n    color: #e5e3e8;\n}\n.dark .mdc-text-field__icon.material-icons {\n    color: #e2dbf0;\n}\n.dark .section-title--line {\n    border-color: #6441a4 !important;\n}\n.typography {\n  font-family: Roboto, sans-serif;\n}\n.typography__color--warning {\n  color: orange;\n}\n.typography__color--success {\n  color: #3fc380;\n}\n.typography__color--error {\n  color: #d24d57;\n}\n.typography--headline1 {\n  font-size: 20px;\n  font-weight: bold;\n  display: block;\n}\n.typography--subtitle {\n  color: #3f3f3f;\n}\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.mdc-card.mdc-card--flat.mdc-card--info {\n  border-radius: 4px;\n  background-color: #D9D566;\n}\n.mdc-card.mdc-card--flat.mdc-card--info .mdc-card-text {\n    color: #59582A;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.vote-notice {\n  position: fixed;\n  left: 50%;\n  bottom: 88px;\n  transform: translateX(-50%);\n}\n.vote-notice[data-active='true'] .cta {\n    opacity: 1;\n}\n.vote-notice[data-initial='true'] .cta,\n  .vote-notice[data-active='true']:hover .cta {\n    width: 186px;\n}\n.vote-notice[data-active='true']:hover .cta {\n    transition: width 0.5s;\n    cursor: pointer;\n}\n.vote-notice[data-dismissed='true'] .cta {\n    transition: width 0.5s, opacity 0.2s;\n}\n.vote-notice .cta {\n    display: flex;\n    align-items: center;\n    background-color: #ffffff;\n    border-radius: 20px;\n    padding: 8px 12px;\n    width: 24px;\n    height: 24px;\n    overflow: hidden;\n    opacity: 0;\n    transition: width 0.5s 0.8s, opacity 1s ease-in;\n}\n.vote-notice .cta span {\n      margin-left: 4px;\n      font-size: 16px;\n      font-family: Roboto;\n      white-space: nowrap;\n      overflow: hidden;\n}\n.selection {\n  position: fixed;\n  left: 8px;\n  top: 80px;\n  width: 386px;\n}\n.selection .card {\n    height: 0;\n    opacity: 0;\n    visibility: hidden;\n    overflow-y: scroll;\n    transition: visibility 0s linear 0.5s, height 0.5s, opacity 0.45s;\n}\n.selection[data-active='true'] .card {\n    visibility: visible;\n    transition-delay: 0s;\n    opacity: 1;\n}\n:root {\n  --mdc-theme-secondary: #6441a4;\n  --mdc-theme-primary: #6441a4;\n}\n", ""]);
 
 // exports
 
@@ -4564,7 +4575,7 @@ exports = module.exports = __webpack_require__(3)(false);
 
 
 // module
-exports.push([module.i, "\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n", ""]);
+exports.push([module.i, "\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.mdc-card.mdc-card--flat.mdc-card--info {\n  border-radius: 4px;\n  background-color: #D9D566;\n}\n.mdc-card.mdc-card--flat.mdc-card--info .mdc-card-text {\n    color: #59582A;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n", ""]);
 
 // exports
 
@@ -4692,7 +4703,7 @@ exports = module.exports = __webpack_require__(3)(false);
 
 
 // module
-exports.push([module.i, "\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.ship {\n  margin-right: 4px;\n  width: calc(48% - 8px);\n  position: relative;\n  display: flex;\n  align-items: center;\n  border-radius: 4px;\n  border: 1px solid #eaeaea;\n  padding: 4px;\n  margin-bottom: 4px;\n  overflow: hidden;\n  transition: background-color 0.2s, border-color 0.2s;\n}\n.ship[data-voteable='true']:hover {\n    box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n    border-color: #6441a4;\n}\n.ship[data-voteable='true']:hover .vote-button {\n      visibility: visible;\n      opacity: 1;\n      cursor: pointer;\n}\n.ship * {\n    z-index: 1;\n}\n.ship img {\n    width: 20%;\n    margin-right: 8px;\n}\n.ship .progress-bar .progress {\n    transition: background-color 0.2s;\n}\n.ship .vote-button {\n    z-index: 2;\n    position: absolute;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    text-align: center;\n    color: white;\n    font-weight: normal;\n    text-transform: uppercase;\n    opacity: 0;\n    background-color: #6441a4;\n    transition: opacity 0.2s;\n}\n.progress-bar .progress {\n  background-color: rgba(100, 65, 164, 0.2);\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  z-index: 0;\n  transition: min-width 0.2s;\n}\n", ""]);
+exports.push([module.i, "\n.card {\n  background-color: #ffffff;\n  border-radius: 4px;\n  padding: 8px 12px;\n  overflow: hidden;\n}\n.card .card__divider {\n    height: 12px;\n}\n.mdc-card.mdc-card--flat.mdc-card--info {\n  border-radius: 4px;\n  background-color: #D9D566;\n}\n.mdc-card.mdc-card--flat.mdc-card--info .mdc-card-text {\n    color: #59582A;\n}\n.raised {\n  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n}\n.ship {\n  margin-right: 4px;\n  width: calc(48% - 8px);\n  position: relative;\n  display: flex;\n  align-items: center;\n  border-radius: 4px;\n  border: 1px solid #eaeaea;\n  padding: 4px;\n  margin-bottom: 4px;\n  overflow: hidden;\n  transition: background-color 0.2s, border-color 0.2s;\n}\n.ship[data-voteable='true']:hover {\n    box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);\n    border-color: #6441a4;\n}\n.ship[data-voteable='true']:hover .vote-button {\n      visibility: visible;\n      opacity: 1;\n      cursor: pointer;\n}\n.ship * {\n    z-index: 1;\n}\n.ship img {\n    width: 20%;\n    margin-right: 8px;\n}\n.ship .progress-bar .progress {\n    transition: background-color 0.2s;\n}\n.ship .vote-button {\n    z-index: 2;\n    position: absolute;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    text-align: center;\n    color: white;\n    font-weight: normal;\n    text-transform: uppercase;\n    opacity: 0;\n    background-color: #6441a4;\n    transition: opacity 0.2s;\n}\n.progress-bar .progress {\n  background-color: rgba(100, 65, 164, 0.2);\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  z-index: 0;\n  transition: min-width 0.2s;\n}\n", ""]);
 
 // exports
 

@@ -14,6 +14,15 @@
   }
 }
 
+.mdc-card.mdc-card--flat.mdc-card--info {
+  border-radius: 4px;
+
+  background-color: #D9D566;
+  .mdc-card-text {
+    color: #59582A;
+  }
+}
+
 .raised {
   @include raised();
 }
