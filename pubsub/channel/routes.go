@@ -36,6 +36,7 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 	}
 
 	if res.StatusCode != 200 {
+		log.Printf("OpenVote internally returned %d on channel %d", res.StatusCode, channelID)
 		ctx.Stream(res.StatusCode, res.Header.Get("Content-Type"), res.Body)
 		return nil
 	}
@@ -48,6 +49,7 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 
 	var vote api.Vote
 	if err := json.Unmarshal(resBody, vote); err != nil {
+		log.Printf("OpenVote could not unmarshal response")
 		return err
 	}
 
@@ -64,6 +66,8 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 		// maybe set up a sentry and send the error there to see how often it occurs
 		// or another kind of notification
 	}
+
+	log.Printf("OpenVote done for channel %d", channelID)
 
 	ctx.Stream(res.StatusCode, res.Header.Get("Content-Type"), bytes.NewReader(resBody))
 	return nil
