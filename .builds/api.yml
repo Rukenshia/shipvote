@@ -20,16 +20,16 @@ tasks:
       # Check if we even want a build
       cd shipvote
 
-      git log -1 --pretty=%B | grep '\[backend skip\]'
+      git log -1 --pretty=%B | grep '\[api skip\]'
       if [ "$?" -eq "0" ]; then
-        echo "Skiping backend build as requested in commit"
+        echo "Skiping api build as requested in commit"
         exit 1
       fi
       set -e
   - setup: |
       sudo add-apt-repository -y ppa:longsleep/golang-backports
       sudo apt-get update
-      sudo apt-get install golang-go
+      sudo apt-get install -y golang-go
 
       wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
       unzip packer_1.4.1_linux_amd64.zip
