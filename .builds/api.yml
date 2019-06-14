@@ -1,0 +1,55 @@
+image: ubuntu/18.10
+packages:
+  - git
+  - jq
+  - awscli
+  - unzip
+  - software-properties-common
+sources:
+  - https://git.sr.ht/~rukenshia/shipvote
+secrets:
+  - 39526075-910f-4eef-98f4-bfa9788aec0f
+  - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
+  - 1832b31e-e954-415c-b49d-5e0421875440
+  - 268aec39-f172-4f22-88a2-2ac169a7c578
+environment:
+  MIX_ENV: test
+tasks:
+  - check-build: |
+      set +e 
+      # Check if we even want a build
+      cd shipvote
+
+      git log -1 --pretty=%B | grep '\[backend skip\]'
+      if [ "$?" -eq "0" ]; then
+        echo "Skiping backend build as requested in commit"
+        exit 1
+      fi
+      set -e
+  - setup: |
+      sudo add-apt-repository -y ppa:longsleep/golang-backports
+      sudo apt-get update
+      sudo apt-get install golang-go
+
+      wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
+      unzip packer_1.4.1_linux_amd64.zip
+      rm packer_1.4.1_linux_amd64.zip
+      chmod +x ./packer
+      sudo mv ./packer /usr/bin/packer
+
+  - build: |
+      cd shipvote/pubsub
+      GO111MODULES=on make
+      mv ./shipvote ../infra/shipvote-api
+  - packer: |
+      set +x
+      source ~/.shipvote.aws.builds.sr.ht
+      set -x
+
+      cd shipvote/infra
+      sudo mv ~/.shipvote-api.env ./shipvote-api.env
+      packer build ami.api.json
+triggers:
+  - action: email
+    condition: always
+    to: "Jan Christophersen <jan@chrstphrsn.cc>"
