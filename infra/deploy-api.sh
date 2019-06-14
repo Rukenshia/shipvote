@@ -22,10 +22,10 @@ aws ec2 create-launch-template-version --launch-template-name "${LAUNCH_TEMPLATE
 aws ec2 modify-launch-template --launch-template-name "${LAUNCH_TEMPLATE_NAME}" --default-version '$Latest' > /dev/null
 
 # destroy current instance
-instances="$(aws ec2 describe-instances --filters Name=tag:app,Values=shipvote Name=tag:tier,Values=api | jq -r '[ .Reservations[].Instances[] | select(.State.Name == "running") | .InstanceId ]')" 
+instances="$(aws ec2 describe-instances --filters Name=tag:app,Values=shipvote Name=tag:tier,Values=api | jq -r '.Reservations[].Instances[] | select(.State.Name == "running") | .InstanceId')" 
 
 
-for instance in instances; do
+for instance in $instances; do
 	echo "Terminating instance ${instance}"
 
 	aws ec2 terminate-instances --instance-ids "${instance}"
