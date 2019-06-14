@@ -29,7 +29,6 @@ func (a *ActiveVote) StartUpdating() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Printf("Updating for channel %d with vote %d", a.Channel.ID, a.VoteID)
 				res, err := a.Channel.Broadcast(pubsub.Message{
 					MessageType: "vote_progress",
 					Timestamp:   time.Now(),
@@ -44,7 +43,7 @@ func (a *ActiveVote) StartUpdating() {
 				continue
 			case <-a.stop:
 				ticker.Stop()
-				log.Printf("stop updating vote %s", a.VoteID)
+				log.Printf("stop updating vote %d on channel %d", a.VoteID, a.Channel.ID)
 				return
 			}
 		}
