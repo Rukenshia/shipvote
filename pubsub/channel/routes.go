@@ -157,7 +157,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 	}
 
 	var requestBody voteForShipRequest
-	if err := ctx.Bind(requestBody); err != nil {
+	if err := ctx.Bind(&requestBody); err != nil {
 		log.Printf("Could not bind requestBody %v", err)
 		return err
 	}
