@@ -60,7 +60,7 @@ tasks:
       export NEW_AMI="$(cat manifest.api.json | jq -r '.builds[0].artifact_id' | awk -F':' '{print $2}')"
       export NEW_SNAPSHOT_ID="$(aws ec2 describe-snapshots --owner-ids self --filter Name=tag:app,Values=shipvote,Name=tag:tier,Values=api --query 'Snapshots[0].SnapshotId' --output text)"
 
-      ./deploy.sh
+      ./deploy-api.sh
 triggers:
   - action: email
     condition: always
