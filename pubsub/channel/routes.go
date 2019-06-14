@@ -141,7 +141,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 	}
 
 	res, err := api.VoteForShip(authorization, channelID, voteID, body)
-	if err != nil {
+	if err != nil && (res.StatusCode < 400 || res.StatusCode > 600) {
 		log.Printf("VoteForShip failed for vote %d in channel %d with %v", voteID, channelID, err)
 		return err
 	}
