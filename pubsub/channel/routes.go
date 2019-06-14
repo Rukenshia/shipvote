@@ -50,8 +50,9 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 	var vote struct {
 		Data api.Vote `json:"data"`
 	}
-	if err := json.Unmarshal(resBody, vote); err != nil {
+	if err := json.Unmarshal(resBody, &vote); err != nil {
 		log.Printf("OpenVote could not unmarshal response")
+		log.Printf("response was %s", resBody)
 		return err
 	}
 
