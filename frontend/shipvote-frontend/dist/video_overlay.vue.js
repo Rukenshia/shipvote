@@ -4102,6 +4102,8 @@ window.App = {
             _this2.voteStarted = false;
           }, 5000);
           _this2.voting = true;
+          _this2.voted = false;
+          _this2.selecting = false;
 
           // Get ships
           // Update votes in an interval
@@ -4120,6 +4122,8 @@ window.App = {
 
       this.voting = false;
       this.voteStarted = false;
+      this.voted = false;
+      this.selecting = false;
     },
     handleVoteProgressMessage: function handleVoteProgressMessage(data) {
       var _this3 = this;
@@ -4459,7 +4463,7 @@ var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(40);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_10f8a8af_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_64919d22_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
   __webpack_require__(57)
 }
@@ -4479,7 +4483,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_10f8a8af_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_64919d22_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4500,7 +4504,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("12b6642e", content, true, {});
+var update = __webpack_require__(4)("699cb45a", content, true, {});
 
 /***/ }),
 /* 58 */
