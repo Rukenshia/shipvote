@@ -22,12 +22,14 @@ func NewActiveVote(channel *Channel, voteID uint64) *ActiveVote {
 
 // StartUpdating starts a thread to send PubSub messages on the vote progress to twitch
 func (a *ActiveVote) StartUpdating() {
+	log.Printf("StartUpdating for channel %d with vote %d", a.Channel.ID, a.VoteID)
 	go func() {
 		ticker := time.NewTicker(time.Millisecond * 2000)
 
 		for {
 			select {
 			case <-ticker.C:
+				log.Printf("Updating for channel %d with vote %d", a.Channel.ID, a.VoteID)
 				a.Channel.Broadcast(pubsub.Message{
 					MessageType: "vote_progress",
 					Timestamp:   time.Now(),

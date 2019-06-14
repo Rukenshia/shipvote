@@ -17,7 +17,11 @@ type voteForShipRequest struct {
 
 // OpenVote opens a new vote for a given channel and publishes a message to Twitch PubSub
 func (c *Controller) OpenVote(ctx echo.Context) error {
-	channelID := ctx.Param("channel_id")
+	channelID, err := strconv.ParseUint(ctx.Param("channel_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+
 	authorization := ctx.Request().Header.Get("Authorization")
 
 	defer ctx.Request().Body.Close()
@@ -67,14 +71,16 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 
 // CloseVote closes a given vote of the channel and publishes a message to Twitch PubSub
 func (c *Controller) CloseVote(ctx echo.Context) error {
-	channelID := ctx.Param("channel_id")
-	voteIDStr := ctx.Param("vote_id")
-	authorization := ctx.Request().Header.Get("Authorization")
-
-	voteID, err := strconv.ParseUint(voteIDStr, 10, 32)
+	channelID, err := strconv.ParseUint(ctx.Param("channel_id"), 10, 32)
 	if err != nil {
 		return err
 	}
+	voteID, err := strconv.ParseUint(ctx.Param("vote_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+
+	authorization := ctx.Request().Header.Get("Authorization")
 
 	defer ctx.Request().Body.Close()
 	body, err := ioutil.ReadAll(ctx.Request().Body)
@@ -110,14 +116,15 @@ func (c *Controller) CloseVote(ctx echo.Context) error {
 
 // VoteForShip adds a viewers voted ship to a channel vote
 func (c *Controller) VoteForShip(ctx echo.Context) error {
-	channelID := ctx.Param("channel_id")
-	voteIDStr := ctx.Param("vote_id")
-	authorization := ctx.Request().Header.Get("Authorization")
-
-	voteID, err := strconv.ParseUint(voteIDStr, 10, 32)
+	channelID, err := strconv.ParseUint(ctx.Param("channel_id"), 10, 32)
 	if err != nil {
 		return err
 	}
+	voteID, err := strconv.ParseUint(ctx.Param("vote_id"), 10, 32)
+	if err != nil {
+		return err
+	}
+	authorization := ctx.Request().Header.Get("Authorization")
 
 	defer ctx.Request().Body.Close()
 	body, err := ioutil.ReadAll(ctx.Request().Body)

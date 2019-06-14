@@ -13,7 +13,7 @@ import (
 
 // Channel is a twitch channel
 type Channel struct {
-	ID string
+	ID uint64
 
 	vote *ActiveVote
 }
@@ -25,7 +25,7 @@ type broadcastRequest struct {
 }
 
 // NewChannel creates a new Channel
-func NewChannel(id string) *Channel {
+func NewChannel(id uint64) *Channel {
 	c := &Channel{
 		ID: id,
 	}
@@ -36,11 +36,8 @@ func NewChannel(id string) *Channel {
 // StartVote sets the active vote of the channel
 func (c *Channel) StartVote(v *ActiveVote) error {
 	if c.vote != nil {
-		return fmt.Errorf("Active vote with id %d for channel %s", c.vote.VoteID, c.ID)
+		return fmt.Errorf("Active vote with id %d for channel %d", c.vote.VoteID, c.ID)
 	}
-
-	c.vote = v
-	v.StartUpdating()
 
 	br, err := NewChannel(c.ID).Broadcast(pubsub.Message{
 		MessageType: "vote_status",
@@ -51,9 +48,12 @@ func (c *Channel) StartVote(v *ActiveVote) error {
 		},
 	})
 	if err != nil {
-		log.Printf("broadcast failed: %v %v", br, err)
+		log.Printf("vote_status broadcast failed: %v %v", br, err)
 		return err
 	}
+
+	c.vote = v
+	v.StartUpdating()
 
 	return nil
 }
@@ -61,7 +61,7 @@ func (c *Channel) StartVote(v *ActiveVote) error {
 // StopVote stops the active vote of the channel
 func (c *Channel) StopVote() error {
 	if c.vote == nil {
-		return fmt.Errorf("No active vote for channel %s", c.ID)
+		return fmt.Errorf("No active vote for channel %d", c.ID)
 	}
 
 	c.vote.StopUpdating()
@@ -83,10 +83,10 @@ func (c *Channel) StopVote() error {
 	return nil
 }
 
-// AddVotedShips adds a voted ship to the current vote
+// AddVotedShip adds a voted ship to the current vote
 func (c *Channel) AddVotedShip(voteID uint64, shipID string) error {
 	if c.vote == nil {
-		return fmt.Errorf("No active vote for channel %s", c.ID)
+		return fmt.Errorf("No active vote for channel %d", c.ID)
 	}
 
 	if c.vote.VoteID != voteID {
@@ -118,7 +118,7 @@ func (c *Channel) Broadcast(message pubsub.Message) (string, error) {
 		},
 	}
 
-	res, err := grequests.Post(fmt.Sprintf("https://api.twitch.tv/extensions/message/%s", c.ID), ro)
+	res, err := grequests.Post(fmt.Sprintf("https://api.twitch.tv/extensions/message/%d", c.ID), ro)
 	if err != nil {
 		return "", err
 	} else if res.StatusCode != 204 {
