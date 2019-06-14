@@ -49,6 +49,18 @@ tasks:
       cd shipvote/infra
       sudo mv ~/.shipvote-api.env ./shipvote-api.env
       packer build ami.api.json
+  - deploy: |
+      set +x
+      source ~/.shipvote.aws.builds.sr.ht
+      set -x
+
+      cd shipvote/infra
+
+      export AWS_DEFAULT_REGION=eu-central-1
+      export NEW_AMI="$(cat manifest.api.json | jq -r '.builds[0].artifact_id' | awk -F':' '{print $2}')"
+      export NEW_SNAPSHOT_ID="$(aws ec2 describe-snapshots --owner-ids self --filter Name=tag:app,Values=shipvote,Name=tag:tier,Values=api --query 'Snapshots[0].SnapshotId' --output text)"
+
+      ./deploy.sh
 triggers:
   - action: email
     condition: always
