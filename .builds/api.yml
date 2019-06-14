@@ -11,7 +11,7 @@ secrets:
   - 39526075-910f-4eef-98f4-bfa9788aec0f
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - 1832b31e-e954-415c-b49d-5e0421875440
-  - 268aec39-f172-4f22-88a2-2ac169a7c578
+  - eb7f56eb-d07c-495e-86f5-bae54f020c75
 environment:
   MIX_ENV: test
 tasks:
