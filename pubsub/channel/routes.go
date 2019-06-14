@@ -138,6 +138,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 	}
 
 	if res.StatusCode != 200 {
+		log.Printf("VoteForShip returned %d internally on vote %d in channel %d", res.StatusCode, voteID, channelID)
 		ctx.Stream(res.StatusCode, res.Header.Get("Content-Type"), res.Body)
 		return nil
 	}
@@ -151,6 +152,8 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 	if err := ctx.Bind(requestBody); err != nil {
 		return err
 	}
+
+	log.Printf("Added voted ship to vote %d in channel %d with status code %d", voteID, channelID, res.StatusCode)
 
 	channel.AddVotedShip(voteID, requestBody.ShipID)
 

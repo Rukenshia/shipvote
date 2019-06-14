@@ -39,7 +39,7 @@ func (a *ActiveVote) StartUpdating() {
 					},
 				})
 				if err != nil {
-					log.Printf("Error updating channel %d vote %d: %s", a.Channel.ID, a.VoteID, res)
+					log.Printf("Error updating channel %d vote %d: %v (response: %s)", a.Channel.ID, a.VoteID, err, res)
 				}
 				continue
 			case <-a.stop:
