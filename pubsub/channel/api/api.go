@@ -42,25 +42,25 @@ func GetOpenVotes(authorization string) ([]Vote, error) {
 }
 
 // OpenVote opens a new vote for a channel
-func OpenVote(authorization, channelID string, body []byte) (*http.Response, error) {
+func OpenVote(authorization string, channelID uint64, body []byte) (*http.Response, error) {
 	ro := &grequests.RequestOptions{
 		Headers:     map[string]string{"Authorization": authorization, "Content-Type": "application/json"},
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%s/votes", channelID), ro)
+	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes", channelID), ro)
 
 	return res.RawResponse, err
 }
 
 // PatchVote patches the status of a channels vote
-func PatchVote(authorization, channelID string, voteID uint64, body []byte) (*http.Response, error) {
+func PatchVote(authorization string, channelID, voteID uint64, body []byte) (*http.Response, error) {
 	ro := &grequests.RequestOptions{
 		Headers:     map[string]string{"Authorization": authorization, "Content-Type": "application/json"},
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Patch(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%s/votes/%d/status", channelID, voteID), ro)
+	res, err := grequests.Patch(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes/%d/status", channelID, voteID), ro)
 	if err != nil {
 		return res.RawResponse, err
 	} else if res.StatusCode != 200 {
@@ -71,13 +71,13 @@ func PatchVote(authorization, channelID string, voteID uint64, body []byte) (*ht
 }
 
 // VoteForShip adds a viewers vote to a channel vote
-func VoteForShip(authorization, channelID string, voteID uint64, body []byte) (*http.Response, error) {
+func VoteForShip(authorization string, channelID, voteID uint64, body []byte) (*http.Response, error) {
 	ro := &grequests.RequestOptions{
 		Headers:     map[string]string{"Authorization": authorization, "Content-Type": "application/json"},
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%s/votes/%d/submit", channelID, voteID), ro)
+	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes/%d/submit", channelID, voteID), ro)
 	if err != nil {
 		return res.RawResponse, err
 	} else if res.StatusCode != 200 {

@@ -2,6 +2,7 @@ package pubsub
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 	"time"
 
@@ -24,10 +25,10 @@ type Claims struct {
 }
 
 // GeneratePubSubToken generates a valid token for the Twitch PubSub API
-func GeneratePubSubToken(channelID, messageType string) (string, error) {
+func GeneratePubSubToken(channelID uint64, messageType string) (string, error) {
 	claims := &Claims{
-		ChannelID: channelID,
-		UserID:    channelID,
+		ChannelID: fmt.Sprintf("%d", channelID),
+		UserID:    fmt.Sprintf("%d", channelID),
 		Role:      "external",
 		Perms: &Perms{
 			Send: []string{messageType},
