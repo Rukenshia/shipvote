@@ -9,6 +9,7 @@ packages:
   - awscli
   - curl
   - unzip
+  - software-properties-common
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -82,7 +83,7 @@ tasks:
       mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
 
       cd ../pubsub
-      make
+      GO111MODULES=on make
       mv ./shipvote ../infra/shipvote_api
   - packer: |
       set +x
