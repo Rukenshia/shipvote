@@ -187,7 +187,7 @@ window.App = {
       this.selecting = false;
 
       this.api.voteForShip(this.vote.id, ship.id).catch(err => {
-        console.error(err);
+        console.error('Could not vote for ship', err);
       });
     }
   }
