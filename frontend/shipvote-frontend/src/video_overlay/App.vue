@@ -96,98 +96,75 @@ window.App = {
       this.api.getChannelInfo().then(info => {
         this.channel = info;
 
-        const updateVotes = voteId => {
-          if (!this.gameIsWows) {
-            this.voting = false;
-            this.noteDismissed = false;
-            this.voted = false;
-            this.selecting = false;
-            this.totalVotes = 0;
-            this.ships = [];
-
-            setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
+        window.Twitch.ext.listen('broadcast', (target, contentType, message) => {
+          if (contentType !== 'application/json') {
             return;
           }
 
-          this.api.getVote(voteId, false).then(vote => {
-            if (!vote || vote.status === 'closed') {
-              this.vote = vote;
-              this.voting = false;
-              checkOpenVote();
-              return;
-            }
+          const data = JSON.parse(atob(message));
 
-            // an open vote exists, reset the delays to the default values
-            this.channel.vote_status_delay = 7500;
-            this.channel.vote_progress_delay = 4000;
-
-            let totalVotes = 0;
-            Object.keys(vote.votes).forEach(shipId => {
-              totalVotes += vote.votes[shipId];
-              shipId = parseInt(shipId, 10);
-              const shipIdx = this.ships.findIndex(s => s.id === shipId);
-
-              if (shipIdx !== -1) {
-                Vue.set(this.ships, shipIdx, {
-                  ...this.ships[shipIdx],
-                  votes: vote.votes[shipId]
-                });
-              }
-            });
-
-            this.vote = vote;
-            this.totalVotes = totalVotes;
-          }).catch(e => console.error(`updateVotes: ${e}`))
-            .then(() => {
-              if (this.voting) {
-                setTimeout(() => updateVotes(voteId), this.channel.vote_progress_delay);
-              }
-            });
-        };
-
-        const checkOpenVote = () => {
-          if (!this.gameIsWows) {
-            setTimeout(() => { checkOpenVote() }, 60000);
-            return;
-          }
-
-          this.api.getOpenVote().then(vote => {
-            this.vote = vote;
-            if (vote && !this.voting) {
-              this.voteStarted = true;
-              setTimeout(() => {
-                this.voteStarted = false;
-              }, 5000);
-              this.voting = true;
-
-              // Get ships
-              // Update votes in an interval
-              // Terminate interval
-              this.api.getWarships(vote.ships).then(ships => {
-                this.ships = ships.map(s => ({ ...s, votes: 0 }));
-                updateVotes(vote.id);
-              });
-            } else {
-              this.voting = false;
-              this.noteDismissed = false;
-              this.voted = false;
-              this.selecting = false;
-              this.totalVotes = 0;
-              this.ships = [];
-            }
-          }).catch(e => console.error(`checkOpenVote: ${e}`))
-            .then(() => {
-              if (!this.voting) {
-                setTimeout(() => { checkOpenVote() }, this.channel.vote_status_delay);
-              }
-            });
-        };
-
-        checkOpenVote();
+          this.handlePubSubMessage(data);
+        });
       });
     });
   },
   methods: {
+    handlePubSubMessage(message) {
+      switch(message.type) {
+      case 'vote_progress':
+        this.handleVoteProgressMessage(message.data);
+        break;
+      case 'vote_status':
+        this.handleVoteStatusMessage(message.data);
+        break;
+      }
+    },
+    handleVoteStatusMessage(data) {
+      if (data.status == "open") {
+        // Vote started before listening to messages, grab the vote
+        this.api.getVote(data.id).then(vote => {
+          this.voteStarted = true;
+          setTimeout(() => {
+            this.voteStarted = false;
+          }, 5000);
+          this.voting = true;
+
+          // Get ships
+          // Update votes in an interval
+          // Terminate interval
+          this.api.getWarships(vote.ships).then(ships => {
+            this.ships = ships.map(s => ({ ...s, votes: 0 }));
+            this.vote = vote;
+          });
+        });
+        return;
+      }
+
+      this.voting = false;
+      this.voteStarted = false;
+    },
+    handleVoteProgressMessage(data) {
+      if (!this.vote) {
+        this.handleVoteStatusMessage({ status: "open", id: data.id });
+        return;
+      }
+
+      let totalVotes = 0;
+      Object.keys(data.voted_ships).forEach(shipId => {
+        totalVotes += data.voted_ships[shipId];
+        shipId = parseInt(shipId, 10);
+        const shipIdx = this.ships.findIndex(s => s.id === shipId);
+
+        if (shipIdx !== -1) {
+          Vue.set(this.ships, shipIdx, {
+            ...this.ships[shipIdx],
+            votes: data.voted_ships[shipId]
+          });
+        }
+      });
+
+      this.totalVotes = totalVotes;
+    },
     voteForShip(ship) {
       if (this.voted) {
         return;

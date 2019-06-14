@@ -1259,6 +1259,11 @@ var ShipvoteApi = function () {
       return this.baseUrl + '/api/channels/' + this.channelId + path;
     }
   }, {
+    key: 'buildNewUrl',
+    value: function buildNewUrl(path) {
+      return 'https://api.shipvote.in.fkn.space/api/channels/' + this.channelId + path;
+    }
+  }, {
     key: 'getChannelInfo',
     value: function getChannelInfo() {
       return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/'), { headers: this.headers() }).then(function (res) {
@@ -1301,21 +1306,21 @@ var ShipvoteApi = function () {
   }, {
     key: 'openVote',
     value: function openVote(ships) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildUrl('/votes'), { vote: { ships: ships, status: 'open' } }, { headers: this.headers() }).then(function (res) {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildNewUrl('/votes'), { vote: { ships: ships, status: 'open' } }, { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }
   }, {
     key: 'closeVote',
     value: function closeVote(voteId) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["patch"])(this.buildUrl('/votes/' + voteId + '/status'), { status: 'closed' }, { headers: this.headers() }).then(function (res) {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["patch"])(this.buildNewUrl('/votes/' + voteId + '/status'), { status: 'closed' }, { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }
   }, {
     key: 'voteForShip',
     value: function voteForShip(voteId, shipId) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildUrl('/votes/' + voteId + '/submit'), { ship_id: shipId }, { headers: this.headers() });
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildNewUrl('/votes/' + voteId + '/submit'), { ship_id: shipId }, { headers: this.headers() });
     }
   }]);
 

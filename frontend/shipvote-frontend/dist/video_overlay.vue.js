@@ -1259,6 +1259,11 @@ var ShipvoteApi = function () {
       return this.baseUrl + '/api/channels/' + this.channelId + path;
     }
   }, {
+    key: 'buildNewUrl',
+    value: function buildNewUrl(path) {
+      return 'https://api.shipvote.in.fkn.space/api/channels/' + this.channelId + path;
+    }
+  }, {
     key: 'getChannelInfo',
     value: function getChannelInfo() {
       return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.buildUrl('/'), { headers: this.headers() }).then(function (res) {
@@ -1301,21 +1306,21 @@ var ShipvoteApi = function () {
   }, {
     key: 'openVote',
     value: function openVote(ships) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildUrl('/votes'), { vote: { ships: ships, status: 'open' } }, { headers: this.headers() }).then(function (res) {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildNewUrl('/votes'), { vote: { ships: ships, status: 'open' } }, { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }
   }, {
     key: 'closeVote',
     value: function closeVote(voteId) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["patch"])(this.buildUrl('/votes/' + voteId + '/status'), { status: 'closed' }, { headers: this.headers() }).then(function (res) {
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["patch"])(this.buildNewUrl('/votes/' + voteId + '/status'), { status: 'closed' }, { headers: this.headers() }).then(function (res) {
         return res.data.data;
       });
     }
   }, {
     key: 'voteForShip',
     value: function voteForShip(voteId, shipId) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildUrl('/votes/' + voteId + '/submit'), { ship_id: shipId }, { headers: this.headers() });
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["post"])(this.buildNewUrl('/votes/' + voteId + '/submit'), { ship_id: shipId }, { headers: this.headers() });
     }
   }]);
 
@@ -4055,112 +4060,83 @@ window.App = {
       _this.api.getChannelInfo().then(function (info) {
         _this.channel = info;
 
-        var updateVotes = function updateVotes(voteId) {
-          if (!_this.gameIsWows) {
-            _this.voting = false;
-            _this.noteDismissed = false;
-            _this.voted = false;
-            _this.selecting = false;
-            _this.totalVotes = 0;
-            _this.ships = [];
-
-            setTimeout(function () {
-              checkOpenVote();
-            }, _this.channel.vote_status_delay);
+        window.Twitch.ext.listen('broadcast', function (target, contentType, message) {
+          if (contentType !== 'application/json') {
             return;
           }
 
-          _this.api.getVote(voteId, false).then(function (vote) {
-            if (!vote || vote.status === 'closed') {
-              _this.vote = vote;
-              _this.voting = false;
-              checkOpenVote();
-              return;
-            }
+          var data = JSON.parse(atob(message));
 
-            // an open vote exists, reset the delays to the default values
-            _this.channel.vote_status_delay = 7500;
-            _this.channel.vote_progress_delay = 4000;
-
-            var totalVotes = 0;
-            Object.keys(vote.votes).forEach(function (shipId) {
-              totalVotes += vote.votes[shipId];
-              shipId = parseInt(shipId, 10);
-              var shipIdx = _this.ships.findIndex(function (s) {
-                return s.id === shipId;
-              });
-
-              if (shipIdx !== -1) {
-                Vue.set(_this.ships, shipIdx, _extends({}, _this.ships[shipIdx], {
-                  votes: vote.votes[shipId]
-                }));
-              }
-            });
-
-            _this.vote = vote;
-            _this.totalVotes = totalVotes;
-          }).catch(function (e) {
-            return console.error('updateVotes: ' + e);
-          }).then(function () {
-            if (_this.voting) {
-              setTimeout(function () {
-                return updateVotes(voteId);
-              }, _this.channel.vote_progress_delay);
-            }
-          });
-        };
-
-        var checkOpenVote = function checkOpenVote() {
-          if (!_this.gameIsWows) {
-            setTimeout(function () {
-              checkOpenVote();
-            }, 60000);
-            return;
-          }
-
-          _this.api.getOpenVote().then(function (vote) {
-            _this.vote = vote;
-            if (vote && !_this.voting) {
-              _this.voteStarted = true;
-              setTimeout(function () {
-                _this.voteStarted = false;
-              }, 5000);
-              _this.voting = true;
-
-              // Get ships
-              // Update votes in an interval
-              // Terminate interval
-              _this.api.getWarships(vote.ships).then(function (ships) {
-                _this.ships = ships.map(function (s) {
-                  return _extends({}, s, { votes: 0 });
-                });
-                updateVotes(vote.id);
-              });
-            } else {
-              _this.voting = false;
-              _this.noteDismissed = false;
-              _this.voted = false;
-              _this.selecting = false;
-              _this.totalVotes = 0;
-              _this.ships = [];
-            }
-          }).catch(function (e) {
-            return console.error('checkOpenVote: ' + e);
-          }).then(function () {
-            if (!_this.voting) {
-              setTimeout(function () {
-                checkOpenVote();
-              }, _this.channel.vote_status_delay);
-            }
-          });
-        };
-
-        checkOpenVote();
+          _this.handlePubSubMessage(data);
+        });
       });
     });
   },
 
   methods: {
+    handlePubSubMessage: function handlePubSubMessage(message) {
+      switch (message.type) {
+        case 'vote_progress':
+          this.handleVoteProgressMessage(message.data);
+          break;
+        case 'vote_status':
+          this.handleVoteStatusMessage(message.data);
+          break;
+      }
+    },
+    handleVoteStatusMessage: function handleVoteStatusMessage(data) {
+      var _this2 = this;
+
+      if (data.status == "open") {
+        // Vote started before listening to messages, grab the vote
+        this.api.getVote(data.id).then(function (vote) {
+          _this2.voteStarted = true;
+          setTimeout(function () {
+            _this2.voteStarted = false;
+          }, 5000);
+          _this2.voting = true;
+
+          // Get ships
+          // Update votes in an interval
+          // Terminate interval
+          _this2.api.getWarships(vote.ships).then(function (ships) {
+            _this2.ships = ships.map(function (s) {
+              return _extends({}, s, { votes: 0 });
+            });
+            _this2.vote = vote;
+          });
+        });
+        return;
+      }
+
+      this.voting = false;
+      this.voteStarted = false;
+    },
+    handleVoteProgressMessage: function handleVoteProgressMessage(data) {
+      var _this3 = this;
+
+      if (!this.vote) {
+        this.handleVoteStatusMessage({ status: "open", id: data.id });
+        return;
+      }
+
+      var totalVotes = 0;
+      Object.keys(data.voted_ships).forEach(function (shipId) {
+        totalVotes += data.voted_ships[shipId];
+        shipId = parseInt(shipId, 10);
+        var shipIdx = _this3.ships.findIndex(function (s) {
+          return s.id === shipId;
+        });
+
+        if (shipIdx !== -1) {
+          Vue.set(_this3.ships, shipIdx, _extends({}, _this3.ships[shipIdx], {
+            votes: data.voted_ships[shipId]
+          }));
+        }
+      });
+
+      this.totalVotes = totalVotes;
+    },
     voteForShip: function voteForShip(ship) {
       if (this.voted) {
         return;
@@ -4472,7 +4448,7 @@ var shipTypePriority = ['Destroyer', 'Cruiser', 'Battleship', 'AirCarrier'];
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(40);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_54cd273b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2bef6d46_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(75);
 function injectStyle (ssrContext) {
   __webpack_require__(57)
 }
@@ -4492,7 +4468,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_54cd273b_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_2bef6d46_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -4513,7 +4489,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("9db3ed72", content, true, {});
+var update = __webpack_require__(4)("9f5b8c0c", content, true, {});
 
 /***/ }),
 /* 58 */
