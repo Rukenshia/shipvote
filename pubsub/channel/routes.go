@@ -3,6 +3,7 @@ package channel
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"shipvote/channel/api"
@@ -12,7 +13,7 @@ import (
 )
 
 type voteForShipRequest struct {
-	ShipID string `json:"ship_id"`
+	ShipID uint64 `json:"ship_id"`
 }
 
 // OpenVote opens a new vote for a given channel and publishes a message to Twitch PubSub
@@ -164,7 +165,7 @@ func (c *Controller) VoteForShip(ctx echo.Context) error {
 
 	log.Printf("Added voted ship to vote %d in channel %d with status code %d", voteID, channelID, res.StatusCode)
 
-	channel.AddVotedShip(voteID, requestBody.ShipID)
+	channel.AddVotedShip(voteID, fmt.Sprintf("%s", requestBody.ShipID))
 
 	ctx.Stream(res.StatusCode, res.Header.Get("Content-Type"), res.Body)
 
