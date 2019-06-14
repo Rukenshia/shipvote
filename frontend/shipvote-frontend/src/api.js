@@ -18,6 +18,10 @@ export class ShipvoteApi {
     return `${this.baseUrl}/api/channels/${this.channelId}${path}`;
   }
 
+  buildNewUrl(path) {
+    return `https://api.shipvote.in.fkn.space/api/channels/${this.channelId}${path}`;
+  }
+
   getChannelInfo() {
     return get(this.buildUrl('/'), { headers: this.headers() })
       .then(res => res.data.data);
@@ -47,16 +51,16 @@ export class ShipvoteApi {
   }
 
   openVote(ships) {
-    return post(this.buildUrl('/votes'), { vote: { ships, status: 'open' } }, { headers: this.headers() })
+    return post(this.buildNewUrl('/votes'), { vote: { ships, status: 'open' } }, { headers: this.headers() })
       .then(res => res.data.data);
   }
 
   closeVote(voteId) {
-    return patch(this.buildUrl(`/votes/${voteId}/status`), { status: 'closed' }, { headers: this.headers() })
+    return patch(this.buildNewUrl(`/votes/${voteId}/status`), { status: 'closed' }, { headers: this.headers() })
       .then(res => res.data.data);
   }
 
   voteForShip(voteId, shipId) {
-    return post(this.buildUrl(`/votes/${voteId}/submit`), { ship_id: shipId }, { headers: this.headers() });
+    return post(this.buildNewUrl(`/votes/${voteId}/submit`), { ship_id: shipId }, { headers: this.headers() });
   }
 }
