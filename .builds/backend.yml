@@ -35,6 +35,10 @@ tasks:
   - setup: |
       sudo apt install -yq npm
 
+      sudo add-apt-repository ppa:longsleep/golang-backports
+      sudo apt-get update
+      sudo apt-get install golang-go
+
       erlang_version="22.0.1-1"
       elixir_version="1.8.2-1"
 
@@ -76,6 +80,10 @@ tasks:
       MIX_ENV=prod mix release --env=prod
 
       mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
+
+      cd ../pubsub
+      make
+      mv ./shipvote ../infra/shipvote_api
   - packer: |
       set +x
       source ~/.shipvote.aws.builds.sr.ht
