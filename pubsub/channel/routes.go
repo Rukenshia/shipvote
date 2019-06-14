@@ -47,7 +47,9 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 		return err
 	}
 
-	var vote api.Vote
+	var vote struct {
+		Data api.Vote `json:"data"`
+	}
 	if err := json.Unmarshal(resBody, vote); err != nil {
 		log.Printf("OpenVote could not unmarshal response")
 		return err
@@ -59,7 +61,7 @@ func (c *Controller) OpenVote(ctx echo.Context) error {
 		c.channels[channelID] = channel
 	}
 
-	if err := channel.StartVote(NewActiveVote(channel, vote.ID)); err != nil {
+	if err := channel.StartVote(NewActiveVote(channel, vote.Data.ID)); err != nil {
 		log.Printf("Could not start pubsub for vote: %s", err)
 
 		// FIXME: what to do here? attempt to close the vote?
