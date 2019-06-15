@@ -2649,113 +2649,19 @@ window.App = {
 
       _this.api.getChannelInfo().then(function (info) {
         _this.channel = info;
+        _this.loading = false;
 
-        var updateVotes = function updateVotes(voteId) {
-          if (!_this.gameIsWows) {
-            _this.checkOpenVoteTimeout = setTimeout(function () {
-              checkOpenVote();
-            }, _this.channel.vote_status_delay);
+        window.Twitch.ext.listen('broadcast', function (target, contentType, message) {
+          if (contentType !== 'application/json') {
             return;
           }
 
-          _this.api.getVote(voteId, false).then(function (vote) {
-            if (!vote || vote.status === 'closed') {
-              _this.vote = vote;
-              _this.voting = false;
-              checkOpenVote();
-              return;
-            }
+          var data = JSON.parse(atob(message));
 
-            // an open vote exists, reset the delays to the default values
-            _this.channel.vote_status_delay = 7500;
-            _this.channel.vote_progress_delay = 4000;
-
-            var totalVotes = 0;
-            Object.keys(vote.votes).forEach(function (shipId) {
-              totalVotes += vote.votes[shipId];
-              shipId = parseInt(shipId, 10);
-              var shipIdx = _this.ships.findIndex(function (s) {
-                return s.id === shipId;
-              });
-
-              if (shipIdx !== -1) {
-                Vue.set(_this.ships, shipIdx, _extends({}, _this.ships[shipIdx], {
-                  votes: vote.votes[shipId]
-                }));
-              }
-            });
-
-            _this.vote = vote;
-            _this.totalVotes = totalVotes;
-          }).catch(function (e) {
-            return console.error('updateVotes: ' + e);
-          }).then(function () {
-            if (_this.vote && _this.vote.status !== 'closed' && _this.vote.id === voteId) {
-              _this.updateVotesTimeout = setTimeout(function () {
-                updateVotes(voteId);
-              }, _this.channel.vote_progress_delay);
-            }
-            _this.loading = false;
-          });
-        };
-
-        var checkOpenVote = function checkOpenVote() {
-          if (!_this.gameIsWows) {
-            _this.vote = null;
-            _this.voting = false;
-            _this.checkOpenVoteTimeout = setTimeout(function () {
-              checkOpenVote();
-            }, 60000);
-            return;
-          }
-
-          _this.api.getOpenVote().then(function (vote) {
-            _this.loading = true;
-            if (vote && !_this.voting) {
-              clearTimeout(_this.updateVotesTimeout);
-              clearTimeout(_this.checkOpenVoteTimeout);
-
-              _this.voting = true;
-              _this.selecting = true;
-
-              // Get ships
-              // Update votes in an interval
-              // Terminate interval
-              _this.api.getWarships(vote.ships).then(function (ships) {
-                _this.ships = ships.map(function (s) {
-                  return _extends({}, s, { votes: 0 });
-                }).sort(function (a, b) {
-                  var byTier = a.tier < b.tier ? 1 : a.tier == b.tier ? 0 : -1;
-
-                  if (byTier === 0) {
-                    return a.name < b.name ? -1 : 1;
-                  }
-                  return byTier;
-                });
-
-                updateVotes(vote.id);
-              });
-            } else {
-              _this.voting = false;
-              _this.loading = false;
-              _this.selecting = false;
-              _this.selectedShip = undefined;
-              _this.totalVotes = 0;
-              _this.ships = [];
-            }
-            _this.vote = vote;
-          }).catch(function (e) {
-            return console.error('checkOpenVote: ' + e);
-          }).then(function () {
-            if (!_this.vote) {
-              _this.checkOpenVoteTimeout = setTimeout(function () {
-                checkOpenVote();
-              }, _this.channel.vote_status_delay);
-            }
-          });
-        };
-
-        checkOpenVote();
+          _this.handlePubSubMessage(data);
+        });
+      }).catch(function (err) {
+        console.error(err);
       });
     });
   },
@@ -2828,6 +2734,74 @@ window.App = {
     }
   },
   methods: {
+    handlePubSubMessage: function handlePubSubMessage(message) {
+      switch (message.type) {
+        case 'vote_progress':
+          this.handleVoteProgressMessage(message.data);
+          break;
+        case 'vote_status':
+          this.handleVoteStatusMessage(message.data);
+          break;
+      }
+    },
+    handleVoteStatusMessage: function handleVoteStatusMessage(data) {
+      var _this3 = this;
+
+      if (data.status == "open") {
+        if (this.vote && this.vote.id == data.id) {
+          // The API might have restarted and sent a duplicate event
+          return;
+        }
+
+        // Vote started before listening to messages, grab the vote
+        this.api.getVote(data.id).then(function (vote) {
+          _this3.voting = true;
+          _this3.voted = false;
+          _this3.selecting = true;
+
+          _this3.api.getWarships(vote.ships).then(function (ships) {
+            _this3.ships = ships.map(function (s) {
+              return _extends({}, s, { votes: 0 });
+            });
+            _this3.vote = vote;
+          });
+        }).catch(function (err) {
+          console.error(err);
+        });
+        return;
+      }
+
+      this.vote = undefined;
+      this.voting = false;
+      this.voted = false;
+      this.selecting = false;
+      this.selectedShip = null;
+    },
+    handleVoteProgressMessage: function handleVoteProgressMessage(data) {
+      var _this4 = this;
+
+      if (!this.vote) {
+        this.handleVoteStatusMessage({ status: "open", id: data.id });
+        return;
+      }
+
+      var totalVotes = 0;
+      Object.keys(data.voted_ships).forEach(function (shipId) {
+        totalVotes += data.voted_ships[shipId];
+        shipId = parseInt(shipId, 10);
+        var shipIdx = _this4.ships.findIndex(function (s) {
+          return s.id === shipId;
+        });
+
+        if (shipIdx !== -1) {
+          Vue.set(_this4.ships, shipIdx, _extends({}, _this4.ships[shipIdx], {
+            votes: data.voted_ships[shipId]
+          }));
+        }
+      });
+
+      this.totalVotes = totalVotes;
+    },
     voteForShip: function voteForShip(ship) {
       if (this.voted) {
         return;
@@ -2836,7 +2810,9 @@ window.App = {
       this.selecting = false;
       this.selectedShip = ship;
 
-      this.api.voteForShip(this.vote.id, ship.id);
+      this.api.voteForShip(this.vote.id, ship.id).catch(function (err) {
+        console.log('Vote for ship', err);
+      });
     },
     toggleFilters: function toggleFilters() {
       this.filtering = !this.filtering;
@@ -2893,7 +2869,7 @@ window.App = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__ = __webpack_require__(45);
 /* empty harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_40bc4ec2_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_aa1960ca_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__ = __webpack_require__(79);
 function injectStyle (ssrContext) {
   __webpack_require__(77)
 }
@@ -2913,7 +2889,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_App_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_40bc4ec2_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_aa1960ca_hasScoped_false_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_App_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -2934,7 +2910,7 @@ var content = __webpack_require__(78);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("7dd449b8", content, true, {});
+var update = __webpack_require__(4)("6c2f25b2", content, true, {});
 
 /***/ }),
 /* 78 */
