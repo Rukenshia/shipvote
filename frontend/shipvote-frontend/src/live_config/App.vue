@@ -300,6 +300,9 @@ window.App = {
 
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
         this.updateClosedVotes();
+        setInterval(() => {
+          this.updateClosedVotes();
+        }, 15000);
 
         const updateOpenVote = () => {
           this.api
