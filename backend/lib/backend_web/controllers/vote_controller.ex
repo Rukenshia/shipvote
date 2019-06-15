@@ -36,7 +36,8 @@ defmodule BackendWeb.VoteController do
       ConCache.get_or_store(:rest_vote_cache, "index_status_#{channel_id}_#{status}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
-            where: p.channel_id == ^channel_id and p.status == ^status
+            where: p.channel_id == ^channel_id and p.status == ^status,
+            order_by: [asc: :updated_at]
           )
           |> Repo.all()
           |> Repo.preload(:votes)
