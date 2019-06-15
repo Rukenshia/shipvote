@@ -20,9 +20,10 @@
     </mdc-layout-cell>
     <mdc-layout-cell :span="12" v-if="configured && loaded_configuration">
       <mdc-card class="mdc-card--flat mdc-card--info" style="margin-bottom: 1em">
-        <mdc-card-text>This is a new version (2.0.1) that includes some major changes in the background. If you notice anything wrong, please let me know!</mdc-card-text>
+        <mdc-card-text>This version includes some major changes in the background. If you notice any isses, please let me know.</mdc-card-text>
       </mdc-card>
-      <mdc-card class="mdc-card--flat" style="text-align: center">
+      <mdc-card class="mdc-card--flat vote-status-card" style="text-align: center">
+        <mdc-linear-progress v-if="voting" :progress="elapsed / (duration * 60)" style="text-align: left"></mdc-linear-progress>
         <mdc-card-header>
           <mdc-headline>
             The vote is
@@ -36,17 +37,25 @@
 
           <mdc-button
             :unelevated="true"
-            v-if="!voting"
-            @click="openVote"
-            class="mdc-button--primary"
-            :disabled="selectedShips.length === 0"
-          >Open</mdc-button>
-          <mdc-button
-            :unelevated="true"
             v-else
             @click="closeVote"
             class="mdc-button--danger"
           >Close</mdc-button>
+
+          <template v-if="!voting">
+            <mdc-button :unelevated="true"
+              @click="openVote"
+              class="mdc-button--primary"
+              :disabled="selectedShips.length === 0"
+            >Open</mdc-button>
+            <mdc-layout-grid>
+              <mdc-layout-cell :tablet=2 :desktop=4></mdc-layout-cell>
+              <mdc-layout-cell :phone=4 :tablet=4 :desktop=4>
+                <mdc-slider min=1 max=20 step=1 display-markers v-model="duration" />
+                {{ duration }} minute{{ duration > 1 ? 's' : '' }}
+              </mdc-layout-cell>
+            </mdc-layout-grid>
+          </template>
 
           <br>
           <br>
@@ -258,6 +267,10 @@ window.App = {
       },
       selectedShips: [],
 
+      duration: 5,
+      elapsed: 0,
+      elapsedInterval: null,
+
 
       stats: {
         votes: 0,
@@ -292,6 +305,10 @@ window.App = {
           this.api
             .getOpenVote()
             .then(vote => {
+              if (!this.vote && vote) {
+                this.startDurationCounter();
+              }
+
               this.vote = vote;
 
               if (!vote) {
@@ -442,11 +459,18 @@ window.App = {
       this.api.openVote(this.selectedShips.map(s => s.id)).then(vote => {
         this.vote = vote;
         this.storeSelectedShips();
+
+        this.startDurationCounter();
       }).catch(err => {
         console.error(err);
       });
     },
     closeVote() {
+      if (this.elapsedInterval) {
+        clearInterval(this.elapsedInterval);
+        this.elapsedInterval = null;
+      }
+
       this.api.closeVote(this.vote.id).then(vote => {
         this.vote = vote;
         this.updateClosedVotes();
@@ -461,6 +485,16 @@ window.App = {
       }).catch(err => {
         console.error(err);
       });
+    },
+    startDurationCounter() {
+      this.elapsed = 0;
+      this.elapsedInterval = setInterval(() => {
+        this.elapsed++;
+
+        if (this.elapsed >= this.duration * 60) {
+          this.closeVote();
+        }
+      }, 1000);
     },
     doBulkAdd() {
       this.selectedShips.push(...this.bulkAddShips);
@@ -563,5 +597,18 @@ export default window.App;
 
 .fullwidth {
   width: 100%;
+}
+
+.vote-status-card {
+  position: relative;
+
+  .mdc-linear-progress {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    height: 8px;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 }
 </style>

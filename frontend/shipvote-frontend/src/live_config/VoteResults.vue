@@ -54,7 +54,9 @@ export default {
       var msPerMonth = msPerDay * 30;
       var msPerYear = msPerDay * 365;
 
-      var elapsed = new Date() - new Date(since);
+      const date = new Date(since);
+      var elapsed = new Date() - new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+      console.log(elapsed);
 
       if (elapsed < msPerMinute) {
         const rounded = Math.round(elapsed/1000);

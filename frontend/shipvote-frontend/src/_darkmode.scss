@@ -123,4 +123,40 @@
     border-color: $color--background-highlight !important;
   }
 
+  .mdc-slider {
+    .mdc-slider__track-container {
+      background-color: #c1a8f0;
+    }
+
+    .mdc-slider__track {
+      background-color: $color--text;
+    }
+
+    .mdc-slider__track-marker::after {
+      background-color: darken($color--text, 60%);
+    }
+
+    .mdc-slider__pin {
+      background-color: #c1a8f0;
+    }
+
+    .mdc-slider__thumb {
+      fill: white;
+      stroke: white;
+    }
+
+    .mdc-slider__focus-ring {
+      background-color: #c1a8f0;
+    }
+  }
+
+  .vote-status-card {
+    .mdc-linear-progress {
+      --mdc-theme-primary: #c1a8f0;
+
+      .mdc-linear-progress__buffer {
+        background-color: $color--background-highlight;
+      }
+    }
+  }
 }
