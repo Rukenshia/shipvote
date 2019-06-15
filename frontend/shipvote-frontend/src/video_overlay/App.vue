@@ -138,9 +138,6 @@ window.App = {
           this.voted = false;
           this.selecting = false;
 
-          // Get ships
-          // Update votes in an interval
-          // Terminate interval
           this.api.getWarships(vote.ships).then(ships => {
             this.ships = ships.map(s => ({ ...s, votes: 0 }));
             this.vote = vote;
@@ -151,6 +148,7 @@ window.App = {
         return;
       }
 
+      this.vote = undefined;
       this.voting = false;
       this.voteStarted = false;
       this.voted = false;
