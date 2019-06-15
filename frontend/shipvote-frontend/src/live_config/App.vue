@@ -48,7 +48,8 @@
               class="mdc-button--primary"
               :disabled="selectedShips.length === 0"
             >Open</mdc-button>
-            <mdc-layout-grid>
+            <mdc-checkbox label="Set a time limit" v-model="useDuration"></mdc-checkbox>
+            <mdc-layout-grid v-if="useDuration">
               <mdc-layout-cell :tablet=2 :desktop=4></mdc-layout-cell>
               <mdc-layout-cell :phone=4 :tablet=4 :desktop=4>
                 <mdc-slider min=1 max=20 step=1 display-markers v-model="duration" />
@@ -267,6 +268,7 @@ window.App = {
       },
       selectedShips: [],
 
+      useDuration: true,
       duration: 5,
       elapsed: 0,
       elapsedInterval: null,
@@ -308,10 +310,6 @@ window.App = {
           this.api
             .getOpenVote()
             .then(vote => {
-              if (!this.vote && vote) {
-                this.startDurationCounter();
-              }
-
               this.vote = vote;
 
               if (!vote) {
@@ -463,7 +461,9 @@ window.App = {
         this.vote = vote;
         this.storeSelectedShips();
 
-        this.startDurationCounter();
+        if (this.useDuration) {
+          this.startDurationCounter();
+        }
       }).catch(err => {
         console.error(err);
       });
