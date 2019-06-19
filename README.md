@@ -7,7 +7,7 @@ This README serves as a technical overview.
 
 ## Architecture
 
-![Backend Architecture Diagram](docs/Shipvote%20Architecture.png)
+![Backend Architecture Diagram](docs/architecture.png)
 
 ### `shipvote-web`
 
