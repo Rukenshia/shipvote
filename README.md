@@ -1,26 +1,51 @@
 # Shipvote
 
-TODO: Description
+Shipvote is a Twitch Extension for the Game "World of Warships" allowing streamers to let their viewers
+vote for a ship they should play on stream. It provides a lot of customization options for streamers.
+For a user manual, please head over to [the user documentation](https://shipvote.in.fkn.space/getting-started).
+This README serves as a technical overview.
 
-## Backend Architecture
+## Architecture
 
 ![Backend Architecture Diagram](docs/Shipvote%20Architecture.png)
 
+### `shipvote-web`
+
+`shipvote-web` is the main Elixir(+Phoenix) application containing all logic for
+handling the votes. It verifies the JWT received from twitch and also accesses the
+Wargaming APIs.
+
+### `shipvote-api`
+
+The `shipvote-api` is a thin layer accepting a few calls relevant to send live-updates
+via the Twitch "Send Extension Message" API. This allows high-frequency updates without
+incurring extra costs for calls and data transfer on my own infrastructure. You can read
+more about why this component exists below.
+The `shipvote-api` application is written in go and acts as a proxy to the `shipvote-web`.
+It accepts calls to open a vote, close a vote, and vote for a ship. This allows it to handle
+the lifecycle of a vote and send updates.
+
 ### Design Decisions
 
-#### REST API over WebSocket
+#### Learnings from 1.x infrastructure
 
-The early implementation used WebSockets, as the way the votes work can be represented easily with them. However, it showed early
-that the $5 DigitalOcean droplet(s) the backend is deployed on with the Phoenix Channrl implementation could not handle
-many WebSocket connections, the CPU peaked at around 250 connections, even with caching (using ConCache) enabled. For that reason
-I switched to a RESTful API for the whole voting, using polling for the vote. The timing can be seen in the sequence diagrams below.
-With this, the $5 droplet can handle around 1000 to 1500 users. Still seems a bit low, but since the usage of the application is not
-higher than that there was no further optimization done.
-The plan is to retry the WebSocket implementation at some point.
+You can read more about the version 1.x infrastructure [here](docs/1.x/README.md).
+The main issue with the 1.x infrastructure was becoming the non-existent automated
+scalability for droplets on DigitalOcean. This is why I decided to migrate the project
+to AWS, using the Database Migration Service from AWS and using `packer` to automate
+AMI creation.
+
+#### Learnings from early AWS infrastructure
+
+The early infrastructure only included the Application Load Balancer. Due to the volume
+of calls received by the backend, it was quickly becoming obvious that the costs of
+operating the application would become too high. After researching more on the Twitch APIs,
+I found out that you can use a Messaging system on Twitch to send live-updates. This is how
+the `shipvote-api` package came to existence.
 
 ### API Flows
 
-This section describes interactions with the `backend` and Wargaming APIs.
+This section describes interactions with the `backend` and third party APIs.
 
 #### Channel Configuration
 

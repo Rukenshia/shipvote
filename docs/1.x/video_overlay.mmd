@@ -1,0 +1,32 @@
+sequenceDiagram
+	participant Extension Frontend
+	participant VoteProgress
+	participant ShipSelection
+	participant Backend
+	participant Wargaming API
+
+	Extension Frontend->>+Backend: retrieve channel information
+	Backend-->>-Extension Frontend: channel information
+
+	loop every 5 seconds
+		VoteProgress->>+Backend: retrieve open votes
+		Backend->>-VoteProgress: vote status
+
+		opt vote is open
+			loop every 2500ms
+				VoteProgress->>+Backend: get vote results
+				Backend-->>-VoteProgress: vote results
+			end
+			VoteProgress-->>Extension Frontend: display vote
+
+			opt "Vote for a Ship now"
+				ShipSelection->>+Backend: POST vote
+				alt user voted already
+					Backend-->>ShipSelection: 400
+				else
+					Backend->>Backend: store vote
+					Backend-->>-ShipSelection: 200
+				end
+			end
+		end
+	end
