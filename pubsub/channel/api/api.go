@@ -23,7 +23,7 @@ func GetOpenVotes(authorization string) ([]Vote, error) {
 		Headers: map[string]string{"Authorization": authorization},
 	}
 
-	res, err := grequests.Get("https://shipvote.in.fkn.space/api/votes?status=open", ro)
+	res, err := grequests.Get("http://current-backend-instance.api.shipvote.in.fkn.space:4000/api/votes?status=open", ro)
 	if err != nil {
 		return nil, err
 	} else if res.StatusCode != 200 {
@@ -48,7 +48,7 @@ func OpenVote(authorization string, channelID uint64, body []byte) (*http.Respon
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes", channelID), ro)
+	res, err := grequests.Post(fmt.Sprintf("http://current-backend-instance.api.shipvote.in.fkn.space:4000/api/channels/%d/votes", channelID), ro)
 
 	return res.RawResponse, err
 }
@@ -60,7 +60,7 @@ func PatchVote(authorization string, channelID, voteID uint64, body []byte) (*ht
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Patch(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes/%d/status", channelID, voteID), ro)
+	res, err := grequests.Patch(fmt.Sprintf("http://current-backend-instance.api.shipvote.in.fkn.space:4000/api/channels/%d/votes/%d/status", channelID, voteID), ro)
 	if err != nil {
 		return res.RawResponse, err
 	} else if res.StatusCode != 200 {
@@ -77,7 +77,7 @@ func VoteForShip(authorization string, channelID, voteID uint64, body []byte) (*
 		RequestBody: bytes.NewReader(body),
 	}
 
-	res, err := grequests.Post(fmt.Sprintf("https://shipvote.in.fkn.space/api/channels/%d/votes/%d/submit", channelID, voteID), ro)
+	res, err := grequests.Post(fmt.Sprintf("http://current-backend-instance.api.shipvote.in.fkn.space:4000/api/channels/%d/votes/%d/submit", channelID, voteID), ro)
 	if err != nil {
 		return res.RawResponse, err
 	} else if res.StatusCode != 200 {
