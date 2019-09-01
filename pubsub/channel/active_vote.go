@@ -24,7 +24,7 @@ func NewActiveVote(channel *Channel, voteID uint64) *ActiveVote {
 func (a *ActiveVote) StartUpdating() {
 	log.Printf("StartUpdating for channel %d with vote %d", a.Channel.ID, a.VoteID)
 	go func() {
-		ticker := time.NewTicker(time.Millisecond * 2000)
+		ticker := time.NewTicker(time.Millisecond * 5000)
 
 		for {
 			select {
