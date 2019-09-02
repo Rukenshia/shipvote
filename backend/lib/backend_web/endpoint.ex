@@ -1,3 +1,11 @@
+def log_ip(conn, _) do
+  conn.remote_ip
+  |> Tuple.to_list
+  |> Enum.join(".")
+  |> Logger.info
+  conn
+end
+
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
 
@@ -25,6 +33,7 @@ defmodule BackendWeb.Endpoint do
   end
 
   plug(Plug.Logger)
+  plug(log_ip)
 
   plug(Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
