@@ -33,7 +33,7 @@ defmodule BackendWeb.Endpoint do
   end
 
   plug(Plug.Logger)
-  plug(log_ip)
+  plug(:log_ip)
 
   plug(Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
