@@ -1,13 +1,13 @@
-def log_ip(conn, _) do
-  conn.remote_ip
-  |> Tuple.to_list
-  |> Enum.join(".")
-  |> Logger.info
-  conn
-end
-
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
+
+  def log_ip(conn, _) do
+    conn.remote_ip
+    |> Tuple.to_list
+    |> Enum.join(".")
+    |> Logger.info
+    conn
+  end
 
   socket("/socket", BackendWeb.UserSocket, websocket: true)
 
