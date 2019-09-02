@@ -1273,11 +1273,10 @@ var ShipvoteApi = function () {
   }, {
     key: 'getWarships',
     value: function getWarships(ids) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.baseUrl + '/api/warships', {
-        headers: this.headers(),
-        params: { ids: ids }
-      }).then(function (res) {
-        return res.data.data;
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])('https://in.fkn.space/shipvote/warships.json').then(function (res) {
+        return res.data.data.filter(function (s) {
+          return ids.includes(s.id);
+        });
       });
     }
   }, {
@@ -2731,7 +2730,7 @@ var content = __webpack_require__(48);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("2b419d92", content, true, {});
+var update = __webpack_require__(4)("726d6e44", content, true, {});
 
 /***/ }),
 /* 48 */

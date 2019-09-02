@@ -1273,11 +1273,10 @@ var ShipvoteApi = function () {
   }, {
     key: 'getWarships',
     value: function getWarships(ids) {
-      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])(this.baseUrl + '/api/warships', {
-        headers: this.headers(),
-        params: { ids: ids }
-      }).then(function (res) {
-        return res.data.data;
+      return Object(__WEBPACK_IMPORTED_MODULE_0_axios__["get"])('https://in.fkn.space/shipvote/warships.json').then(function (res) {
+        return res.data.data.filter(function (s) {
+          return ids.includes(s.id);
+        });
       });
     }
   }, {
@@ -4502,7 +4501,7 @@ var content = __webpack_require__(58);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("235c2fa7", content, true, {});
+var update = __webpack_require__(4)("650df3c2", content, true, {});
 
 /***/ }),
 /* 58 */
@@ -4566,7 +4565,7 @@ var content = __webpack_require__(61);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("3046f144", content, true, {});
+var update = __webpack_require__(4)("9ab2fdfe", content, true, {});
 
 /***/ }),
 /* 61 */
@@ -4630,7 +4629,7 @@ var content = __webpack_require__(64);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("3f0805bd", content, true, {});
+var update = __webpack_require__(4)("02246eb8", content, true, {});
 
 /***/ }),
 /* 64 */
@@ -4694,7 +4693,7 @@ var content = __webpack_require__(67);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("01e24200", content, true, {});
+var update = __webpack_require__(4)("a410b9b6", content, true, {});
 
 /***/ }),
 /* 67 */
@@ -4788,7 +4787,7 @@ var content = __webpack_require__(73);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(4)("37edbaa7", content, true, {});
+var update = __webpack_require__(4)("8df97744", content, true, {});
 
 /***/ }),
 /* 73 */
