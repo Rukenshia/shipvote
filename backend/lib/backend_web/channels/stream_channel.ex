@@ -26,7 +26,7 @@ defmodule BackendWeb.StreamChannel do
            )
            |> Repo.one()
            |> Repo.preload(:votes)},
-        ttl: :timer.seconds(5)
+        ttl: :timer.seconds(30)
       }
     end)
   end

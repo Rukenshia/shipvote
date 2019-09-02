@@ -28,11 +28,8 @@ export class ShipvoteApi {
   }
 
   getWarships(ids) {
-    return get(`${this.baseUrl}/api/warships`, {
-      headers: this.headers(),
-      params: { ids }
-    })
-      .then(res => res.data.data);
+    return get(`https://in.fkn.space/shipvote/warships.json`)
+      .then(res => res.data.data.filter(s => ids.includes(s.id)));
   }
 
   getOpenVote() {

@@ -19,9 +19,6 @@
       </mdc-card>
     </mdc-layout-cell>
     <mdc-layout-cell :span="12" v-if="configured && loaded_configuration">
-      <mdc-card class="mdc-card--flat mdc-card--info" style="margin-bottom: 1em">
-        <mdc-card-text>This version includes some major changes in the background. If you notice any isses, please let me know.</mdc-card-text>
-      </mdc-card>
       <mdc-card class="mdc-card--flat vote-status-card" style="text-align: center">
         <mdc-linear-progress v-if="voting" :progress="elapsed / (duration * 60)" style="text-align: left"></mdc-linear-progress>
         <mdc-card-header>
@@ -302,9 +299,6 @@ window.App = {
 
         this.api = new ShipvoteApi(BASE_URL, this.token, this.channelId);
         this.updateClosedVotes();
-        setInterval(() => {
-          this.updateClosedVotes();
-        }, 15000);
 
         const updateOpenVote = () => {
           this.api
