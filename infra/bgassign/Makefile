@@ -9,7 +9,7 @@ clean:
 	rm -rf ./bin
 
 deploy: build
-	sls deploy --verbose
+	npx sls deploy --verbose
 
 run: deploy
-	sls invoke --log --function assign
+	npx sls invoke --log --function assign

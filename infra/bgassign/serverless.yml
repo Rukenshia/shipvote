@@ -5,6 +5,8 @@ provider:
   name: aws
   runtime: go1.x
   region: eu-central-1
+  iamManagedPolicies:
+  - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
   iamRoleStatements:
   - Effect: Allow
     Action:
