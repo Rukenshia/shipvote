@@ -42,9 +42,9 @@ tasks:
       sudo apt install -yq ./esl-erlang_"${erlang_version}"~ubuntu~bionic_amd64.deb
       rm esl-erlang_"${erlang_version}"~ubuntu~bionic_amd64.deb
 
-      wget -q https://packages.erlang-solutions.com/erlang/debian/pool/elixir_"${elixir_version}"~ubuntu~bionic_amd64.deb
-      sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~bionic_amd64.deb
-      rm elixir_"${elixir_version}"~ubuntu~bionic_amd64.deb
+      wget -q https://packages.erlang-solutions.com/erlang/debian/pool/elixir_"${elixir_version}"~ubuntu~bionic_all.deb
+      sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~bionic_all.deb
+      rm elixir_"${elixir_version}"~ubuntu~bionic_all.deb
 
       wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
       unzip packer_1.4.1_linux_amd64.zip
