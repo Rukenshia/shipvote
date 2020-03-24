@@ -23,7 +23,7 @@ tasks:
       git log -1 --pretty=%B | grep '\[api skip\]'
       if [ "$?" -eq "0" ]; then
         echo "Skiping api build as requested in commit"
-        exit 1
+        complete-build
       fi
       set -e
   - setup: |
