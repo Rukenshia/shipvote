@@ -19,7 +19,7 @@ defmodule BackendWeb.Router do
     get("/getting-started", NoticeController, :getting_started)
 
     get("/_health", PageController, :health)
-    get("/loaderio-ab47bee856c880d39a24bce59211bcfd/", PageController, :loaderio)
+    get("/loaderio-ab47bee856c880d39a24bce59211bcfd", PageController, :loaderio)
   end
 
   scope "/api", BackendWeb do
