@@ -73,7 +73,7 @@ tasks:
       cd ..
       mix phx.digest
 
-      MIX_ENV=prod mix release --env=prod
+      MIX_ENV=prod mix release
 
       mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
   - packer: |
