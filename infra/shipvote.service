@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/shipvote
-ExecStart=/opt/shipvote/bin/backend foreground
+ExecStart=/opt/shipvote/bin/backend start
 Restart=on-failure
 RestartSec=5
 EnvironmentFile=/opt/shipvote/shipvote.env
