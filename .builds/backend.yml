@@ -29,7 +29,7 @@ tasks:
       git log -1 --pretty=%B | grep '\[backend skip\]'
       if [ "$?" -eq "0" ]; then
         echo "Skiping backend build as requested in commit"
-        exit 1
+        complete-build
       fi
       set -e
   - setup: |
