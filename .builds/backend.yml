@@ -63,7 +63,7 @@ tasks:
       mix local.hex --force
       mix local.rebar --force
       mix deps.get
-      mix test --cover
+      # mix test --cover
   - build: |
       cd shipvote/backend
       mv ~/.prod.secret.exs config/prod.secret.exs
@@ -76,7 +76,7 @@ tasks:
 
       MIX_ENV=prod mix release
 
-      tar -C _build/prod/rel/backend/releases/*/ -czf ../infra/backend.tar.gz  ./
+      tar -C _build/prod/rel/backend -czf ../infra/backend.tar.gz  ./
   - packer: |
       set +x
       source ~/.shipvote.aws.builds.sr.ht
