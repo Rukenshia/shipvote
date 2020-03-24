@@ -9,6 +9,7 @@ packages:
   - awscli
   - curl
   - unzip
+  - zip
 sources:
   - https://git.sr.ht/~rukenshia/shipvote
 secrets:
@@ -75,7 +76,7 @@ tasks:
 
       MIX_ENV=prod mix release
 
-      mv _build/prod/rel/backend/releases/*/backend.tar.gz ../infra/backend.tar.gz
+      tar --cd _build/prod/rel/backend/releases/*/ -czf ../infra/backend.tar.gz  ./
   - packer: |
       set +x
       source ~/.shipvote.aws.builds.sr.ht
