@@ -25,6 +25,7 @@
                 color: #3e3e3e;
             }
         </style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css">
     </head>
     <body>
         <%= render @view_module, @view_template, assigns %>
