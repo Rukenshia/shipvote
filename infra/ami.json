@@ -15,6 +15,7 @@
 		"spot_price": "auto",
 		"spot_price_auto_product": "Linux/UNIX",
 		"ssh_username": "ec2-user",
+		"ssh_interface": "public_ip",
 		"ami_name": "shipvote",
 		"tags": {
 			"app": "shipvote",
@@ -29,13 +30,13 @@
 		},
 		{
 			"type": "file",
-			"source": "shipvote.env",
-			"destination": "/tmp/shipvote.env"
+			"source": "../backend",
+			"destination": "/tmp/shipvote_src"
 		},
 		{
 			"type": "file",
-			"source": "backend.tar.gz",
-			"destination": "/tmp/backend.tar.gz"
+			"source": "shipvote.env",
+			"destination": "/tmp/shipvote.env"
 		},
 		{
 			"type": "file",
@@ -46,12 +47,39 @@
 			"type": "shell",
 			"inline": [
 				"sudo yum group install -y 'Development Tools'",
-				"sudo yum install perl-core zlib-devel -y",
-				"wget -O /tmp/openssl.tar.gz https://www.openssl.org/source/openssl-1.1.1b.tar.gz",
-				"tar -C /tmp -xzf /tmp/openssl.tar.gz",
-				"cd /tmp/openssl-1.1.1b",
-				"./config --prefix=/usr/local --openssldir=/usr/local --libdir=/usr/lib64 shared zlib",
+				"sudo yum install -y ncurses-devel openssl-devel perl-core zlib-devel"
+			]
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"curl -sL https://rpm.nodesource.com/setup_13.x | sudo -E bash -",
+				"sudo yum install -y nodejs",
+				"wget 'http://erlang.org/download/otp_src_22.2.tar.gz' -O otp.tar.gz",
+				"tar xfz otp.tar.gz",
+				"cd otp_src_22.2/",
+				"./configure --prefix /usr",
+				"make && sudo make install",
+				"cd ..",
+				"wget https://github.com/elixir-lang/elixir/archive/v1.10.1.tar.gz",
+				"tar xfz v1.10.1.tar.gz",
+				"cd elixir-1.10.1/",
+				"export PATH=\"${PATH}:/usr/bin\"",
 				"make && sudo make install"
+			]
+		},
+		{
+			"type": "shell",
+			"inline": [
+				"cd /tmp/shipvote_src",
+				"export MIX_ENV=prod",
+				"mix local.hex --force",
+				"mix local.rebar --force",
+				"mix deps.get",
+				"cd assets && npm ci --no-progress && npm run deploy && cd ..",
+				"mix phx.digest",
+				"mix distillery.release --env=prod",
+				"mv _build/prod/rel/backend/releases/*/backend.tar.gz /tmp/backend.tar.gz"
 			]
 		},
 		{
