@@ -17,6 +17,7 @@ defmodule BackendWeb.Router do
   scope "/", BackendWeb do
     get("/privacy-policy", NoticeController, :privacy_policy)
     get("/getting-started", NoticeController, :getting_started)
+    get("/metrics", PageController, :metrics)
 
     get("/_health", PageController, :health)
     get("/loaderio-ab47bee856c880d39a24bce59211bcfd", PageController, :loaderio)
