@@ -18,3 +18,7 @@ use-cert:
 	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/privkey.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_privkey.pem
 	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/fullchain.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_fullchain.pem
 	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/chain.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_chain.pem
+
+.PHONY: base-images
+base-images:
+	packer build ./ami.backend.base.json
