@@ -10,7 +10,7 @@
 		"region": "eu-central-1",
 		"force_deregister": "true",
 		"force_delete_snapshot": "true",
-		"source_ami": "ami-0ebe657bc328d4e82",
+		"source_ami": "ami-014083abd5714f711",
 		"instance_type": "c5.4xlarge",
 		"spot_price": "auto",
 		"spot_price_auto_product": "Linux/UNIX",
@@ -42,31 +42,6 @@
 			"type": "file",
 			"source": "limits.conf",
 			"destination": "/tmp/limits.conf"
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"sudo yum group install -y 'Development Tools'",
-				"sudo yum install -y ncurses-devel openssl-devel perl-core zlib-devel"
-			]
-		},
-		{
-			"type": "shell",
-			"inline": [
-				"curl -sL https://rpm.nodesource.com/setup_13.x | sudo -E bash -",
-				"sudo yum install -y nodejs",
-				"wget 'http://erlang.org/download/otp_src_22.2.tar.gz' -O otp.tar.gz",
-				"tar xfz otp.tar.gz",
-				"cd otp_src_22.2/",
-				"./configure --prefix /usr",
-				"make && sudo make install",
-				"cd ..",
-				"wget https://github.com/elixir-lang/elixir/archive/v1.10.1.tar.gz",
-				"tar xfz v1.10.1.tar.gz",
-				"cd elixir-1.10.1/",
-				"export PATH=\"${PATH}:/usr/bin\"",
-				"make && sudo make install"
-			]
 		},
 		{
 			"type": "shell",
