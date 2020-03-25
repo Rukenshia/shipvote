@@ -58,7 +58,7 @@ defmodule Backend.Mixfile do
       {:con_cache, "~> 0.13.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:mock, "~> 0.3", only: :test},
-      {:distillery, "~> 2.0"}
+      {:distillery, "~> 2.1"}
     ]
   end
 
