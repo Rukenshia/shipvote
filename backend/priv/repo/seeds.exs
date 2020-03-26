@@ -12,10 +12,16 @@
 
 {:ok, date} = NaiveDateTime.new(2019, 1, 1, 0, 0, 0)
 
-Backend.Repo.insert!(%Backend.Stream.Channel{
+chan = Backend.Repo.insert!(%Backend.Stream.Channel{
   inserted_at: date,
+  wows_username: "foo"
 })
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
+
+Backend.Repo.insert!(%Backend.Stream.Vote{
+  channel_id: chan.id,
+  ships: [],
+})
