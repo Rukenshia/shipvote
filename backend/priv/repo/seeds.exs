@@ -10,5 +10,12 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
+{:ok, date} = NaiveDateTime.new(2019, 1, 1, 0, 0, 0)
+
 Backend.Repo.insert!(%Backend.Stream.Channel{
+  inserted_at: date,
 })
+Backend.Repo.insert!(%Backend.Stream.Channel{})
+Backend.Repo.insert!(%Backend.Stream.Channel{})
+Backend.Repo.insert!(%Backend.Stream.Channel{})
+Backend.Repo.insert!(%Backend.Stream.Channel{})
