@@ -21,7 +21,11 @@ Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 
-Backend.Repo.insert!(%Backend.Stream.Vote{
-  channel_id: chan.id,
-  ships: [],
-})
+for i <- 0..100 do
+  Backend.Repo.insert!(%Backend.Stream.Vote{
+    channel_id: chan.id,
+    ships: [],
+    status: (if rem(i, 2) == 0, do: "closed", else: "open")
+  })
+end
+

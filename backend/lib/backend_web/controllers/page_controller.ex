@@ -36,9 +36,21 @@ defmodule BackendWeb.PageController do
     user_votes = Repo.one(from p in VotedShip, select: count(1))
     user_votes_growth = Repo.one(from c in VotedShip, select: count(1), where: c.inserted_at > ^baseline)
 
-    recent_votes = from(rv in Vote, where: rv.inserted_at > ^baseline)
+    recent_votes = from(rv in Vote,
+      where: rv.inserted_at > ^baseline,
+      order_by: [desc: rv.id],
+      limit: 50,
+    )
       |> Repo.all()
       |> Repo.preload([:channel, :votes])
+
+    open_votes = from(ov in Vote,
+        where: ov.status == "open",
+        order_by: [asc: ov.id],
+        limit: 50,
+      )
+        |> Repo.all()
+        |> Repo.preload([:channel, :votes])
 
     render(conn, "metrics.html",
       channels: channels,
@@ -47,7 +59,8 @@ defmodule BackendWeb.PageController do
       channels_growth: channels_growth,
       votes_growth: votes_growth,
       user_votes_growth: user_votes_growth,
-      recent_votes: recent_votes
+      recent_votes: recent_votes,
+      open_votes: open_votes,
     )
   end
 end
