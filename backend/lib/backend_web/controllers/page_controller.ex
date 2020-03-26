@@ -39,7 +39,7 @@ defmodule BackendWeb.PageController do
     recent_votes = from(rv in Vote,
       where: rv.inserted_at > ^baseline,
       order_by: [desc: rv.id],
-      limit: 50,
+      limit: 10,
     )
       |> Repo.all()
       |> Repo.preload([:channel, :votes])
@@ -47,7 +47,7 @@ defmodule BackendWeb.PageController do
     open_votes = from(ov in Vote,
         where: ov.status == "open",
         order_by: [asc: ov.id],
-        limit: 50,
+        limit: 10,
       )
         |> Repo.all()
         |> Repo.preload([:channel, :votes])
