@@ -3,6 +3,8 @@ defmodule BackendWeb.PageController do
 
   use BackendWeb, :controller
 
+  import Ecto.Query, only: [from: 2]
+
   alias Backend.Stream.Channel
   alias Backend.Stream.Vote
   alias Backend.Stream.VotedShip
@@ -25,26 +27,20 @@ defmodule BackendWeb.PageController do
     date = NaiveDateTime.utc_now()
     baseline = NaiveDateTime.add(date, compare_against_seconds, :second)
 
-    channels = Repo.all(Channel)
-    votes = Repo.all(Vote)
-    user_votes = Repo.all(VotedShip)
+    channels = Repo.one(from p in Channel, select: count(1))
+    channels_growth = Repo.one(from c in Channel, select: count(1), where: c.inserted_at > ^baseline)
 
-    channels_growth = channels
-      |> Enum.filter(fn v -> baseline < v.inserted_at end)
-      |> length
+    votes = Repo.one(from p in Vote, select: count(1))
+    votes_growth = Repo.one(from c in Vote, select: count(1), where: c.inserted_at > ^baseline)
 
-    votes_growth = votes
-      |> Enum.filter(fn v -> baseline < v.inserted_at end)
-      |> length
+    user_votes = Repo.one(from p in VotedShip, select: count(1))
+    user_votes_growth = Repo.one(from c in VotedShip, select: count(1), where: c.inserted_at > ^baseline)
 
-    user_votes_growth = user_votes
-      |> Enum.filter(fn v -> baseline < v.inserted_at end)
-      |> length
 
     render(conn, "metrics.html",
-      channels: channels |> length,
-      votes: votes |> length,
-      user_votes: user_votes |> length,
+      channels: channels,
+      votes: votes,
+      user_votes: user_votes,
       channels_growth: channels_growth,
       votes_growth: votes_growth,
       user_votes_growth: user_votes_growth
