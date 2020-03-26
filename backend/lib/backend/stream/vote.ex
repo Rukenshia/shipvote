@@ -3,7 +3,7 @@ defmodule Backend.Stream.Vote do
   import Ecto.Changeset
 
   schema "stream_votes" do
-    field(:channel_id, :integer)
+    belongs_to(:channel, Backend.Stream.Channel)
     field(:ships, {:array, :integer})
     field(:status, :string)
 
