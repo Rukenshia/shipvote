@@ -78,7 +78,16 @@ defmodule BackendWeb.ChannelController do
       ConCache.get_or_store(:channel_cache, id, fn ->
         case Repo.get(Channel, id) do
           %Channel{} = c ->
-            %ConCache.Item{value: c |> Repo.preload(:ships), ttl: :timer.seconds(30)}
+            # get the last opened vote
+            last_vote =
+              from(v in Backend.Stream.Vote,
+                where: v.channel_id == ^c.id,
+                select: v.inserted_at,
+                order_by: [desc: v.inserted_at],
+                limit: 1
+              )
+              |> Repo.one()
+            %ConCache.Item{value: {c |> Repo.preload(:ships), last_vote}, ttl: :timer.seconds(30)}
 
           nil ->
             %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
@@ -86,17 +95,7 @@ defmodule BackendWeb.ChannelController do
       end)
 
     case channel do
-      %Channel{} = channel ->
-        # get the last opened vote
-        last_vote =
-          from(v in Backend.Stream.Vote,
-            where: v.channel_id == ^channel.id,
-            select: v.inserted_at,
-            order_by: [desc: v.inserted_at],
-            limit: 1
-          )
-          |> Repo.one()
-
+      {%Channel{} = channel, last_vote} ->
         if is_nil(last_vote) do
           channel = Map.merge(channel, %{vote_progress_delay: 2500, vote_status_delay: 30000})
           conn |> render("show.public.json", %{channel: channel})
