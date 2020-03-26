@@ -14,7 +14,7 @@
 
 chan = Backend.Repo.insert!(%Backend.Stream.Channel{
   inserted_at: date,
-  wows_username: "foo"
+  wows_username: "AlongUsernameForTests"
 })
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
