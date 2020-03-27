@@ -4,7 +4,7 @@ defmodule Backend.Stream.ChannelShip do
 
   schema "channel_ships" do
     belongs_to(:channel, Backend.Stream.Channel)
-    belongs_to(:ship, Backend.Wows.Warship)
+    has_one(:ship, Backend.Wows.Warship)
 
     field(:enabled, :boolean, default: true)
 
