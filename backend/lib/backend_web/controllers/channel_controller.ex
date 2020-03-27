@@ -80,6 +80,7 @@ defmodule BackendWeb.ChannelController do
 
     channel =
       ConCache.get_or_store(:channel_cache, id, fn ->
+        Logger.warn("Cache missed for #{id}")
         case Repo.get(Channel, id) do
           %Channel{} = c ->
             # get the last opened vote
