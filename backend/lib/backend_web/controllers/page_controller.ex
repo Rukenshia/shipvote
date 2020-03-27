@@ -1,10 +1,15 @@
 defmodule BackendWeb.PageController do
+  use Phoenix.Controller
+
   require Logger
+
+  action_fallback BackendWeb.FallbackController
 
   use BackendWeb, :controller
 
   import Ecto.Query, only: [from: 2]
 
+  alias Backend.Stream
   alias Backend.Stream.Channel
   alias Backend.Stream.Vote
   alias Backend.Stream.VotedShip
@@ -39,7 +44,7 @@ defmodule BackendWeb.PageController do
     recent_votes = from(rv in Vote,
       where: rv.inserted_at > ^baseline,
       order_by: [desc: rv.id],
-      limit: 10,
+      limit: 10
     )
       |> Repo.all()
       |> Repo.preload([:channel, :votes])
@@ -47,7 +52,7 @@ defmodule BackendWeb.PageController do
     open_votes = from(ov in Vote,
         where: ov.status == "open",
         order_by: [asc: ov.id],
-        limit: 10,
+        limit: 10
       )
         |> Repo.all()
         |> Repo.preload([:channel, :votes])
@@ -60,7 +65,27 @@ defmodule BackendWeb.PageController do
       votes_growth: votes_growth,
       user_votes_growth: user_votes_growth,
       recent_votes: recent_votes,
-      open_votes: open_votes,
+      open_votes: open_votes
     )
+  end
+
+  def channel_metrics(conn, %{"id" => id}) do
+    case Stream.get_channel(id) do
+      %Channel{} = channel ->
+        votes = from(v in Vote,
+          where: v.channel_id == ^channel.id,
+          order_by: [desc: v.id],
+          limit: 50)
+          |> Repo.all()
+          |> Repo.preload([:votes])
+
+        render(conn, "channel_metrics.html",
+        channel: channel,
+          votes: votes
+        )
+      nil ->
+        conn
+        |> BackendWeb.FallbackController.call({:error, :not_found})
+    end
   end
 end

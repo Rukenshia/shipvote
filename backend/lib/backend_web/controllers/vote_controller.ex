@@ -71,7 +71,7 @@ defmodule BackendWeb.VoteController do
     |> render("votes.json", %{votes: votes})
   end
 
-  def show(conn, %{"id" => channel_id, "vote_id" => vote_id, "full" => "false"}) do
+  def show(conn, %{"id" => _channel_id, "vote_id" => vote_id, "full" => "false"}) do
     vote_id = String.to_integer(vote_id)
 
     vote =
@@ -91,7 +91,7 @@ defmodule BackendWeb.VoteController do
     end
   end
 
-  def show(conn, %{"id" => channel_id, "vote_id" => vote_id}) do
+  def show(conn, %{"id" => _channel_id, "vote_id" => vote_id}) do
     vote_id = String.to_integer(vote_id)
 
     vote =

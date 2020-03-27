@@ -6,6 +6,10 @@ defmodule BackendWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :browser do
+    plug(:accepts, ["html"])
+  end
+
   pipeline :verify_jwt do
     plug(Backend.Auth.Twitch)
   end
@@ -17,7 +21,13 @@ defmodule BackendWeb.Router do
   scope "/", BackendWeb do
     get("/privacy-policy", NoticeController, :privacy_policy)
     get("/getting-started", NoticeController, :getting_started)
-    get("/metrics", PageController, :metrics)
+
+    scope "/metrics" do
+      pipe_through(:browser)
+
+      get("/", PageController, :metrics)
+      get("/channels/:id", PageController, :channel_metrics)
+    end
 
     get("/_health", PageController, :health)
     get("/loaderio-ab47bee856c880d39a24bce59211bcfd", PageController, :loaderio)

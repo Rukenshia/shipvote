@@ -1,0 +1,59 @@
+<div class="bg-gray-100 h-full min-h-screen">
+  <div class="max-w-7xl mx-auto pt-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Recent Votes for <%= @channel.wows_username %> (<%= @channel.id %>)
+      </h3>
+      <div class="my-2 py-2">
+        <div class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  # of votes
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <% now = NaiveDateTime.utc_now() %>
+              <%= for vote <- @votes do %>
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                    <%= vote.inserted_at %>
+                    <%= if vote.inserted_at.year == now.year && vote.inserted_at.month == now.month && vote.inserted_at.day == now.day do %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium leading-4 bg-gray-100 text-gray-800">
+                        today
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                    <%= vote.id %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                    <%= if vote.status == "open" do %>
+                      <span class="text-red-500">open</span>
+                    <% else %>
+                      <%= vote.status %>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                    <%= vote.votes |> length %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
