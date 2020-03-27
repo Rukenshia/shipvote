@@ -118,7 +118,7 @@
                     <%= vote.votes |> length %>
                   </td>
                 </tr>
-              <%= end %>
+              <% end %>
             </tbody>
           </table>
         </div>
@@ -179,7 +179,7 @@
                     <%= vote.votes |> length %>
                   </td>
                 </tr>
-              <%= end %>
+              <% end %>
             </tbody>
           </table>
         </div>
