@@ -74,13 +74,8 @@ defmodule BackendWeb.ChannelController do
   end
 
   def show_public_info(conn, %{"id" => id}) do
-    # FIXME: Experiment - Let the process sleep for a short moment to try and not overload
-    # the database
-    Process.sleep(:rand.uniform(280))
-
     channel =
       ConCache.get_or_store(:channel_cache, id, fn ->
-        Logger.warn("Cache missed for #{id}")
         case Repo.get(Channel, id) do
           %Channel{} = c ->
             # get the last opened vote
