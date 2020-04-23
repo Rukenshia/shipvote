@@ -33,7 +33,8 @@ defmodule Backend.Application do
         Supervisor.child_spec(
           {ConCache, [name: :channel_cache, ttl_check_interval: 500, global_ttl: 5000]},
           id: :channel_cache
-        )
+        ),
+        BackendWeb.Telemetry,
       ] ++ features
 
     # See https://hexdocs.pm/elixir/Supervisor.html

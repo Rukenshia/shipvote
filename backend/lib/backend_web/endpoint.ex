@@ -10,7 +10,7 @@ defmodule BackendWeb.Endpoint do
     conn
   end
 
-  socket("/socket", BackendWeb.UserSocket, websocket: true)
+  socket "/live", Phoenix.LiveView.Socket
 
   plug(CORSPlug, origin: ["*"])
 
@@ -32,6 +32,10 @@ defmodule BackendWeb.Endpoint do
     plug(Phoenix.LiveReloader)
     plug(Phoenix.CodeReloader)
   end
+
+  plug Phoenix.LiveDashboard.RequestLogger,
+    param_key: "request_logger",
+    cookie_key: "request_logger"
 
   plug(Plug.Logger)
   plug(:log_ip)
