@@ -21,7 +21,7 @@ config :backend, BackendWeb.Endpoint,
     cacertfile: "/opt/shipvote_chain.pem"
   ],
   url: [host: "shipvote.in.fkn.space", port: 443],
-  check_origin: ["//*.ext-twitch.tv", "//localhost.rig.twitch.tv"],
+  check_origin: ["//*.ext-twitch.tv", "//localhost.rig.twitch.tv", "//shipvote.in.fkn.space"],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
   root: ".",
