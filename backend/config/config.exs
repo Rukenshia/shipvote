@@ -7,6 +7,10 @@ use Mix.Config
 
 config :phoenix, :json_library, Jason
 
+config :backend, BackendWeb.Endpoint,
+  live_view: [signing_salt: "SXGmFxy6zcy0csSKhKkORSf8c0"],
+  basic_auth_password: "fantasma"
+
 # General application configuration
 config :backend,
   ecto_repos: [Backend.Repo]

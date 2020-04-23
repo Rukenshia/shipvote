@@ -40,15 +40,16 @@ defmodule Backend.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.0"},
-      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix, "~> 1.5.0"},
+      {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_live_dashboard, "~> 0.1"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
-      {:plug_cowboy, "~> 2.0"},
+      {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.7"},
       {:httpoison, "~> 1.4"},
       {:joken, "~> 1.5.0"},
@@ -58,7 +59,9 @@ defmodule Backend.Mixfile do
       {:con_cache, "~> 0.13.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:mock, "~> 0.3", only: :test},
-      {:distillery, "~> 2.1"}
+      {:distillery, "~> 2.1"},
+      {:telemetry_poller, "~> 0.4"},
+      {:telemetry_metrics, "~> 0.4"},
     ]
   end
 

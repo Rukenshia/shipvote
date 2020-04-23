@@ -1,5 +1,10 @@
 defmodule BackendWeb.Router do
   use BackendWeb, :router
+  import Plug.BasicAuth
+  import Phoenix.LiveDashboard.Router
+
+  @basic_auth_password Application.get_env(:backend, BackendWeb.Endpoint)[:basic_auth_password]
+
   require Logger
 
   pipeline :api do
@@ -8,6 +13,10 @@ defmodule BackendWeb.Router do
 
   pipeline :browser do
     plug(:accepts, ["html"])
+  end
+
+  pipeline :admin do
+    plug :basic_auth, username: "elsenor", password: @basic_auth_password
   end
 
   pipeline :verify_jwt do
@@ -23,10 +32,11 @@ defmodule BackendWeb.Router do
     get("/getting-started", NoticeController, :getting_started)
 
     scope "/metrics" do
-      pipe_through(:browser)
+      pipe_through([:browser, :admin])
 
       get("/", PageController, :metrics)
       get("/channels/:id", PageController, :channel_metrics)
+      live_dashboard "/dashboard", metrics: BackendWeb.Telemetry
     end
 
     get("/_health", PageController, :health)
