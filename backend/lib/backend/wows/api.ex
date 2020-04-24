@@ -82,7 +82,12 @@ defmodule Backend.Wows.Api do
       if data["meta"]["count"] != 1 do
         {:error, "Player not found"}
       else
-        {:ok, data["data"]["#{account_id}"] |> Enum.map(fn e -> e["ship_id"] end)}
+        case data["data"]["#{account_id}"] do
+          nil ->
+            {:error, "Player deleted"}
+          _ ->
+            {:ok, data["data"]["#{account_id}"] |> Enum.map(fn e -> e["ship_id"] end)}
+        end
       end
     else
       %{"error" => %{"message" => message}} ->

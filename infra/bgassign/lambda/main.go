@@ -24,6 +24,10 @@ func Handler(ctx context.Context) (string, error) {
 				Name:   aws.String("tag:background-features"),
 				Values: []*string{aws.String("enabled")},
 			},
+			{
+				Name:   aws.String("instance-state-name"),
+				Values: []*string{aws.String("running")},
+			},
 		},
 	}
 
@@ -63,6 +67,10 @@ func getWebInstances(ec2svc *ec2.EC2) ([]*ec2.Instance, error) {
 			{
 				Name:   aws.String("tag:tier"),
 				Values: []*string{aws.String("web")},
+			},
+			{
+				Name:   aws.String("instance-state-name"),
+				Values: []*string{aws.String("running")},
 			},
 		},
 	}
