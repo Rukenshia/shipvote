@@ -9,12 +9,15 @@ defmodule Backend.Stream.ChannelShipRefresh do
   end
 
   def init(state) do
+    Logger.error("ChannelShipRefresh.init")
     schedule()
 
     {:ok, state}
   end
 
   def handle_info(:reschedule, state) do
+    Logger.error("ChannelShipRefresh.reschedule")
+
     schedule()
     {:noreply, state}
   end
@@ -28,6 +31,7 @@ defmodule Backend.Stream.ChannelShipRefresh do
   end
 
   def do_work(channel, state) do
+    Logger.error("ChannelShipRefresh.do_work for channel_id=#{channel.id}")
     try do
       case Stream.update_channel_ships(channel) do
         {:ok, _} ->
