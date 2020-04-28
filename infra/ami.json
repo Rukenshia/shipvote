@@ -51,6 +51,7 @@
 				"mix local.hex --force",
 				"mix local.rebar --force",
 				"mix deps.get",
+				"mix deps.compile appsignal --include-children",
 				"cd assets && npm ci --no-progress && npm run deploy && cd ..",
 				"mix phx.digest",
 				"mix distillery.release --env=prod",
