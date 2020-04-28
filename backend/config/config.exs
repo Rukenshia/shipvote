@@ -9,7 +9,13 @@ config :phoenix, :json_library, Jason
 
 config :backend, BackendWeb.Endpoint,
   live_view: [signing_salt: "SXGmFxy6zcy0csSKhKkORSf8c0"],
-  basic_auth_password: "fantasma"
+  basic_auth_password: "fantasma",
+  instrumenters: [Appsignal.Phoenix.Instrumenter]
+
+# Template settings for appsignal
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
 
 # General application configuration
 config :backend,
@@ -31,3 +37,5 @@ config :logger, :console,
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+import_config "appsignal.exs"
