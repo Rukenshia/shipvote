@@ -62,6 +62,7 @@ defmodule Backend.Mixfile do
       {:distillery, "~> 2.1"},
       {:telemetry_poller, "~> 0.4"},
       {:telemetry_metrics, "~> 0.4"},
+      {:appsignal, "~> 1.0"},
     ]
   end
 

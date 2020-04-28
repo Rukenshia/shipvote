@@ -65,3 +65,5 @@ config :backend, Backend.Repo,
   pool_size: 10
 
 import_config "dev.secret.exs"
+
+config :appsignal, :config, active: true

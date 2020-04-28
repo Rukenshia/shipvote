@@ -1,5 +1,6 @@
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
+  use Appsignal.Phoenix
   require Logger
 
   def log_ip(conn, _) do
