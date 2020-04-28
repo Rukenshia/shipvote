@@ -63,6 +63,7 @@ tasks:
       mix local.hex --force
       mix local.rebar --force
       mix deps.get
+      mix deps.compile appsignal --include-children
       mix test --cover
   - prepare-packer: |
       cd shipvote/backend
