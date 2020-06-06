@@ -7,6 +7,13 @@ This README serves as a technical overview.
 
 ## Architecture
 
+### Application Monitoring
+
+The monitoring for this application is sponsored by [AppSignal](https://appsignal.com). Feel free
+to give it a try, it's been really helpful for performance insights and finding slow code paths.
+
+### Architecture Overview
+
 ![Backend Architecture Diagram](docs/architecture.png)
 
 ### `shipvote-web`
