@@ -74,6 +74,10 @@ tasks:
       set -x
 
       cd shipvote/infra
+
+      # Output the current revision for AppSignal
+      echo "APP_REVISION=$(git rev-parse --short HEAD)" >> shipvote.env
+
       packer build ami.json
   - deploy: |
       set +x
