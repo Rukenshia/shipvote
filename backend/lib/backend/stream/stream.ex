@@ -62,6 +62,8 @@ defmodule Backend.Stream do
 
   """
   def create_channel(attrs \\ %{}) do
+    Appsignal.increment_counter("num_channels")
+
     %Channel{}
     |> Channel.changeset(attrs)
     |> Repo.insert()

@@ -124,6 +124,9 @@ defmodule BackendWeb.VoteController do
         ConCache.delete(:rest_vote_cache, "all_status_open")
         ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
+
+        Appsignal.increment_counter("num_votes")
+
         conn
         |> render("show.json", %{vote: vote})
 
@@ -183,6 +186,8 @@ defmodule BackendWeb.VoteController do
           ConCache.delete(:rest_vote_cache, vote.id)
           ConCache.delete(:rest_vote_cache, :index_status)
           ConCache.delete(:rest_vote_cache, :index)
+
+          Appsignal.increment_counter("num_voted_ships")
 
           conn
           |> json(%{ok: true})
