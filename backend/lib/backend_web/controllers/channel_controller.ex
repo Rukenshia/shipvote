@@ -76,6 +76,8 @@ defmodule BackendWeb.ChannelController do
   def show_public_info(conn, %{"id" => id}) do
     channel =
       ConCache.get_or_store(:channel_cache, id, fn ->
+        Appsignal.increment_counter("channel_public_info_missed_cache", tags: %{ "channel_id" => id })
+
         case Repo.get(Channel, id) do
           %Channel{} = c ->
             # get the last opened vote
