@@ -40,6 +40,7 @@ defmodule Backend.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:appsignal, "~> 1.0"},
       {:phoenix, "~> 1.5.0"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
@@ -62,7 +63,6 @@ defmodule Backend.Mixfile do
       {:distillery, "~> 2.1"},
       {:telemetry_poller, "~> 0.4"},
       {:telemetry_metrics, "~> 0.4"},
-      {:appsignal, "~> 1.0"},
     ]
   end
 
