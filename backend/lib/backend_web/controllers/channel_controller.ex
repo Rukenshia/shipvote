@@ -82,8 +82,8 @@ defmodule BackendWeb.ChannelController do
             last_vote =
               from(v in Backend.Stream.Vote,
                 where: v.channel_id == ^c.id,
-                select: v.inserted_at,
-                order_by: [desc: v.inserted_at],
+                select: v.id,
+                order_by: [desc: v.id],
                 limit: 1
               )
               |> Repo.one()
