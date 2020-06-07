@@ -82,7 +82,7 @@ defmodule BackendWeb.ChannelController do
             last_vote =
               from(v in Backend.Stream.Vote,
                 where: v.channel_id == ^c.id,
-                select: v.id,
+                select: v.inserted_at,
                 order_by: [desc: v.id],
                 limit: 1
               )
