@@ -74,11 +74,12 @@ defmodule BackendWeb.ChannelController do
   end
 
   def show_public_info(conn, %{"id" => id}) do
-    channel =
-      ConCache.get_or_store(:channel_cache, id, fn ->
-        Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{ "channel_id" => id })
 
-        case Repo.get(Channel, id) do
+    channel = case ConCache.get(:channel_cache, id) do
+      nil ->
+        Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{ "channel_id" => id, "result" => "miss" })
+
+        item = case Repo.get(Channel, id) do
           %Channel{} = c ->
             # get the last opened vote
             last_vote =
@@ -94,7 +95,16 @@ defmodule BackendWeb.ChannelController do
           nil ->
             %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
         end
-      end)
+
+        :ok = ConCache.put(:channel_cache, id, item)
+
+        item.value
+
+      item ->
+        Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{ "channel_id" => id, "result" => "hit" })
+
+        item
+    end
 
     case channel do
       {%Channel{} = channel, last_vote} ->
