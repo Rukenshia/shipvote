@@ -11,6 +11,7 @@ defmodule Backend.Stream.Channel do
     field(:vote_progress_delay, :integer, virtual: true)
 
     has_many(:ships, Backend.Stream.ChannelShip)
+    has_many(:votes, Backend.Stream.Vote)
     timestamps()
   end
 

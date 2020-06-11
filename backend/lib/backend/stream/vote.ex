@@ -15,7 +15,7 @@ defmodule Backend.Stream.Vote do
   @doc false
   def changeset(vote, attrs) do
     vote
-    |> cast(attrs, [:channel_id, :ships, :status])
+    |> cast(attrs, [:channel_id, :ships, :status, :inserted_at])
     |> validate_required([:channel_id, :ships, :status])
   end
 
