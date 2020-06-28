@@ -20,7 +20,11 @@
     </mdc-layout-cell>
     <mdc-layout-cell :span="12" v-if="configured && loaded_configuration">
       <mdc-card class="mdc-card--flat vote-status-card" style="text-align: center">
-        <mdc-linear-progress v-if="voting" :progress="elapsed / (duration * 60)" style="text-align: left"></mdc-linear-progress>
+        <mdc-linear-progress
+          v-if="voting"
+          :progress="elapsed / (duration * 60)"
+          style="text-align: left"
+        ></mdc-linear-progress>
         <mdc-card-header>
           <mdc-headline>
             The vote is
@@ -32,31 +36,27 @@
             v-if="!voting"
           >You have selected {{selectedShips.length}} ships for the next vote.</mdc-body>
 
-          <mdc-button
-            :unelevated="true"
-            v-else
-            @click="closeVote"
-            class="mdc-button--danger"
-          >Close</mdc-button>
+          <mdc-button :unelevated="true" v-else @click="closeVote" class="mdc-button--danger">Close</mdc-button>
 
           <template v-if="!voting">
-            <mdc-button :unelevated="true"
+            <mdc-button
+              :unelevated="true"
               @click="openVote"
               class="mdc-button--primary"
               :disabled="selectedShips.length === 0"
             >Open</mdc-button>
             <mdc-checkbox label="Set a time limit" v-model="useDuration"></mdc-checkbox>
             <mdc-layout-grid v-if="useDuration">
-              <mdc-layout-cell :tablet=2 :desktop=4></mdc-layout-cell>
-              <mdc-layout-cell :phone=4 :tablet=4 :desktop=4>
-                <mdc-slider min=1 max=20 step=1 display-markers v-model="duration" />
+              <mdc-layout-cell :tablet="2" :desktop="4"></mdc-layout-cell>
+              <mdc-layout-cell :phone="4" :tablet="4" :desktop="4">
+                <mdc-slider min="1" max="20" step="1" display-markers v-model="duration" />
                 {{ duration }} minute{{ duration > 1 ? 's' : '' }}
               </mdc-layout-cell>
             </mdc-layout-grid>
           </template>
 
-          <br>
-          <br>
+          <br />
+          <br />
         </mdc-card-header>
       </mdc-card>
 
@@ -99,16 +99,14 @@
               width="56"
               height="auto"
               :alt="`Image of ${ship.name}`"
-            >
+            />
             <span>
               <strong>{{ship.name}}</strong>
             </span>
             <span slot="secondary">{{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}}</span>
           </mdc-list-item>
         </mdc-list>
-        <mdc-text typo="body1" style="padding-left: 8px" v-else>
-          Nothing to show yet
-        </mdc-text>
+        <mdc-text typo="body1" style="padding-left: 8px" v-else>Nothing to show yet</mdc-text>
       </div>
       <div v-show="!voting">
         <mdc-headline>Ship selection</mdc-headline>
@@ -136,7 +134,7 @@
             </mdc-select>
           </mdc-layout-cell>
           <mdc-layout-cell :phone="2" :tablet="2" :desktop="2">
-            <mdc-checkbox label="Premiums" v-model="bulkAdd.premiums"/>
+            <mdc-checkbox label="Premiums" v-model="bulkAdd.premiums" />
           </mdc-layout-cell>
 
           <mdc-layout-cell :span="6">
@@ -178,7 +176,7 @@
               width="56"
               height="auto"
               :alt="`Image of ${ship.name}`"
-            >
+            />
             <span>
               <strong>{{ship.name}}</strong>
             </span>
@@ -193,7 +191,7 @@
               width="56"
               height="auto"
               :alt="`Image of ${ship.name}`"
-            >
+            />
             <span>
               <strong>{{ship.name}}</strong>
             </span>
@@ -219,24 +217,25 @@
 </template>
 
 <script>
-import { Socket } from 'phoenix';
-import { BASE_WS_URL, BASE_URL, ShipvoteApi } from '../shipvote';
-import VoteResults from './VoteResults';
+import { Socket } from "phoenix";
+import { BASE_WS_URL, BASE_URL, ShipvoteApi } from "../shipvote";
+import VoteResults from "./VoteResults";
+import Appsignal from "../shared/appsignal";
 
 const get = window.axios.get;
 
 window.App = {
-  name: 'app',
+  name: "app",
   components: {
-    VoteResults,
+    VoteResults
   },
   data() {
     return {
       socket: undefined,
       channel: undefined,
       channelId: undefined,
-      token: '',
-      theme: 'light',
+      token: "",
+      theme: "light",
       api: undefined,
       vote: undefined,
 
@@ -251,17 +250,42 @@ window.App = {
       loaded_configuration: false,
       error: false,
 
-      search: '',
+      search: "",
       bulkAdd: {
-        nations: 'all',
-        tiers: 'all',
-        types: 'all',
-        premiums: true,
+        nations: "all",
+        tiers: "all",
+        types: "all",
+        premiums: true
       },
       filters: {
-        nations: ['all', 'commonwealth', 'france', 'germany', 'italy', 'japan', 'pan_america', 'pan_asia', 'poland', 'uk', 'usa', 'ussr'],
-        tiers: ['all', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'],
-        types: ['all', 'Battleship', 'Cruiser', 'Destroyer', 'AirCarrier'],
+        nations: [
+          "all",
+          "commonwealth",
+          "europe",
+          "france",
+          "germany",
+          "italy",
+          "japan",
+          "pan_america",
+          "pan_asia",
+          "uk",
+          "usa",
+          "ussr"
+        ],
+        tiers: [
+          "all",
+          "I",
+          "II",
+          "III",
+          "IV",
+          "V",
+          "VI",
+          "VII",
+          "VIII",
+          "IX",
+          "X"
+        ],
+        types: ["all", "Battleship", "Cruiser", "Destroyer", "AirCarrier"]
       },
       selectedShips: [],
 
@@ -269,7 +293,6 @@ window.App = {
       duration: 5,
       elapsed: 0,
       elapsedInterval: null,
-
 
       stats: {
         votes: 0,
@@ -317,7 +340,10 @@ window.App = {
               this.stats.votes =
                 votes.length > 0 ? votes.reduce((p, v) => p + v) : 0;
             })
-            .catch(e => console.error(`loadChannelConfig: ${e}`))
+            .catch(e => {
+              Appsignal.sendError(e);
+              console.error(`loadChannelConfig: ${e}`);
+            })
             .then(() => {
               setTimeout(() => updateOpenVote(), 5000);
             });
@@ -329,16 +355,25 @@ window.App = {
   },
   computed: {
     voting() {
-      return this.vote !== undefined && this.vote.status === 'open';
+      return this.vote !== undefined && this.vote.status === "open";
     },
     bulkAddShips() {
       return this.ships
         .filter(s => s.enabled)
         .filter(s => !this.selectedShips.includes(s))
         .filter(s => this.bulkAdd.premiums || !s.premium)
-        .filter(s => this.bulkAdd.nations === 'all' || s.nation === this.bulkAdd.nations)
-        .filter(s => this.bulkAdd.tiers === 'all' || s.tier === tierToInt(this.bulkAdd.tiers))
-        .filter(s => this.bulkAdd.types === 'all' || s.type === this.bulkAdd.types);
+        .filter(
+          s =>
+            this.bulkAdd.nations === "all" || s.nation === this.bulkAdd.nations
+        )
+        .filter(
+          s =>
+            this.bulkAdd.tiers === "all" ||
+            s.tier === tierToInt(this.bulkAdd.tiers)
+        )
+        .filter(
+          s => this.bulkAdd.types === "all" || s.type === this.bulkAdd.types
+        );
     },
     searchedSelectedShips() {
       return this.selectedShips.filter(s => s.name.startsWith(this.search));
@@ -383,7 +418,7 @@ window.App = {
     },
     mostVoted() {
       if (this.ships.length === 0) {
-        return 'none';
+        return "none";
       }
 
       const sorted = Object.keys(this.stats.ship_votes).map(v => ({
@@ -403,8 +438,8 @@ window.App = {
         return -1;
       });
 
-      if (sorted.length === 0 || typeof sorted[0] === 'undefined') {
-        return 'none';
+      if (sorted.length === 0 || typeof sorted[0] === "undefined") {
+        return "none";
       }
 
       const max = this.stats.ship_votes[sorted[0].id];
@@ -412,34 +447,39 @@ window.App = {
       return sorted
         .filter(s => s.votes === max)
         .map(s => s.name)
-        .join(', ');
+        .join(", ");
     }
   },
   methods: {
     loadPreviouslySelectedShips() {
-      const ids = JSON.parse(window.localStorage.getItem('selectedShips')) || [];
+      const ids =
+        JSON.parse(window.localStorage.getItem("selectedShips")) || [];
 
       this.selectedShips = this.ships.filter(({ id }) => ids.includes(id));
     },
     storeSelectedShips() {
-      window.localStorage.setItem('selectedShips', JSON.stringify(this.selectedShips.map(s => s.id)));
+      window.localStorage.setItem(
+        "selectedShips",
+        JSON.stringify(this.selectedShips.map(s => s.id))
+      );
     },
     loadChannelConfig() {
       this.loaded_configuration = false;
       return get(`${BASE_URL}/api/settings/channels/${this.channelId}`, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           authorization: `Bearer ${this.token}`
         }
       })
         .then(res => {
-          this.ships = res.data['data']['ships'];
+          this.ships = res.data["data"]["ships"];
           this.configured = true;
         })
         .catch(e => {
           if (e.response.status === 404) {
             this.configured = false;
           } else {
+            Appsignal.sendError(e);
             console.error(e);
             this.error = true;
           }
@@ -451,16 +491,20 @@ window.App = {
     openVote() {
       this.stats.votes = 0;
       this.stats.ship_votes = {};
-      this.api.openVote(this.selectedShips.map(s => s.id)).then(vote => {
-        this.vote = vote;
-        this.storeSelectedShips();
+      this.api
+        .openVote(this.selectedShips.map(s => s.id))
+        .then(vote => {
+          this.vote = vote;
+          this.storeSelectedShips();
 
-        if (this.useDuration) {
-          this.startDurationCounter();
-        }
-      }).catch(err => {
-        console.error(err);
-      });
+          if (this.useDuration) {
+            this.startDurationCounter();
+          }
+        })
+        .catch(err => {
+          Appsignal.sendError(err);
+          console.error(err);
+        });
     },
     closeVote() {
       if (this.elapsedInterval) {
@@ -468,20 +512,28 @@ window.App = {
         this.elapsedInterval = null;
       }
 
-      this.api.closeVote(this.vote.id).then(vote => {
-        this.vote = vote;
-        this.updateClosedVotes();
-      }).catch(err => {
-        console.error(err);
-      });
+      this.api
+        .closeVote(this.vote.id)
+        .then(vote => {
+          this.vote = vote;
+          this.updateClosedVotes();
+        })
+        .catch(err => {
+          Appsignal.sendError(err);
+          console.error(err);
+        });
     },
     updateClosedVotes() {
-      this.api.getClosedVotes().then(votes => {
-        this.closedVotes = votes;
-        this.loadingClosedVotes = false;
-      }).catch(err => {
-        console.error(err);
-      });
+      this.api
+        .getClosedVotes()
+        .then(votes => {
+          this.closedVotes = votes;
+          this.loadingClosedVotes = false;
+        })
+        .catch(err => {
+          Appsignal.sendError(err);
+          console.error(err);
+        });
     },
     startDurationCounter() {
       this.elapsed = 0;
@@ -515,33 +567,35 @@ window.App = {
         }
         return -1;
       });
-    },
+    }
   }
 };
 
 function tierToInt(tier) {
-  return {
-    'I': 1,
-    'II': 2,
-    'III': 3,
-    'IV': 4,
-    'V': 5,
-    'VI': 6,
-    'VII': 7,
-    'VIII': 8,
-    'IX': 9,
-    'X': 10
-  }[tier] || 0;
+  return (
+    {
+      I: 1,
+      II: 2,
+      III: 3,
+      IV: 4,
+      V: 5,
+      VI: 6,
+      VII: 7,
+      VIII: 8,
+      IX: 9,
+      X: 10
+    }[tier] || 0
+  );
 }
 
 export default window.App;
 </script>
 
 <style lang="scss">
-@import '../darkmode';
-@import '../typography';
-@import '../card';
-@import '../list';
+@import "../darkmode";
+@import "../typography";
+@import "../card";
+@import "../list";
 
 .button {
   border-radius: 4px;
