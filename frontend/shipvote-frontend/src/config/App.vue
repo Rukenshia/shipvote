@@ -105,6 +105,7 @@
 
 <script>
 import { BASE_URL } from '../shipvote';
+import Appsignal from "../shared/appsignal";
 
 const { get, post, put } = window.axios;
 

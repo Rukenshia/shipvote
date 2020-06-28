@@ -11,13 +11,16 @@
     "build:watch": "cross-env NODE_ENV=development webpack --watch --progress --hide-modules"
   },
   "dependencies": {
+    "@appsignal/javascript": "^1.3.2",
+    "@appsignal/plugin-breadcrumbs-network": "^1.1.2",
+    "@appsignal/vue": "^1.0.0",
     "@material/button": "^0.41.0",
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "material-components-web": "^0.41.0",
     "phoenix": "^1.3.4",
     "vue": "^2.5.11",
     "vue-mdc-adapter": "^0.18.2",
-    "vue-moment": "^4.0.0"
+    "vue-moment": "^4.1.0"
   },
   "browserslist": [
     "> 1%",
@@ -32,7 +35,7 @@
     "cross-env": "^5.0.5",
     "css-loader": "^0.28.7",
     "file-loader": "^1.1.4",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.14.1",
     "sass-loader": "^6.0.6",
     "vue-loader": "^13.0.5",
     "vue-template-compiler": "^2.4.4",
