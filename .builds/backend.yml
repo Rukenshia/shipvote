@@ -4,8 +4,6 @@ packages:
   - postgresql
   - jq
   - nodejs
-  - python
-  - python-pip
   - awscli
   - curl
   - unzip
@@ -39,13 +37,10 @@ tasks:
       erlang_version="22.2.6-1"
       elixir_version="1.10.1-1"
 
-      wget -q https://packages.erlang-solutions.com/erlang/debian/pool/esl-erlang_"${erlang_version}"~ubuntu~bionic_amd64.deb
-      sudo apt install -yq ./esl-erlang_"${erlang_version}"~ubuntu~bionic_amd64.deb
-      rm esl-erlang_"${erlang_version}"~ubuntu~bionic_amd64.deb
-
-      wget -q https://packages.erlang-solutions.com/erlang/debian/pool/elixir_"${elixir_version}"~ubuntu~bionic_all.deb
-      sudo apt install -yq ./elixir_"${elixir_version}"~ubuntu~bionic_all.deb
-      rm elixir_"${elixir_version}"~ubuntu~bionic_all.deb
+      wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
+      echo "deb https://packages.erlang-solutions.com/ubuntu focal contrib" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+      sudo apt -q update
+      sudo apt -yq install erlang elixir
 
       wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
       unzip packer_1.4.1_linux_amd64.zip
