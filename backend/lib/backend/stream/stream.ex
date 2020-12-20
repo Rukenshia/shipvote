@@ -17,6 +17,13 @@ defmodule Backend.Stream do
     |> Repo.one()
   end
 
+  def get_open_votes() do
+    from(v in Vote,
+      where: v.status == "open"
+    )
+    |> Repo.all()
+  end
+
   alias Backend.Stream.Channel
 
   @doc """
@@ -269,5 +276,25 @@ defmodule Backend.Stream do
   """
   def change_channel_ship(%ChannelShip{} = channel_ship) do
     ChannelShip.changeset(channel_ship, %{})
+  end
+
+  @doc """
+  Updates the status of an existing Vote.
+  """
+  def change_vote_status(vote_id, status) do
+    with %Vote{} = vote <- Repo.get(Vote, vote_id) do
+      case vote
+           |> Vote.status_changeset(%{"status" => status})
+           |> Repo.update() do
+        {:ok, vote} ->
+          {:ok, vote}
+
+        {:error, e} ->
+          {:error, e}
+      end
+    else
+      nil ->
+        {:error, :not_found}
+    end
   end
 end

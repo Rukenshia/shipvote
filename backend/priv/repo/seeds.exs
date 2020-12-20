@@ -12,11 +12,36 @@
 
 {:ok, date} = NaiveDateTime.new(2019, 1, 1, 0, 0, 0)
 
-chan =
+channel =
   Backend.Repo.insert!(%Backend.Stream.Channel{
     inserted_at: date,
     wows_username: "AlongUsernameForTests"
   })
+
+active_old_vote =
+  Backend.Repo.insert!(%Backend.Stream.Vote{
+    channel_id: channel.id,
+    ships: [],
+    status: "open"
+  })
+
+active_old_vote
+|> Backend.Stream.Vote.changeset(%{
+  inserted_at:
+    NaiveDateTime.utc_now()
+    |> NaiveDateTime.truncate(:second)
+    |> NaiveDateTime.add(-60 * 60 * 24 * 365, :second)
+})
+|> Backend.Repo.update!()
+
+for i <- 0..100 do
+  Backend.Repo.insert!(%Backend.Stream.Vote{
+    channel_id: channel.id,
+    ships: [],
+    status: if(rem(i, 2) == 0, do: "closed", else: "open"),
+    inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+  })
+end
 
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
@@ -44,12 +69,3 @@ v
     |> NaiveDateTime.add(-60 * 60 * 24 * 365, :second)
 })
 |> Backend.Repo.update!()
-
-for i <- 0..100 do
-  Backend.Repo.insert!(%Backend.Stream.Vote{
-    channel_id: chan.id,
-    ships: [],
-    status: if(rem(i, 2) == 0, do: "closed", else: "open"),
-    inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-  })
-end

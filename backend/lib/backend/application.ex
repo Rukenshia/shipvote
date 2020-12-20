@@ -35,9 +35,13 @@ defmodule Backend.Application do
           id: :channel_cache
         ),
         BackendWeb.Telemetry,
+        Supervisor.child_spec(
+          {Backend.Stream.BackgroundVoteClose, []},
+          id: :background_vote_close
+        )
       ] ++ features
 
-	  :telemetry.attach(
+    :telemetry.attach(
       "appsignal-ecto",
       [:backend, :repo, :query],
       &Appsignal.Ecto.handle_event/4,
