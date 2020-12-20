@@ -3,6 +3,7 @@ defmodule BackendWeb.VoteController do
   require Logger
 
   alias Backend.Repo
+  alias Backend.Stream
   alias Backend.Stream.Vote
   alias Backend.Stream.VotedShip
 
@@ -124,7 +125,6 @@ defmodule BackendWeb.VoteController do
         ConCache.delete(:rest_vote_cache, "all_status_open")
         ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
-
         Appsignal.increment_counter("num_votes")
 
         conn
@@ -142,32 +142,28 @@ defmodule BackendWeb.VoteController do
   def set_status(conn, %{"id" => channel_id, "vote_id" => vote_id, "status" => status}) do
     vote_id = String.to_integer(vote_id)
 
-    with %Vote{} = vote <- Repo.get(Vote, vote_id) do
-      case vote
-           |> Vote.status_changeset(%{"status" => status})
-           |> Repo.update() do
-        {:ok, vote} ->
-          ConCache.delete(:rest_vote_cache, vote.id)
-          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
-          ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
-          ConCache.delete(:rest_vote_cache, "all_status_open")
-          ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
+    case Stream.change_vote_status(vote_id, status) do
+      {:ok, vote} ->
+        ConCache.delete(:rest_vote_cache, vote.id)
+        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
+        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
+        ConCache.delete(:rest_vote_cache, "all_status_open")
+        ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
 
-          conn
-          |> render("show.json", %{vote: vote})
+        conn
+        |> render("show.json", %{vote: vote})
 
-        {:error, e} ->
-          Logger.warn("VoteController.set_status.update_failed=#{inspect(e)}")
-
-          conn
-          |> put_status(:bad_request)
-          |> json(%{ok: false, message: "Bad request"})
-      end
-    else
-      nil ->
+      {:error, :not_found} ->
         conn
         |> put_status(:not_found)
         |> json(%{ok: false, message: "Not found"})
+
+      {:error, e} ->
+        Logger.warn("VoteController.set_status.update_failed=#{inspect(e)}")
+
+        conn
+        |> put_status(:bad_request)
+        |> json(%{ok: false, message: "Bad request"})
     end
   end
 

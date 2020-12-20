@@ -32,17 +32,17 @@
 		{
 			"type": "shell",
 			"inline": [
-				"curl -sL https://rpm.nodesource.com/setup_13.x | sudo -E bash -",
+				"curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash -",
 				"sudo yum install -y nodejs",
-				"wget 'http://erlang.org/download/otp_src_22.2.tar.gz' -O otp.tar.gz",
+				"wget 'http://erlang.org/download/otp_src_23.0.tar.gz' -O otp.tar.gz",
 				"tar xfz otp.tar.gz",
-				"cd otp_src_22.2/",
+				"cd otp_src_23.0/",
 				"./configure --prefix /usr",
 				"make && sudo make install",
 				"cd ..",
-				"wget https://github.com/elixir-lang/elixir/archive/v1.10.1.tar.gz",
-				"tar xfz v1.10.1.tar.gz",
-				"cd elixir-1.10.1/",
+				"wget https://github.com/elixir-lang/elixir/archive/v1.10.4.tar.gz",
+				"tar xfz v1.10.4.tar.gz",
+				"cd elixir-1.10.4/",
 				"export PATH=\"${PATH}:/usr/bin\"",
 				"make && sudo make install"
 			]
