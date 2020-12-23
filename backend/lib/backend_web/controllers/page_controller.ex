@@ -66,9 +66,17 @@ defmodule BackendWeb.PageController do
 
     six_months_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-60 * 60 * 24 * 180, :second)
 
-    channels_no_recent_votes =
+    all_channels =
       Repo.all(Channel)
       |> Repo.preload(:votes)
+
+    channels_most_votes =
+      all_channels
+      |> Enum.sort_by(fn v -> v.votes |> length() end, :desc)
+      |> Enum.take(10)
+
+    channels_no_recent_votes =
+      all_channels
       |> Enum.filter(fn c ->
         case c.votes |> length() == 0 do
           true ->
@@ -83,6 +91,7 @@ defmodule BackendWeb.PageController do
 
     render(conn, "metrics.html",
       channels: channels,
+      channels_most_votes: channels_most_votes,
       channels_no_recent_votes: channels_no_recent_votes,
       votes: votes,
       user_votes: user_votes,

@@ -187,6 +187,45 @@
     </div>
     <div class="pt-12 w-full">
       <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Channels with most votes
+      </h3>
+      <div class="my-2 py-2">
+        <div class="align-middle inline-block min-w-full shadow overflow-hidden sm:rounded-lg border-b border-gray-200">
+          <table class="min-w-full">
+            <thead>
+              <tr>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Channel Name
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  Channel ID
+                </th>
+                <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                  # of votes
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for channel <- @channels_most_votes do %>
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                    <%=  channel.wows_username %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 font-medium text-gray-900">
+                    <%= channel.id %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                    <%= channel.votes |> length() %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="pt-12 w-full">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
         Channels without recent votes
       </h3>
       <div class="my-2 py-2">
