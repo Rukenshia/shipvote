@@ -78,7 +78,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   defp publish_vote_progress(vote_id) do
-    with vote = %Vote{channel_id: 419_661_866} <- Stream.get_cached_vote(vote_id) do
+    with vote = %Vote{channel_id: 27_995_184} <- Stream.get_cached_vote(vote_id) do
       Logger.debug("VoteProgress.publish_vote_progress: publishing #{vote_id}")
 
       case Twitch.Api.broadcast_message(vote.channel_id, "vote_progress", %{

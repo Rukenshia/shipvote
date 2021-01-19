@@ -39,7 +39,7 @@ func (c *Channel) StartVote(v *ActiveVote) error {
 		return fmt.Errorf("Active vote with id %d for channel %d", c.vote.VoteID, c.ID)
 	}
 
-	if c.ID == 419_661_866 {
+	if c.ID == 27_995_184 {
 		log.Printf("Skipping vote add for 419_661_866")
 		return nil
 	}
