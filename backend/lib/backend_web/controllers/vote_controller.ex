@@ -16,7 +16,7 @@ defmodule BackendWeb.VoteController do
   def all(conn, %{"status" => status})
       when status == "open" do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "all_status_#{status}", fn ->
+      ConCache.get_or_store(:vote_cache, "all_status_#{status}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.status == ^status
@@ -34,7 +34,7 @@ defmodule BackendWeb.VoteController do
   def index(conn, %{"id" => channel_id, "status" => status})
       when status == "open" or status == "closed" do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "index_status_#{channel_id}_#{status}", fn ->
+      ConCache.get_or_store(:vote_cache, "index_status_#{channel_id}_#{status}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.channel_id == ^channel_id and p.status == ^status,
@@ -57,7 +57,7 @@ defmodule BackendWeb.VoteController do
 
   def index(conn, %{"id" => channel_id}) do
     votes =
-      ConCache.get_or_store(:rest_vote_cache, "index_#{channel_id}", fn ->
+      ConCache.get_or_store(:vote_cache, "index_#{channel_id}", fn ->
         votes =
           from(p in Backend.Stream.Vote,
             where: p.channel_id == ^channel_id
@@ -75,13 +75,7 @@ defmodule BackendWeb.VoteController do
   def show(conn, %{"id" => _channel_id, "vote_id" => vote_id, "full" => "false"}) do
     vote_id = String.to_integer(vote_id)
 
-    vote =
-      ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
-        case Repo.get(Vote, vote_id) do
-          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(5)}
-          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(60)}
-        end
-      end)
+    vote = Stream.get_cached_vote(vote_id)
 
     case vote do
       %Vote{} = vote ->
@@ -95,13 +89,7 @@ defmodule BackendWeb.VoteController do
   def show(conn, %{"id" => _channel_id, "vote_id" => vote_id}) do
     vote_id = String.to_integer(vote_id)
 
-    vote =
-      ConCache.get_or_store(:rest_vote_cache, vote_id, fn ->
-        case Repo.get(Vote, vote_id) do
-          %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(5)}
-          nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(60)}
-        end
-      end)
+    vote = Stream.get_cached_vote(vote_id)
 
     case vote do
       %Vote{} = vote ->
@@ -119,12 +107,12 @@ defmodule BackendWeb.VoteController do
          |> Vote.changeset(attrs)
          |> Repo.insert() do
       {:ok, vote} ->
-        ConCache.delete(:rest_vote_cache, vote.id)
-        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
-        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
-        ConCache.delete(:rest_vote_cache, "all_status_open")
-        ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
-
+        ConCache.delete(:vote_cache, "vote_#{vote.id}")
+        ConCache.delete(:vote_cache, "index_status_#{channel_id}_open")
+        ConCache.delete(:vote_cache, "index_status_#{channel_id}_closed")
+        ConCache.delete(:vote_cache, "all_status_open")
+        ConCache.delete(:vote_cache, "index_#{channel_id}")
+        GenServer.cast(VoteProgress, {:add_vote, vote.id})
         Appsignal.increment_counter("num_votes")
 
         conn
@@ -144,11 +132,16 @@ defmodule BackendWeb.VoteController do
 
     case Stream.change_vote_status(vote_id, status) do
       {:ok, vote} ->
-        ConCache.delete(:rest_vote_cache, vote.id)
-        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_open")
-        ConCache.delete(:rest_vote_cache, "index_status_#{channel_id}_closed")
-        ConCache.delete(:rest_vote_cache, "all_status_open")
-        ConCache.delete(:rest_vote_cache, "index_#{channel_id}")
+        ConCache.delete(:vote_cache, "vote_#{vote.id}")
+        ConCache.delete(:vote_cache, "index_status_#{channel_id}_open")
+        ConCache.delete(:vote_cache, "index_status_#{channel_id}_closed")
+        ConCache.delete(:vote_cache, "all_status_open")
+        ConCache.delete(:vote_cache, "index_#{channel_id}")
+
+        if status == "closed" do
+          # SEND
+          GenServer.cast(VoteProgress, {:remove_vote, vote_id})
+        end
 
         conn
         |> render("show.json", %{vote: vote})
@@ -179,9 +172,9 @@ defmodule BackendWeb.VoteController do
            })
            |> Repo.insert() do
         {:ok, _} ->
-          ConCache.delete(:rest_vote_cache, vote.id)
-          ConCache.delete(:rest_vote_cache, :index_status)
-          ConCache.delete(:rest_vote_cache, :index)
+          ConCache.delete(:vote_cache, "vote_#{vote.id}")
+          ConCache.delete(:vote_cache, :index_status)
+          ConCache.delete(:vote_cache, :index)
 
           Appsignal.increment_counter("num_voted_ships")
 

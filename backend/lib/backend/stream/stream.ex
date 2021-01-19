@@ -24,6 +24,18 @@ defmodule Backend.Stream do
     |> Repo.all()
   end
 
+  @doc """
+  Returns either a cached version of a vote or retrieves it from the database
+  """
+  def get_cached_vote(vote_id) do
+    ConCache.get_or_store(:vote_cache, "vote_#{vote_id}", fn ->
+      case Repo.get(Vote, vote_id) do
+        %Vote{} = v -> %ConCache.Item{value: v |> Repo.preload(:votes), ttl: :timer.seconds(5)}
+        nil -> %ConCache.Item{value: :not_found, ttl: :timer.seconds(60)}
+      end
+    end)
+  end
+
   alias Backend.Stream.Channel
 
   @doc """

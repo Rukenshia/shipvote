@@ -27,17 +27,21 @@ defmodule Backend.Application do
           id: :vote_cache
         ),
         Supervisor.child_spec(
-          {ConCache, [name: :rest_vote_cache, ttl_check_interval: 500, global_ttl: 5000]},
-          id: :rest_vote_cache
-        ),
-        Supervisor.child_spec(
           {ConCache, [name: :channel_cache, ttl_check_interval: 500, global_ttl: 5000]},
           id: :channel_cache
+        ),
+        Supervisor.child_spec(
+          {ConCache, [name: :vote_progress_cache, ttl_check_interval: false]},
+          id: :vote_progress_cache
         ),
         BackendWeb.Telemetry,
         Supervisor.child_spec(
           {Backend.Stream.BackgroundVoteClose, []},
           id: :background_vote_close
+        ),
+        Supervisor.child_spec(
+          {Backend.Twitch.VoteProgress, []},
+          id: :vote_progress
         )
       ] ++ features
 

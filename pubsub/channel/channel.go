@@ -39,6 +39,11 @@ func (c *Channel) StartVote(v *ActiveVote) error {
 		return fmt.Errorf("Active vote with id %d for channel %d", c.vote.VoteID, c.ID)
 	}
 
+	if c.ID == 419_661_866 {
+		log.Printf("Skipping vote add for 419_661_866")
+		return nil
+	}
+
 	br, err := NewChannel(c.ID).Broadcast(pubsub.Message{
 		MessageType: "vote_status",
 		Timestamp:   time.Now(),
@@ -62,6 +67,11 @@ func (c *Channel) StartVote(v *ActiveVote) error {
 func (c *Channel) StopVote() error {
 	if c.vote == nil {
 		return fmt.Errorf("No active vote for channel %d", c.ID)
+	}
+
+	if c.ID == 419_661_866 {
+		log.Printf("Skipping vote add for 419_661_866")
+		return nil
 	}
 
 	c.vote.StopUpdating()

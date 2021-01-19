@@ -15,7 +15,7 @@ defmodule BackendWeb.StreamChannel do
   end
 
   defp get_open_channel_vote(channel_id) do
-    ConCache.get_or_store(:vote_cache, channel_id, fn ->
+    ConCache.get_or_store(:vote_cache, "channel_#{channel_id}", fn ->
       Logger.info("get_open_channel_vote.store channel_id=#{channel_id}")
 
       %ConCache.Item{
@@ -82,7 +82,7 @@ defmodule BackendWeb.StreamChannel do
           v
 
         nil ->
-          ConCache.delete(:vote_cache, channel_id)
+          ConCache.delete(:vote_cache, "channel_#{channel_id}")
 
           v =
             %Backend.Stream.Vote{}
@@ -122,7 +122,7 @@ defmodule BackendWeb.StreamChannel do
 
     if !is_nil(vote) do
       Logger.info("vote.closed.channel=#{vote.channel_id}")
-      ConCache.delete(:vote_cache, channel_id)
+      ConCache.delete(:vote_cache, "channel_#{channel_id}")
 
       vote =
         vote
@@ -151,7 +151,7 @@ defmodule BackendWeb.StreamChannel do
         |> Repo.one()
 
       if is_nil(user_vote) do
-        ConCache.delete(:vote_cache, channel_id)
+        ConCache.delete(:vote_cache, "channel_#{channel_id}")
 
         Logger.info(
           "vote.user_vote.channel=#{vote.channel_id},user_id=#{user_id},ship_id=#{ship_id}"
