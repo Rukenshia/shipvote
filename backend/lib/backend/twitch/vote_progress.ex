@@ -11,7 +11,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def init(state) do
-    Logger.debug("VoteProgress: init")
+    Logger.info("VoteProgress: init")
     GenServer.cast(self(), :init)
     Process.send(self(), :work, [:noconnect])
     {:ok, state}
@@ -22,7 +22,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast(:init, state) do
-    Logger.debug("VoteProgress: handle init, loading all open votes")
+    Logger.info("VoteProgress: handle init, loading all open votes")
 
     Stream.get_open_votes()
     |> Enum.each(&GenServer.cast(self(), {:add_vote, &1.id}))
@@ -31,7 +31,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:add_vote, vote_id}, state) do
-    Logger.debug("VoteProgress: Adding vote #{vote_id}")
+    Logger.info("VoteProgress: Adding vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -47,7 +47,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:remove_vote, vote_id}, state) do
-    Logger.debug("VoteProgress: Removing vote #{vote_id}")
+    Logger.info("VoteProgress: Removing vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -70,7 +70,7 @@ defmodule Backend.Twitch.VoteProgress do
     end)
     |> Enum.each(&publish_vote_progress/1)
 
-    Logger.debug("Twitch.VoteProgress.handle_info.done")
+    Logger.info("Twitch.VoteProgress.handle_info.done")
 
     # Reschedule
     schedule()
@@ -79,7 +79,7 @@ defmodule Backend.Twitch.VoteProgress do
 
   defp publish_vote_progress(vote_id) do
     with vote = %Vote{channel_id: 27_995_184} <- Stream.get_cached_vote(vote_id) do
-      Logger.debug("VoteProgress.publish_vote_progress: publishing #{vote_id}")
+      Logger.info("VoteProgress.publish_vote_progress: publishing #{vote_id}")
 
       case Twitch.Api.broadcast_message(vote.channel_id, "vote_progress", %{
              id: vote.id,
