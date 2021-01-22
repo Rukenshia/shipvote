@@ -140,6 +140,7 @@ defmodule BackendWeb.VoteController do
 
         if status == "closed" do
           # SEND
+          Logger.info("Sending VoteProgress :remove_vote")
           GenServer.cast(VoteProgress, {:remove_vote, vote_id})
         end
 
