@@ -7,11 +7,11 @@ defmodule Backend.Twitch.VoteProgress do
   alias Backend.Twitch
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %{}, name: :vote_progress)
   end
 
   def init(state) do
-    Logger.info("VoteProgress: init")
+    Logger.info("Twitch.VoteProgress: init")
     GenServer.cast(self(), :init)
     Process.send(self(), :work, [:noconnect])
     {:ok, state}
@@ -22,7 +22,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast(:init, state) do
-    Logger.info("VoteProgress: handle init, loading all open votes")
+    Logger.info("Twitch.VoteProgress: handle init, loading all open votes")
 
     Stream.get_open_votes()
     |> Enum.each(&GenServer.cast(self(), {:add_vote, &1.id}))
@@ -31,7 +31,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:add_vote, vote_id}, state) do
-    Logger.info("VoteProgress: Adding vote #{vote_id}")
+    Logger.info("Twitch.VoteProgress: Adding vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -47,7 +47,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:remove_vote, vote_id}, state) do
-    Logger.info("VoteProgress: Removing vote #{vote_id}")
+    Logger.info("Twitch.VoteProgress: Removing vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -79,7 +79,7 @@ defmodule Backend.Twitch.VoteProgress do
 
   defp publish_vote_progress(vote_id) do
     with vote = %Vote{channel_id: 27_995_184} <- Stream.get_cached_vote(vote_id) do
-      Logger.info("VoteProgress.publish_vote_progress: publishing #{vote_id}")
+      Logger.info("Twitch.VoteProgress.publish_vote_progress: publishing #{vote_id}")
 
       case Twitch.Api.broadcast_message(vote.channel_id, "vote_progress", %{
              id: vote.id,
@@ -91,7 +91,9 @@ defmodule Backend.Twitch.VoteProgress do
            }) do
         {:error, e} ->
           Logger.warn(
-            "VoteProgress.publish_vote_progress: failed for vote_id=#{vote_id}: #{inspect(e)}"
+            "Twitch.VoteProgress.publish_vote_progress: failed for vote_id=#{vote_id}: #{
+              inspect(e)
+            }"
           )
 
         _ ->
@@ -99,7 +101,9 @@ defmodule Backend.Twitch.VoteProgress do
       end
     else
       _ ->
-        Logger.warn("VoteProgress.publish_vote_progress: unknown or unregistered vote #{vote_id}")
+        Logger.warn(
+          "Twitch.VoteProgress.publish_vote_progress: unknown or unregistered vote #{vote_id}"
+        )
     end
   end
 

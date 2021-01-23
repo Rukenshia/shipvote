@@ -112,7 +112,7 @@ defmodule BackendWeb.VoteController do
         ConCache.delete(:vote_cache, "index_status_#{channel_id}_closed")
         ConCache.delete(:vote_cache, "all_status_open")
         ConCache.delete(:vote_cache, "index_#{channel_id}")
-        GenServer.cast(VoteProgress, {:add_vote, vote.id})
+        GenServer.cast(:vote_progress, {:add_vote, vote.id})
         Appsignal.increment_counter("num_votes")
 
         conn
@@ -140,8 +140,7 @@ defmodule BackendWeb.VoteController do
 
         if status == "closed" do
           # SEND
-          Logger.info("Sending VoteProgress :remove_vote")
-          GenServer.cast(VoteProgress, {:remove_vote, vote_id})
+          GenServer.cast(:vote_progress, {:remove_vote, vote_id})
         end
 
         conn
