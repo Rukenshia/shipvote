@@ -55,7 +55,7 @@ defmodule Backend.Twitch.VoteProgress do
           {:ok, []}
 
         v ->
-          {:ok, Enum.filter(v, fn vote -> vote.id != vote_id end)}
+          {:ok, Enum.filter(v, fn vid -> vid != vote_id end)}
       end
     end)
 
@@ -83,6 +83,7 @@ defmodule Backend.Twitch.VoteProgress do
 
       case Twitch.Api.broadcast_message(vote.channel_id, "vote_progress", %{
              id: vote.id,
+             source: "backend",
              voted_ships:
                Enum.map(vote.votes, fn v -> v.ship_id end)
                |> Enum.reduce(%{}, fn x, acc ->
