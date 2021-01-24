@@ -50,6 +50,7 @@ defmodule Backend.Twitch.Api do
               timestamp: DateTime.utc_now(),
               data: message
             })
+            |> Base.encode64()
         }),
         headers(channel_id)
       )
