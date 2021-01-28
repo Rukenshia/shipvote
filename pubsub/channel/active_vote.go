@@ -23,7 +23,7 @@ func NewActiveVote(channel *Channel, voteID uint64) *ActiveVote {
 // StartUpdating starts a thread to send PubSub messages on the vote progress to twitch
 func (a *ActiveVote) StartUpdating() {
 	if a.Channel.ID == 27_995_184 {
-		log.Printf("Skipping vote add for 419_661_866")
+		log.Printf("Skipping vote add for 27_995_184")
 		return
 	}
 
@@ -57,6 +57,10 @@ func (a *ActiveVote) StartUpdating() {
 
 // StopUpdating stops updating the vote
 func (a *ActiveVote) StopUpdating() {
+	if a.Channel.ID == 27_995_184 {
+		log.Printf("Skipping vote stop for 27_995_184")
+		return
+	}
 	a.stop <- true
 }
 

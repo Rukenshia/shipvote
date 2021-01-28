@@ -64,11 +64,6 @@ func (c *Channel) StopVote() error {
 		return fmt.Errorf("No active vote for channel %d", c.ID)
 	}
 
-	if c.ID == 419_661_866 {
-		log.Printf("Skipping vote add for 419_661_866")
-		return nil
-	}
-
 	c.vote.StopUpdating()
 
 	br, err := NewChannel(c.ID).Broadcast(pubsub.Message{
