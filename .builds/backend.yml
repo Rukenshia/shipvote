@@ -1,7 +1,7 @@
 image: ubuntu/lts
 packages:
   - git
-  - postgresql
+  #- postgresql
   - jq
   - nodejs
   - awscli
@@ -32,15 +32,15 @@ tasks:
       fi
       set -e
   - setup: |
-      sudo apt install -yq npm
+      #sudo apt install -yq npm
 
-      erlang_version="22.2.6-1"
-      elixir_version="1.10.1-1"
+      #erlang_version="22.2.6-1"
+      #elixir_version="1.10.1-1"
 
-      wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
-      echo "deb https://packages.erlang-solutions.com/ubuntu focal contrib" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
-      sudo apt -q update
-      sudo apt -yq install erlang elixir
+      #wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
+      #echo "deb https://packages.erlang-solutions.com/ubuntu focal contrib" | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+      #sudo apt -q update
+      #sudo apt -yq install erlang elixir
 
       wget https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip
       unzip packer_1.4.1_linux_amd64.zip
@@ -49,17 +49,17 @@ tasks:
       sudo mv ./packer /usr/bin/packer
 
       sudo update-locale LANG=C.UTF-8
-      sudo service postgresql start
-      sudo su - postgres -c 'createdb shipvote'
-      sudo -u postgres psql -c "alter user postgres with password 'postgres';"
-  - test: |
-      cd shipvote/backend
+      #sudo service postgresql start
+      #sudo su - postgres -c 'createdb shipvote'
+      #sudo -u postgres psql -c "alter user postgres with password 'postgres';"
+  #- test: |
+      #cd shipvote/backend
  
-      mix local.hex --force
-      mix local.rebar --force
-      mix deps.get
-      mix deps.compile appsignal --include-children
-      mix test --cover
+      #mix local.hex --force
+      #mix local.rebar --force
+      #mix deps.get
+      #mix deps.compile appsignal --include-children
+      #mix test --cover
   - prepare-packer: |
       cd shipvote/backend
       mv ~/.prod.secret.exs config/prod.secret.exs
