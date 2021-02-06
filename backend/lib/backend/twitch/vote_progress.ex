@@ -31,7 +31,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:add_vote, vote_id}, state) do
-    Logger.info("Twitch.VoteProgress: Adding vote #{vote_id}")
+    Logger.warn("Twitch.VoteProgress: Adding vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -47,7 +47,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:remove_vote, vote_id}, state) do
-    Logger.info("Twitch.VoteProgress: Removing vote #{vote_id}")
+    Logger.warn("Twitch.VoteProgress: Removing vote #{vote_id}")
 
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
@@ -78,7 +78,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   defp publish_vote_progress(vote_id) do
-    with vote = %Vote{} <- Stream.get_cached_vote(vote_id) do
+    with vote = %Vote{status: "open"} <- Stream.get_cached_vote(vote_id) do
       Logger.info("Twitch.VoteProgress.publish_vote_progress: publishing #{vote_id}")
 
       case Twitch.Api.broadcast_message(vote.channel_id, "vote_progress", %{
@@ -101,6 +101,10 @@ defmodule Backend.Twitch.VoteProgress do
           nil
       end
     else
+      %Vote{status: "closed"} ->
+        Logger.warn("Twitch.VoteProgress.publish_vote_progress: removing closed vote #{vote_id}")
+        GenServer.cast(self(), {:remove_vote, vote_id})
+
       _ ->
         Logger.warn(
           "Twitch.VoteProgress.publish_vote_progress: unknown or unregistered vote #{vote_id}"
