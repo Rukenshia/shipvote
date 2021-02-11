@@ -139,7 +139,6 @@ defmodule BackendWeb.VoteController do
         ConCache.delete(:vote_cache, "index_#{channel_id}")
 
         if status == "closed" do
-          # SEND
           GenServer.cast(:vote_progress, {:remove_vote, vote.id})
         end
 

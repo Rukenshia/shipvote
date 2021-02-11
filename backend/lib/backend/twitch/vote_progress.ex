@@ -36,6 +36,7 @@ defmodule Backend.Twitch.VoteProgress do
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
+          publish_vote_status(vote_id)
           {:ok, [vote_id]}
 
         v ->
@@ -52,6 +53,7 @@ defmodule Backend.Twitch.VoteProgress do
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
+          publish_vote_status(vote_id)
           {:ok, []}
 
         v ->
@@ -75,6 +77,29 @@ defmodule Backend.Twitch.VoteProgress do
     # Reschedule
     schedule()
     {:noreply, state}
+  end
+
+  defp publish_vote_status(vote_id) do
+    with vote = %Vote{} <- Stream.get_cached_vote(vote_id) do
+      case Twitch.Api.broadcast_message(vote.channel_id, "vote_status", %{
+             id: vote.id,
+             source: "backend",
+             status: vote.status
+           }) do
+        {:error, e} ->
+          Logger.warn(
+            "Twitch.VoteProgress.publish_vote_status: failed for vote_id=#{vote_id}: #{inspect(e)}"
+          )
+
+        _ ->
+          nil
+      end
+    else
+      _ ->
+        Logger.warn(
+          "Twitch.VoteProgress.publish_vote_status: unknown or unregistered vote #{vote_id}"
+        )
+    end
   end
 
   defp publish_vote_progress(vote_id) do
