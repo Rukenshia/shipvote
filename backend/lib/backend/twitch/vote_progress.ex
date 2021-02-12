@@ -92,7 +92,7 @@ defmodule Backend.Twitch.VoteProgress do
           )
 
         _ ->
-          nil
+          Logger.warn("Twitch.VoteProgress.publish_vote_status: sent for vote_id=#{vote_id}")
       end
     else
       _ ->
