@@ -4,7 +4,7 @@ defmodule Backend.Mixfile do
   def project do
     [
       app: :backend,
-      version: "0.0.2",
+      version: "0.1.0",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -62,7 +62,7 @@ defmodule Backend.Mixfile do
       {:mock, "~> 0.3", only: :test},
       {:distillery, "~> 2.1"},
       {:telemetry_poller, "~> 0.4"},
-      {:telemetry_metrics, "~> 0.4"},
+      {:telemetry_metrics, "~> 0.4"}
     ]
   end
 
