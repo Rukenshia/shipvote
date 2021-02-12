@@ -7,6 +7,8 @@ This README serves as a technical overview.
 
 ## Architecture
 
+TODO: update to remove pubsub
+
 ### Application Monitoring
 
 The monitoring for this application is sponsored by [AppSignal](https://appsignal.com). Feel free
