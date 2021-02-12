@@ -33,10 +33,10 @@ defmodule Backend.Twitch.VoteProgress do
   def handle_cast({:add_vote, vote_id}, state) do
     Logger.warn("Twitch.VoteProgress: Adding vote #{vote_id}")
 
+    publish_vote_status(vote_id)
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
-          publish_vote_status(vote_id)
           {:ok, [vote_id]}
 
         v ->
@@ -50,10 +50,10 @@ defmodule Backend.Twitch.VoteProgress do
   def handle_cast({:remove_vote, vote_id}, state) do
     Logger.warn("Twitch.VoteProgress: Removing vote #{vote_id}")
 
+    publish_vote_status(vote_id)
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
-          publish_vote_status(vote_id)
           {:ok, []}
 
         v ->
