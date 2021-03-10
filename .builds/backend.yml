@@ -15,7 +15,7 @@ secrets:
   - 1ae5be86-eab3-49fd-be80-3aebd4e33db4
   - 0ea9acdb-4117-4068-bc2c-107bdba5c026
   - 9608b36c-e6e0-4a60-8c78-ff89e5d201fa
-  - ea505052-248b-48e9-8185-82519aa7fa01
+  - 8abf59ad-3238-4ae1-a69f-23ea895001db
   - 1832b31e-e954-415c-b49d-5e0421875440
 environment:
   MIX_ENV: test
