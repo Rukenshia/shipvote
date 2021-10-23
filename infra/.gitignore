@@ -1,3 +1,4 @@
 certs
 backend.tar.gz
 manifest.json
+appsignal-agent.conf
