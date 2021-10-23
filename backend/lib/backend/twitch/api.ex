@@ -16,7 +16,7 @@ defmodule Backend.Twitch.Api do
         user_id: "#{channel_id}",
         role: "external",
         pubsub_perms: %{
-          send: ["*"]
+          send: ["broadcast"]
         }
       }
       |> Joken.token()
@@ -40,10 +40,10 @@ defmodule Backend.Twitch.Api do
   def broadcast_message(channel_id, message_type, message) do
     response =
       HTTPoison.post!(
-        "https://api.twitch.tv/extensions/message/#{channel_id}",
+        "https://api.twitch.tv/helix/extensions/pubsub",
         Jason.encode!(%{
-          content_type: "application/json",
-          targets: ["broadcast"],
+          broadcaster_id: channel_id,
+          target: ["broadcast"],
           message:
             Jason.encode!(%{
               type: message_type,

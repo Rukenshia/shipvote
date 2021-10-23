@@ -19,9 +19,25 @@ rm -rf /opt/bitnami/postgresql/conf
 unlink /opt/bitnami/postgresql/data
 
 # create backup
-cp -r /database/postgres /database/backup/$(date +"%Y-%m-%d")-postgres
+cp -r /database/postgres "/database/backup/$(date +"%Y-%m-%d")-postgres"
 
 ln -s /database/postgres/conf /opt/bitnami/postgresql/conf
 ln -s /database/postgres/data /opt/bitnami/postgresql/data
 
 systemctl start bitnami
+
+aws route53 change-resource-record-sets --hosted-zone-id ZWS4BIQ7CAA38 \
+    --change-batch '{"Changes": [{"Action": "UPSERT", "ResourceRecordSet": { "Name": "db.shipvote.in.fkn.space", "Type": "A", "TTL": 1, "ResourceRecords": [{"Value": "'"$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"'"}]}}]}'
+
+# install appsignal agent
+curl -L https://packagecloud.io/appsignal/agent/gpgkey | apt-key add -
+
+cat <<EOF > /etc/apt/sources.list.d/appsignal_agent.list
+deb https://packagecloud.io/appsignal/agent/ubuntu/ focal main
+deb-src https://packagecloud.io/appsignal/agent/ubuntu/ focal main
+EOF
+
+apt-get update && apt-get install --yes appsignal-agent
+
+aws --region eu-central-1 s3 cp s3://shipvote.artifacts/appsignal-agent.conf /etc/appsignal-agent.conf
+systemctl restart appsignal-agent
