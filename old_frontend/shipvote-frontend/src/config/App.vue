@@ -5,9 +5,8 @@
         <mdc-card-text style="padding-left: 16px; padding-bottom: 8px">
           <mdc-body>
             Learn how to use this extension
-            <a
-              href="https://shipvote.in.fkn.space/getting-started"
-            >here</a> (please Ctrl+Click this link).
+            <a href="https://shipvote.in.fkn.space/getting-started">here</a>
+            (please Ctrl+Click this link).
           </mdc-body>
         </mdc-card-text>
       </mdc-card>
@@ -22,9 +21,10 @@
 
       <mdc-layout-grid v-if="loadingError">
         <mdc-layout-cell :span="4">
-          <mdc-body
-            typo="body1"
-          >Configuration could not be loaded. Please contact rukenshia for support.</mdc-body>
+          <mdc-body typo="body1"
+            >Configuration could not be loaded. Please contact rukenshia for
+            support.</mdc-body
+          >
         </mdc-layout-cell>
       </mdc-layout-grid>
 
@@ -55,24 +55,31 @@
               </mdc-select>
             </mdc-layout-cell>
             <mdc-layout-cell :span="12" v-if="configured">
-              <mdc-button raised @click="updateInfo" :disabled="saving">Save</mdc-button>
-              <mdc-button outlined @click="updateInfo" :disabled="saving">Refresh ships</mdc-button>
-              <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
+              <mdc-button raised @click="updateInfo" :disabled="saving"
+                >Save</mdc-button
+              >
+              <mdc-button outlined @click="updateInfo" :disabled="saving"
+                >Refresh ships</mdc-button
+              >
+              <mdc-body v-if="error">An error occured: {{ error }}</mdc-body>
             </mdc-layout-cell>
             <mdc-layout-cell :span="12" v-if="!configured">
               <mdc-button
                 raised
                 @click="createInfo"
                 :disabled="config.wows_username === '' || saving"
-              >Setup</mdc-button>
-              <mdc-body v-if="error">An error occured: {{error}}</mdc-body>
+                >Setup</mdc-button
+              >
+              <mdc-body v-if="error">An error occured: {{ error }}</mdc-body>
             </mdc-layout-cell>
           </mdc-layout-grid>
 
           <template v-if="configured">
             <mdc-body typo="body1">
-              You currently own {{config.ships.length}} ships. {{enabledShips.length}} ships are currently enabled.
-              Please reload your live dashboard after enabling/disabling ships to apply them to your next vote.
+              You currently own {{ config.ships.length }} ships.
+              {{ enabledShips.length }} ships are currently enabled. Please
+              reload your live dashboard after enabling/disabling ships to apply
+              them to your next vote.
             </mdc-body>
 
             <mdc-list two-line bordered>
@@ -83,17 +90,20 @@
                   width="56"
                   height="auto"
                   :alt="`Image of ${ship.name}`"
-                >
+                />
                 <span>
-                  <strong>{{ship.name}}</strong>
+                  <strong>{{ ship.name }}</strong>
                 </span>
-                <span slot="secondary">Tier: {{ship.tier}}, Nation: {{ship.nation}}</span>
+                <span slot="secondary"
+                  >Tier: {{ ship.tier }}, Nation: {{ ship.nation }}</span
+                >
 
                 <mdc-button
                   slot="end-detail"
                   @click="toggleShip(ship)"
                   :raised="!ship.enabled"
-                >{{ship.enabled ? 'disable' : 'enable'}}</mdc-button>
+                  >{{ ship.enabled ? 'disable' : 'enable' }}</mdc-button
+                >
               </mdc-list-item>
             </mdc-list>
           </template>
@@ -105,7 +115,7 @@
 
 <script>
 import { BASE_URL } from '../shipvote';
-import Appsignal from "../shared/appsignal";
+import Appsignal from '../shared/appsignal';
 
 const { get, post, put } = window.axios;
 
@@ -120,36 +130,36 @@ window.App = {
       error: undefined,
       validations: {
         username: true,
-        realm: true
+        realm: true,
       },
 
       configured: false,
       token: '',
       theme: 'light',
-      config: {}
+      config: {},
     };
   },
   created() {
-    window.Twitch.ext.onContext(ctx => {
+    window.Twitch.ext.onContext((ctx) => {
       this.theme = ctx.theme;
     });
 
-    window.Twitch.ext.onAuthorized(data => {
+    window.Twitch.ext.onAuthorized((data) => {
       this.config.id = data.channelId;
       this.token = data.token;
 
       get(`${BASE_URL}/api/settings/channels/${data.channelId}`, {
         headers: {
-          authorization: `Bearer ${data.token}`
-        }
+          authorization: `Bearer ${data.token}`,
+        },
       })
-        .then(res => {
+        .then((res) => {
           this.loading = false;
           this.configured = true;
 
           this.config = res.data['data'];
         })
-        .catch(e => {
+        .catch((e) => {
           if (e.response.status === 404) {
             this.loading = false;
             this.config = {
@@ -175,20 +185,20 @@ window.App = {
       put(
         `${BASE_URL}/api/settings/channels/${this.config.id}`,
         {
-          channel: this.config
+          channel: this.config,
         },
         {
           headers: {
-            authorization: `Bearer ${this.token}`
-          }
+            authorization: `Bearer ${this.token}`,
+          },
         }
       )
-        .then(res => {
+        .then((res) => {
           this.loading = false;
 
           this.config = res.data['data'];
         })
-        .catch(res => {
+        .catch((res) => {
           this.error = 'could not save information';
 
           if (res.response.status === 404) {
@@ -209,16 +219,16 @@ window.App = {
 
       post(`${BASE_URL}/api/settings/channels`, this.config, {
         headers: {
-          authorization: `Bearer ${this.token}`
-        }
+          authorization: `Bearer ${this.token}`,
+        },
       })
-        .then(res => {
+        .then((res) => {
           this.loading = false;
 
           this.config = res.data['data'];
           this.configured = true;
         })
-        .catch(res => {
+        .catch((res) => {
           this.error = 'could not save information';
 
           if (res.response.status === 404) {
@@ -237,34 +247,32 @@ window.App = {
       this.error = undefined;
 
       put(
-        `${BASE_URL}/api/settings/channels/${this.config.id}/ships/${
-          ship.id
-        }/enabled`,
+        `${BASE_URL}/api/settings/channels/${this.config.id}/ships/${ship.id}/enabled`,
         { enabled: newState },
         {
           headers: {
-            authorization: `Bearer ${this.token}`
-          }
+            authorization: `Bearer ${this.token}`,
+          },
         }
       )
         .then(() => {
           ship.enabled = newState;
         })
-        .catch(res => {
+        .catch((res) => {
           this.error = 'could not write ship information';
         });
-    }
+    },
   },
   computed: {
     enabledShips() {
-      return this.config.ships.filter(s => s.enabled === true);
-    }
-  }
+      return this.config.ships.filter((s) => s.enabled === true);
+    },
+  },
 };
 export default window.App;
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 @import '../darkmode';
 @import '../typography';
 @import '../card';
