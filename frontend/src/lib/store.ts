@@ -1,6 +1,6 @@
 import { derived, get, readable, writable } from 'svelte/store';
 import { ShipvoteApi } from './api';
-import type { Ship } from './api';
+import type { Channel } from './api';
 
 export const channelId = writable(null);
 
@@ -10,17 +10,26 @@ export const api = readable(null, (set) => {
 
     const token = data.token;
 
-    set(
-      new ShipvoteApi('https://shipvote.in.fkn.space', token, get(channelId))
-    );
+    set(new ShipvoteApi('http://localhost:4000', token, get(channelId)));
   });
   return null;
 });
 
-export const warships = derived(api, ($api: ShipvoteApi) => {
+export const warships = derived(api, async ($api: ShipvoteApi) => {
   if (!$api) {
     return new Promise(() => {});
   }
 
-  return $api.getAllWarships().then((ships: Ship[]) => ships.reduce((acc, ship) => ({ ...acc, [ship.id]: ship}), {}));
+  const ships = await $api.getAllWarships();
+
+  // Turn list into map of [id: string]: ship
+  return ships.reduce((acc, ship) => ({ ...acc, [ship.id]: ship }), {});
+});
+
+export const channel = derived(api, ($api: ShipvoteApi): Promise<Channel> => {
+  if (!$api) {
+    return new Promise(() => {});
+  }
+
+  return $api.broadcasterGetChannel();
 });

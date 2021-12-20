@@ -1,32 +1,39 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
 
-	import '../../twitch';
-	import VoteStatus from '$lib/components/VoteStatus.svelte';
-	import Box from '$lib/components/Box.svelte';
+  import '../../twitch';
+  import VoteStatus from '$lib/components/VoteStatus.svelte';
+  import Link from '$lib/components/Link.svelte';
+  import { channel } from '$lib/store';
+  import Box from '$lib/components/Box.svelte';
 
-	onMount(() => {
-		window.Twitch.ext.listen(
-			'broadcast',
-			(_target: string, contentType: string, message: string) => {
-				if (contentType !== 'application/json') {
-					return;
-				}
+  onMount(() => {
+    window.Twitch.ext.listen(
+      'broadcast',
+      (_target: string, contentType: string, message: string) => {
+        if (contentType !== 'application/json') {
+          return;
+        }
 
-				const data = JSON.parse(atob(message));
-				handlePubSubMessage(data);
-			}
-		);
-	});
+        const data = JSON.parse(atob(message));
+        handlePubSubMessage(data);
+      }
+    );
+  });
 
-	function handlePubSubMessage(data: object) {
-		console.log(data);
-	}
+  function handlePubSubMessage(data: object) {
+    console.log(data);
+  }
 </script>
 
 <div class="flex flex-col gap-4">
-	<VoteStatus />
-	<Box>
-		<h1>Configure Vote</h1>
-	</Box>
+  <VoteStatus />
+  <Link>Configure Vote</Link>
+  <Box>
+    <h2 class="text-lg">Channel Information</h2>
+
+    <ul>
+      <li># of ships: {#await $channel}loading{:then channel}{channel.ships.length}{/await}</li>
+    </ul>
+  </Box>
 </div>
