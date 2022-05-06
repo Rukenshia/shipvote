@@ -3,19 +3,15 @@ import preprocess from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://github.com/sveltejs/svelte-preprocess
-	// for more information about preprocessors
-	preprocess: preprocess(),
+  // Consult https://github.com/sveltejs/svelte-preprocess
+  // for more information about preprocessors
+  preprocess: preprocess(),
 
-	kit: {
-		ssr: false,
-		adapter: adapter({
-			fallback: '404.html',
-		}),
-
-		// hydrate the <div id="svelte"> element in src/app.html
-		target: '#svelte'
-	}
+  kit: {
+    adapter: adapter({
+      fallback: '404.html'
+    })
+  }
 };
 
 export default config;

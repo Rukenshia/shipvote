@@ -50,7 +50,7 @@
         <img alt="ship" class="h-10 w-16" src={ship.image} />
         <span class="text-lg font-medium text-gray-400">{rank + 1}.</span>
         <span class="flex-grow text-lg">{ship.name}</span>
-        <span>{ship.votes}</span>
+        <span class="pr-4 font-medium">{ship.votes}</span>
       </li>
     {/each}
   {/await}

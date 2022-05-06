@@ -1,5 +1,24 @@
+<script lang="ts">
+  import { goto } from '$app/navigation';
+
+  export let href: string;
+  export let classes: string;
+  export let disabledClasses: string = '';
+  export let disabled: boolean = false;
+
+  async function navigate() {
+    await goto(href);
+  }
+</script>
+
 <button
-  class="text-gray-100 bg-gray-800 overflow-hidden drop-shadow-xl rounded-lg px-4 py-5 sm:p-6 hover:cursor-pointer hover:bg-gray-700 transition"
+  on:click={navigate}
+  class="text-gray-100 bg-gray-800 overflow-hidden drop-shadow-xl rounded-lg px-4 py-5 sm:p-6 transition {disabled
+    ? disabledClasses
+    : classes}"
+  class:hover:cursor-pointer={!disabled}
+  class:hover:bg-gray-700={!disabled}
+  {disabled}
 >
   <div class="flex space-around items-center gap-4">
     <slot />

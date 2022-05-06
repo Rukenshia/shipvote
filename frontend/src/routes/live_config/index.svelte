@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import '../../twitch';
   import VoteStatus from '$lib/components/VoteStatus.svelte';
+  import VoteHistory from '$lib/components/VoteHistory.svelte';
   import Link from '$lib/components/Link.svelte';
-  import { channel } from '$lib/store';
+  import { api } from '$lib/store';
   import Box from '$lib/components/Box.svelte';
+  import type { Vote } from '$lib/api';
+  import { derived, Readable, Writable, writable } from 'svelte/store';
 
   onMount(() => {
     window.Twitch.ext.listen(
@@ -21,19 +23,29 @@
     );
   });
 
+  const closedVotes: Writable<Promise<Vote[]>> = writable(new Promise(() => {}));
+  const vote: Writable<Promise<Vote>> = writable(new Promise(() => {}));
+
+  const isVoteOpen: Readable<boolean> = derived(vote, ($vote: Promise<Vote>, setter) => {
+    $vote.then((v) => setter(v !== undefined));
+  });
+
+  $: if ($api) {
+    $closedVotes = $api.getClosedVotes();
+    $vote = $api.getOpenVote();
+  }
+
   function handlePubSubMessage(data: object) {
     console.log(data);
   }
 </script>
 
 <div class="flex flex-col gap-4">
+  <Link href="/live_config/new_vote" classes="bg-cyan-900 hover:bg-cyan-800" disabled={$isVoteOpen}
+    >New Vote</Link
+  >
   <VoteStatus />
-  <Link>Configure Vote</Link>
   <Box>
-    <h2 class="text-lg">Channel Information</h2>
-
-    <ul>
-      <li># of ships: {#await $channel}loading{:then channel}{channel.ships.length}{/await}</li>
-    </ul>
+    <VoteHistory votes={$closedVotes} />
   </Box>
 </div>
