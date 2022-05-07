@@ -23,7 +23,7 @@ backup_dir="/tmp/$(date +"%Y-%m-%d")-postgres"
 tar -czf "${backup_dir}.tar.gz" "${backup_dir}"
 
 # store backup on s3
-aws s3 cp "${backup_dir}.tar.gz" s3://shipvote-backups/
+aws --region eu-central-1 s3 cp "${backup_dir}.tar.gz" s3://shipvote-backups/
 rm "${backup_dir}.tar.gz"
 
 ln -s /database/postgres/conf /opt/bitnami/postgresql/conf
