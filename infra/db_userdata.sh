@@ -19,7 +19,12 @@ rm -rf /opt/bitnami/postgresql/conf
 unlink /opt/bitnami/postgresql/data
 
 # create backup
-cp -r /database/postgres "/database/backup/$(date +"%Y-%m-%d")-postgres"
+backup_dir="/tmp/$(date +"%Y-%m-%d")-postgres"
+tar -czf "${backup_dir}.tar.gz" "${backup_dir}"
+
+# store backup on s3
+aws s3 cp "${backup_dir}.tar.gz" s3://shipvote-backups/
+rm "${backup_dir}.tar.gz"
 
 ln -s /database/postgres/conf /opt/bitnami/postgresql/conf
 ln -s /database/postgres/data /opt/bitnami/postgresql/data
