@@ -72,7 +72,7 @@ export class ShipvoteApi {
   async getOpenVote(): Promise<Vote> {
     return axios
       .get(this.buildUrl('/votes?status=open'), { headers: this.headers() })
-      .then((res: AxiosResponse) => res.data.data[0]);
+      .then((res: AxiosResponse) => (res.data.data.length > 0 ? res.data.data[0] : undefined));
   }
 
   async getClosedVotes(): Promise<Vote[]> {

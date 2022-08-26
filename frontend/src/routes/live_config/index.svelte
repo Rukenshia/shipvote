@@ -4,7 +4,7 @@
   import VoteStatus from '$lib/components/VoteStatus.svelte';
   import VoteHistory from '$lib/components/VoteHistory.svelte';
   import Link from '$lib/components/Link.svelte';
-  import { api } from '$lib/store';
+  import { api, vote } from '$lib/store';
   import Box from '$lib/components/Box.svelte';
   import type { Vote } from '$lib/api';
   import { derived, Readable, Writable, writable } from 'svelte/store';
@@ -24,7 +24,6 @@
   });
 
   const closedVotes: Writable<Promise<Vote[]>> = writable(new Promise(() => {}));
-  const vote: Writable<Promise<Vote>> = writable(new Promise(() => {}));
 
   const isVoteOpen: Readable<boolean> = derived(vote, ($vote: Promise<Vote>, setter) => {
     $vote.then((v) => setter(v !== undefined));
@@ -32,7 +31,6 @@
 
   $: if ($api) {
     $closedVotes = $api.getClosedVotes();
-    $vote = $api.getOpenVote();
   }
 
   function handlePubSubMessage(data: object) {

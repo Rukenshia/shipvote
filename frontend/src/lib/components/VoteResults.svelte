@@ -39,7 +39,7 @@
         class="bg-gray-700 hover:bg-gray-600 transition
 			drop-shadow-md rounded my-2 p-2 flex justify-around items-center gap-4"
       >
-        <div class="h-10 text-center flex items-center">No votes</div>
+        <div class="h-10 text-center flex items-center">No voted ships</div>
       </li>
     {/if}
     {#each ships as ship, rank}

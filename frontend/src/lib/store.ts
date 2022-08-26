@@ -1,8 +1,9 @@
-import { derived, get, readable, writable } from 'svelte/store';
-import { ShipvoteApi } from './api';
+import { derived, get, readable, Writable, writable } from 'svelte/store';
+import { ShipvoteApi, Vote } from './api';
 import type { Channel } from './api';
 
 export const channelId = writable(null);
+export const vote: Writable<Promise<Vote>> = writable(new Promise(() => {}));
 
 export const api = readable(null, (set) => {
   window.Twitch.ext.onAuthorized((data: { channelId: any; token: any }) => {
@@ -10,7 +11,10 @@ export const api = readable(null, (set) => {
 
     const token = data.token;
 
-    set(new ShipvoteApi('http://localhost:4000', token, get(channelId)));
+    const api = new ShipvoteApi('http://localhost:4000', token, get(channelId));
+    set(api);
+
+    vote.set(api.getOpenVote());
   });
   return null;
 });

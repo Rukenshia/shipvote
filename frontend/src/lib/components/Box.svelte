@@ -1,5 +1,6 @@
 <script lang="ts">
   export let hover = false;
+  export let title = undefined;
 </script>
 
 <div
@@ -8,5 +9,11 @@
   class:transition={hover}
   class:hover:cursor-pointer={hover}
 >
+  {#if title}
+    <slot name="title">
+      <h2 class="text-gray-200 text-xl font-medium mb-4">{title}</h2>
+    </slot>
+  {/if}
+
   <slot />
 </div>

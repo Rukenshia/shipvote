@@ -1,42 +1,18 @@
 <script lang="ts">
-  import { api } from '$lib/store';
+  import { api, vote } from '$lib/store';
 
-  import { derived, Writable, writable } from 'svelte/store';
+  import { derived } from 'svelte/store';
 
   import type { Vote } from '$lib/api';
   import VoteResults from './VoteResults.svelte';
   import Box from './Box.svelte';
 
-  let currentVote: Writable<Promise<Vote>> = writable(null);
-  let mostRecentVote: Writable<Promise<Vote>> = writable(null);
-
-  function loadCurrentVote() {
-    $currentVote = $api.getOpenVote();
-  }
-
-  $: if ($api) {
-    loadCurrentVote();
-    $mostRecentVote = $api
-      .getClosedVotes()
-      .then((votes: Vote[]) => (votes.length > 0 ? votes[0] : null));
-  }
-
-  const votes = derived([currentVote, mostRecentVote], async ([$currentVote, $mostRecentVote]) => {
-    let current = await $currentVote;
-    let mostRecent = await $mostRecentVote;
-
-    if (current) {
-      return current.votes;
-    } else if (mostRecent) {
-      return mostRecent.votes;
-    }
-    return { votes: [] };
-  });
+  let currentVote = derived(vote, ($vote: Promise<Vote>) => $vote);
 
   async function closeVote() {
     await $api.closeVote((await $currentVote).id);
 
-    loadCurrentVote();
+    $vote = $api.getOpenVote();
   }
 </script>
 
@@ -59,36 +35,28 @@
     </span>
 
     {#await $currentVote then vote}
-      <div class="flex justify-around">
-        <button
-          on:click={() => closeVote()}
-          class="px-8 py-4 rounded-md active:bg-cyan-600 active:ring-2 active:ring-cyan-400 transition font-medium"
-          class:text-gray-800={vote !== undefined}
-          class:text-gray-200={vote === undefined}
-          class:bg-gray-700={vote === undefined}
-          class:bg-cyan-500={vote !== undefined}
-          class:hover:bg-cyan-400={vote !== undefined}
-          disabled={vote === undefined}>End vote ({vote ? vote.id : 'n/a'})</button
-        >
-      </div>
+      {#if vote && vote.status === 'open'}
+        <div class="flex justify-around">
+          <button
+            on:click={() => closeVote()}
+            class="px-8 py-4 rounded-md active:bg-cyan-600 active:ring-2 active:ring-cyan-400 transition font-medium"
+            class:text-gray-800={vote !== undefined}
+            class:text-gray-200={vote === undefined}
+            class:bg-gray-700={vote === undefined}
+            class:bg-cyan-500={vote !== undefined}
+            class:hover:bg-cyan-400={vote !== undefined}
+            disabled={vote === undefined}>Close vote</button
+          >
+        </div>
+      {/if}
     {/await}
 
     <div>
-      <VoteResults votes={$votes}>
-        <h2 slot="title">
-          {#await $currentVote}
-            Results
-          {:then vote}
-            {#if vote}
-              Results
-            {:else}
-              Previous Results
-            {/if}
-          {:catch}
-            error
-          {/await}
-        </h2>
-      </VoteResults>
+      {#await $currentVote then vote}
+        {#if vote && vote.status === 'open'}
+          <VoteResults votes={$currentVote.then((vote) => vote.votes)} />
+        {/if}
+      {/await}
     </div>
   </Box>
 </main>

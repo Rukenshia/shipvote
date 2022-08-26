@@ -7,7 +7,7 @@ declare global {
 }
 
 if (dev) {
-  const token = '';
+  const token = 'aFakeToken';
 
   const authHandlers = [];
   const listeners = new Map();
