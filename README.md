@@ -7,8 +7,6 @@ This README serves as a technical overview.
 
 ## Architecture
 
-TODO: update to remove pubsub
-
 ### Application Monitoring
 
 The monitoring for this application is sponsored by [AppSignal](https://appsignal.com). Feel free
@@ -23,6 +21,16 @@ to give it a try, it's been really helpful for performance insights and finding 
 `shipvote-web` is the main Elixir(+Phoenix) application containing all logic for
 handling the votes. It verifies the JWT received from twitch and also accesses the
 Wargaming APIs.
+
+The twitch PubSub API is used to continuously send progress updates of currently open votes
+to channels. This is done to reduce load on the server since no requests need to be made directly
+to the `shipvote-web` server.
+
+To further increase stability and scalability, a future improvement might be removing all API
+calls directly to `shipvote-web` for viewers. Right now, a request is made to retrieve basic
+information about a twitch channel and their WoWS info, meaning that if the extension is enabled
+suddenly or there is a influx of requests because a vote was opened, the server is under heavy
+load and might not be able to keep up.
 
 ### `shipvote-api`
 
@@ -63,4 +71,3 @@ This section describes interactions with the `backend` and third party APIs.
 #### Twitch Video Overlay
 
 ![Twitch Video Overlay Sequence Diagram](docs/video_overlay.svg)
-
