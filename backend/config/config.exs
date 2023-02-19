@@ -17,6 +17,8 @@ config :phoenix, :template_engines,
   eex: Appsignal.Phoenix.Template.EExEngine,
   exs: Appsignal.Phoenix.Template.ExsEngine
 
+config :backend, Backend.VoteProgress, enabled: true
+
 # General application configuration
 config :backend,
   ecto_repos: [Backend.Repo]

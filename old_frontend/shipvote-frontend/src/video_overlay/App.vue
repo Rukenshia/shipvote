@@ -1,6 +1,11 @@
 <template>
   <div :class="theme">
-    <VoteProgress v-if="voting" :ships="ships" :voting="voting" :totalVotes="totalVotes" />
+    <VoteProgress
+      v-if="voting"
+      :ships="ships"
+      :voting="voting"
+      :totalVotes="totalVotes"
+    />
     <div class="selection" v-bind:data-active="selecting">
       <ShipSelection
         @vote="voteForShip"
@@ -27,21 +32,21 @@
 </template>
 
 <script>
-import { Socket } from "phoenix";
-import { BASE_WS_URL, BASE_URL, ShipvoteApi } from "../shipvote";
-import ShipSelection from "./ShipSelection";
-import VoteProgress from "./VoteProgress";
-import Appsignal from "../shared/appsignal";
+import { Socket } from 'phoenix';
+import { BASE_WS_URL, BASE_URL, ShipvoteApi } from '../shipvote';
+import ShipSelection from './ShipSelection';
+import VoteProgress from './VoteProgress';
+import Appsignal from '../shared/appsignal';
 
 const get = window.axios.get;
 
 window.App = {
-  name: "app",
+  name: 'app',
   components: { ShipSelection, VoteProgress },
   data() {
     return {
       channel: undefined,
-      theme: "light",
+      theme: 'light',
       api: undefined,
 
       // Flag to only do API calls when the game is set
@@ -70,39 +75,41 @@ window.App = {
       totalVotes: 0,
 
       // Ships available to vote
-      ships: []
+      ships: [],
     };
   },
   created() {
     window.Twitch.ext.onContext((data, changed) => {
-      if (changed.includes("theme")) {
+      if (changed.includes('theme')) {
         this.theme = data.theme;
       }
 
-      this.gameIsWows = data.game === "World of Warships" || data.game === "";
+      this.gameIsWows = data.game === 'World of Warships' || data.game === '';
 
-      if (changed.includes("displayResolution")) {
+      if (changed.includes('displayResolution')) {
         this.maxHeight =
           parseInt(
-            data["displayResolution"].slice(
-              data["displayResolution"].indexOf("x") + 1
+            data['displayResolution'].slice(
+              data['displayResolution'].indexOf('x') + 1
             ),
             10
           ) - 160;
       }
     });
-    window.Twitch.ext.onAuthorized(authData => {
+    window.Twitch.ext.onAuthorized((authData) => {
+      console.log('onAuth');
       this.api = new ShipvoteApi(BASE_URL, authData.token, authData.channelId);
 
       this.api
         .getChannelInfo()
-        .then(info => {
+        .then((info) => {
           this.channel = info;
+          console.log(info);
 
           window.Twitch.ext.listen(
-            "broadcast",
+            'broadcast',
             (target, contentType, message) => {
-              if (contentType !== "application/json") {
+              if (contentType !== 'application/json') {
                 return;
               }
 
@@ -112,7 +119,7 @@ window.App = {
             }
           );
         })
-        .catch(err => {
+        .catch((err) => {
           Appsignal.sendError(err);
           console.error(err);
         });
@@ -121,25 +128,26 @@ window.App = {
   methods: {
     handlePubSubMessage(message) {
       switch (message.type) {
-        case "vote_progress":
+        case 'vote_progress':
           this.handleVoteProgressMessage(message.data);
           break;
-        case "vote_status":
+        case 'vote_status':
           this.handleVoteStatusMessage(message.data);
           break;
       }
     },
     handleVoteStatusMessage(data) {
-      if (data.status == "open") {
+      if (data.status == 'open') {
         if (this.vote && this.vote.id == data.id) {
           // The API might have restarted and sent a duplicate event
           return;
         }
 
         // Vote started before listening to messages, grab the vote
+        console.log('handling vote status');
         this.api
           .getVote(data.id)
-          .then(vote => {
+          .then((vote) => {
             this.voteStarted = true;
             setTimeout(() => {
               this.voteStarted = false;
@@ -148,12 +156,16 @@ window.App = {
             this.voted = false;
             this.selecting = false;
 
-            this.api.getWarships(vote.ships).then(ships => {
-              this.ships = ships.map(s => ({ ...s, votes: 0 }));
+            console.log('getting warships', vote.ships);
+
+            this.api.getWarships(vote.ships).then((ships) => {
+              console.log('got warships');
+              console.log(ships);
+              this.ships = ships.map((s) => ({ ...s, votes: 0 }));
               this.vote = vote;
             });
           })
-          .catch(err => {
+          .catch((err) => {
             Appsignal.sendError(err);
             console.error(err);
           });
@@ -168,20 +180,20 @@ window.App = {
     },
     handleVoteProgressMessage(data) {
       if (!this.vote) {
-        this.handleVoteStatusMessage({ status: "open", id: data.id });
+        this.handleVoteStatusMessage({ status: 'open', id: data.id });
         return;
       }
 
       let totalVotes = 0;
-      Object.keys(data.voted_ships).forEach(shipId => {
+      Object.keys(data.voted_ships).forEach((shipId) => {
         totalVotes += data.voted_ships[shipId];
         shipId = parseInt(shipId, 10);
-        const shipIdx = this.ships.findIndex(s => s.id === shipId);
+        const shipIdx = this.ships.findIndex((s) => s.id === shipId);
 
         if (shipIdx !== -1) {
           Vue.set(this.ships, shipIdx, {
             ...this.ships[shipIdx],
-            votes: data.voted_ships[shipId]
+            votes: data.voted_ships[shipId],
           });
         }
       });
@@ -196,21 +208,21 @@ window.App = {
       this.voted = true;
       this.selecting = false;
 
-      this.api.voteForShip(this.vote.id, ship.id).catch(err => {
+      this.api.voteForShip(this.vote.id, ship.id).catch((err) => {
         Appsignal.sendError(err);
-        console.error("Could not vote for ship", err);
+        console.error('Could not vote for ship', err);
       });
-    }
-  }
+    },
+  },
 };
 
 export default window.App;
 </script>
 
 <style lang="scss">
-@import "../darkmode";
-@import "../typography";
-@import "../card";
+@import '../darkmode';
+@import '../typography';
+@import '../card';
 
 .vote-notice {
   position: fixed;
@@ -218,21 +230,21 @@ export default window.App;
   bottom: 88px;
   transform: translateX(-50%);
 
-  &[data-active="true"] .cta {
+  &[data-active='true'] .cta {
     opacity: 1;
   }
 
-  &[data-initial="true"] .cta,
-  &[data-active="true"]:hover .cta {
+  &[data-initial='true'] .cta,
+  &[data-active='true']:hover .cta {
     width: 186px;
   }
 
-  &[data-active="true"]:hover .cta {
+  &[data-active='true']:hover .cta {
     transition: width 0.5s;
     cursor: pointer;
   }
 
-  &[data-dismissed="true"] .cta {
+  &[data-dismissed='true'] .cta {
     transition: width 0.5s, opacity 0.2s;
   }
 
@@ -275,7 +287,7 @@ export default window.App;
     transition: visibility 0s linear 0.5s, height 0.5s, opacity 0.45s;
   }
 
-  &[data-active="true"] {
+  &[data-active='true'] {
     .card {
       visibility: visible;
       transition-delay: 0s;

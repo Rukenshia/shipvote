@@ -6,14 +6,21 @@ defmodule Backend.Twitch.VoteProgress do
   alias Backend.Stream.Vote
   alias Backend.Twitch
 
+  @enabled Application.get_env(:backend, Backend.VoteProgress)[:enabled]
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: :vote_progress)
   end
 
   def init(state) do
-    Logger.info("Twitch.VoteProgress: init")
-    GenServer.cast(self(), :init)
-    Process.send(self(), :work, [:noconnect])
+    if @enabled do
+      Logger.info("Twitch.VoteProgress: init")
+      GenServer.cast(self(), :init)
+      Process.send(self(), :work, [:noconnect])
+    else
+      Logger.info("Twitch.VoteProgress: no-op, not enabled")
+    end
+
     {:ok, state}
   end
 
@@ -34,6 +41,7 @@ defmodule Backend.Twitch.VoteProgress do
     Logger.warn("Twitch.VoteProgress: Adding vote #{vote_id}")
 
     publish_vote_status(vote_id)
+
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
@@ -51,6 +59,7 @@ defmodule Backend.Twitch.VoteProgress do
     Logger.warn("Twitch.VoteProgress: Removing vote #{vote_id}")
 
     publish_vote_status(vote_id)
+
     ConCache.update(:vote_progress_cache, "open_votes", fn value ->
       case value do
         nil ->
@@ -117,9 +126,7 @@ defmodule Backend.Twitch.VoteProgress do
            }) do
         {:error, e} ->
           Logger.warn(
-            "Twitch.VoteProgress.publish_vote_progress: failed for vote_id=#{vote_id}: #{
-              inspect(e)
-            }"
+            "Twitch.VoteProgress.publish_vote_progress: failed for vote_id=#{vote_id}: #{inspect(e)}"
           )
 
         _ ->

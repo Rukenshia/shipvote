@@ -29,6 +29,22 @@ defmodule Backend.Auth.Twitch do
     end
   end
 
+  # For testing
+  def check_jwt(%{params: %{"id" => "1"}} = conn, _) do
+    user_data = %{
+      channel_id: "1",
+      user_id: "1",
+      opaque_user_id: "opaque_test_user_id",
+      role: "broadcaster"
+    }
+
+    Logger.warn("Using testing endpoint")
+
+    conn
+    |> put_session(:user_data, user_data)
+    |> assign(:user_data, user_data)
+  end
+
   def check_jwt(%{params: %{"id" => channel_id}} = conn, _) do
     with ["Bearer " <> jwt] <- get_req_header(conn, "authorization"),
          %{error: nil} = decoded <-
@@ -40,9 +56,7 @@ defmodule Backend.Auth.Twitch do
 
       if claims["channel_id"] != channel_id do
         Logger.error(
-          "check_jwt.channel_id_check_failed.claim=#{inspect(channel_id)},req=#{
-            inspect(claims["channel_id"])
-          }"
+          "check_jwt.channel_id_check_failed.claim=#{inspect(channel_id)},req=#{inspect(claims["channel_id"])}"
         )
 
         conn

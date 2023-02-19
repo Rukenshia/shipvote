@@ -18,31 +18,136 @@ channel =
     wows_username: "AlongUsernameForTests"
   })
 
-active_old_vote =
+ships = [
+  Backend.Repo.insert!(%Backend.Wows.Warship{
+    id: 4_282_267_344,
+    name: "Shimakaze",
+    type: "Destroyer",
+    nation: "japan",
+    premium: false,
+    image:
+      "https://glossary-wows-global.gcdn.co/icons//vehicle/small/PJSD012_abe195480c5687e0a492b11dcd83d8117b278c8c3aa8bc794b3df3ed77c21c26.png",
+    tier: 10
+  }),
+  Backend.Repo.insert!(%Backend.Wows.Warship{
+    id: 4_273_911_792,
+    name: "Des Moines",
+    type: "Cruiser",
+    nation: "usa",
+    premium: false,
+    image:
+      "https://glossary-wows-global.gcdn.co/icons//vehicle/small/PASC020_6d8433ad54145db2092483c2e1a72af6be632ac638654dff0541c8f54f4106a7.png",
+    tier: 10
+  }),
+  Backend.Repo.insert!(%Backend.Wows.Warship{
+    id: 3_741_234_640,
+    name: "Ochakov",
+    type: "Cruiser",
+    nation: "ussr",
+    premium: true,
+    image:
+      "https://glossary-wows-global.gcdn.co/icons//vehicle/small/PRSC528_3af1645d2772ab315efe19affa1cf879685d8b470577a56d1f726fd233dd213f.png",
+    tier: 8
+  }),
+  Backend.Repo.insert!(%Backend.Wows.Warship{
+    id: 4_281_219_056,
+    name: "Gearing",
+    type: "Destroyer",
+    nation: "usa",
+    premium: false,
+    image:
+      "https://glossary-wows-global.gcdn.co/icons//vehicle/small/PASD013_cf35f9528df69fef9880f2d65cf467010068268307c5f679cc2f2b2b93bc26d5.png",
+    tier: 10
+  })
+]
+
+for ship <- ships do
+  {:ok, _} =
+    Backend.Stream.create_channel_ship(%{
+      channel_id: channel.id,
+      ship_id: ship.id,
+      enabled: true
+    })
+end
+
+active_vote =
   Backend.Repo.insert!(%Backend.Stream.Vote{
     channel_id: channel.id,
-    ships: [],
+    ships: [4_281_219_056, 3_741_234_640, 4_273_911_792, 2_282_267_344],
     status: "open"
   })
 
-active_old_vote
-|> Backend.Stream.Vote.changeset(%{
-  inserted_at:
-    NaiveDateTime.utc_now()
-    |> NaiveDateTime.truncate(:second)
-    |> NaiveDateTime.add(-60 * 60 * 24 * 365, :second)
-})
-|> Backend.Repo.update!()
-
-for i <- 0..100 do
-  Backend.Repo.insert!(%Backend.Stream.Vote{
-    channel_id: channel.id,
-    ships: [],
-    status: if(rem(i, 2) == 0, do: "closed", else: "open"),
-    inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+for i <- 0..29 do
+  Backend.Repo.insert!(%Backend.Stream.VotedShip{
+    vote: active_vote,
+    user_id: "#{i}",
+    ship_id: 4_282_267_344
   })
 end
 
+for i <- 30..54 do
+  Backend.Repo.insert!(%Backend.Stream.VotedShip{
+    vote: active_vote,
+    user_id: "#{i}",
+    ship_id: 3_741_234_640
+  })
+end
+
+for i <- 55..74 do
+  Backend.Repo.insert!(%Backend.Stream.VotedShip{
+    vote: active_vote,
+    user_id: "#{i}",
+    ship_id: 4_273_911_792
+  })
+end
+
+for i <- 75..89 do
+  Backend.Repo.insert!(%Backend.Stream.VotedShip{
+    vote: active_vote,
+    user_id: "#{i}",
+    ship_id: 4_281_219_056
+  })
+end
+
+# Closed Votes for example channel
+closed_votes = [
+  Backend.Repo.insert!(%Backend.Stream.Vote{
+    channel_id: channel.id,
+    ships: [4_281_219_056, 3_741_234_640, 4_273_911_792],
+    status: "closed"
+  }),
+  Backend.Repo.insert!(%Backend.Stream.Vote{
+    channel_id: channel.id,
+    ships: [4_281_219_056, 3_741_234_640, 4_273_911_792],
+    status: "closed"
+  })
+]
+
+for vote <- closed_votes do
+  for i <- 0..4 do
+    Backend.Repo.insert!(%Backend.Stream.VotedShip{
+      vote: vote,
+      user_id: "#{i}",
+      ship_id: 4_281_219_056
+    })
+  end
+
+  for i <- 5..8 do
+    Backend.Repo.insert!(%Backend.Stream.VotedShip{
+      vote: vote,
+      user_id: "#{i}",
+      ship_id: 3_741_234_640
+    })
+  end
+end
+
+Backend.Repo.insert!(%Backend.Stream.VotedShip{
+  vote: closed_votes |> Enum.at(0),
+  user_id: "last_vote",
+  ship_id: 4_273_911_792
+})
+
+# More channels
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
 Backend.Repo.insert!(%Backend.Stream.Channel{})
