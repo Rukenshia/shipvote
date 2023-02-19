@@ -6,7 +6,7 @@ get_page_meta() {
 }
 
 get_page() {
-	curl -s "https://api.worldofwarships.eu/wows/encyclopedia/ships/?application_id=80aa6f7e1d5df049c79d9141dd0826ae&fields=name,nation,ship_id,type,tier,images.small&limit=5&page_no=${1}" | jq  '.data | to_entries | map(.value)'
+	curl -s "https://api.worldofwarships.eu/wows/encyclopedia/ships/?application_id=80aa6f7e1d5df049c79d9141dd0826ae&fields=name,nation,ship_id,type,tier,images.small&limit=100&page_no=${1}" | jq  '.data | to_entries | map(.value)'
 }
 
 max_page="$(get_page_meta | jq '.page_total')"
