@@ -6,7 +6,7 @@ DISTRIBUTION_ID=$(shell aws cloudfront list-distributions | jq -r '.Distribution
 all:
 	./get_warships.sh
 
-	aws s3 cp ./warships.json s3://data.shipvote.in.fkn.space/warships.json
+	aws s3 cp ./warships.json s3://data.shipvote.in.fkn.space/shipvote/warships.json
 	
 	# create invalidation for cloudfront
 	aws cloudfront create-invalidation --distribution-id ${DISTRIBUTION_ID} --paths /shipvote/*
