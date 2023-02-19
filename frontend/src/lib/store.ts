@@ -1,5 +1,5 @@
-import { derived, get, readable, Writable, writable } from 'svelte/store';
-import { ShipvoteApi, Vote } from './api';
+import { derived, get, readable, type Writable, writable } from 'svelte/store';
+import { ShipvoteApi, type Vote } from './api';
 import type { Channel } from './api';
 
 export const channelId = writable(null);

@@ -36,7 +36,7 @@
 
     {#await $currentVote then vote}
       {#if vote && vote.status === 'open'}
-        <div class="flex justify-around">
+        <div class="flex justify-around mt-2">
           <button
             on:click={() => closeVote()}
             class="px-8 py-4 rounded-md active:bg-cyan-600 active:ring-2 active:ring-cyan-400 transition font-medium"

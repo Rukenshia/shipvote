@@ -7,20 +7,23 @@
   import { api, vote } from '$lib/store';
   import Box from '$lib/components/Box.svelte';
   import type { Vote } from '$lib/api';
-  import { derived, Readable, Writable, writable } from 'svelte/store';
+  import { derived, type Readable, type Writable, writable } from 'svelte/store';
+  import { browser } from '$app/environment';
 
   onMount(() => {
-    window.Twitch.ext.listen(
-      'broadcast',
-      (_target: string, contentType: string, message: string) => {
-        if (contentType !== 'application/json') {
-          return;
-        }
+    if (browser) {
+      window.Twitch.ext.listen(
+        'broadcast',
+        (_target: string, contentType: string, message: string) => {
+          if (contentType !== 'application/json') {
+            return;
+          }
 
-        const data = JSON.parse(atob(message));
-        handlePubSubMessage(data);
-      }
-    );
+          const data = JSON.parse(atob(message));
+          handlePubSubMessage(data);
+        }
+      );
+    }
   });
 
   const closedVotes: Writable<Promise<Vote[]>> = writable(new Promise(() => {}));

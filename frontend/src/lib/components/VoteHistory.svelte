@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Ship, Vote } from '$lib/api';
 
-  import { derived, Readable } from 'svelte/store';
+  import { derived, type Readable } from 'svelte/store';
   import { warships } from '../store';
 
   type VoteWithStats = Vote & { votedShips: (Ship & { votes: number })[] };
@@ -60,13 +60,15 @@
             <img alt="ship" class="h-6 w-10" src={vote.votedShips[0].image} />
             <span class="text-lg font-medium text-gray-400">1.</span>
             <span class="flex-grow text-lg">{vote.votedShips[0].name}</span>
+            <span class="text-gray-400">{vote.votedShips[0].votes}</span>
           </div>
         {/if}
         {#if vote.votedShips.length > 2}
           <div class="flex flex-col items-start pl-4">
             <div>
               <span class="text-xs font-medium text-gray-400">2.</span>
-              <span class="text-xs">{vote.votedShips[1].name}</span>
+              <span class="flex-grow text-xs">{vote.votedShips[1].name}</span>
+              <span class="text-gray-400">{vote.votedShips[0].votes}</span>
             </div>
             <div>
               <span class="text-xs font-medium text-gray-400">3.</span>

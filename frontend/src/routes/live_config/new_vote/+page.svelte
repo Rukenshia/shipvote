@@ -7,7 +7,7 @@
   import ShipFilters from '$lib/components/ShipFilters.svelte';
 
   import { api, channel, vote } from '$lib/store';
-  import { writable, Writable } from 'svelte/store';
+  import { writable, type Writable } from 'svelte/store';
 
   let selectedShips: Writable<Ship[]> = writable([]);
   let filteredShips: Ship[] = [];

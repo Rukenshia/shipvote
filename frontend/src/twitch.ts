@@ -1,4 +1,4 @@
-import { dev } from '$app/env';
+import { dev, browser } from '$app/environment';
 
 declare global {
   interface Window {
@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-if (dev) {
+if (dev && browser) {
   const token = 'aFakeToken';
 
   const authHandlers = [];
