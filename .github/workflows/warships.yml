@@ -1,0 +1,24 @@
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+    
+jobs:
+  update-warships:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+      
+    steps:
+    - name: get aws credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::140298420637:role/GithubActions
+        aws-region: eu-central-1
+    - name: checkout repo
+      uses: actions/checkout@v2
+    - name: upload warships
+      working-directory: ./data
+      run: make all
+      
