@@ -9,6 +9,8 @@ export interface Ship {
   tier: string;
   premium: boolean;
   image: string;
+
+  enabled: boolean;
 }
 
 export interface Channel {
@@ -44,6 +46,32 @@ export class ShipvoteApi {
 
   buildBroadcasterUrl(path: string) {
     return `${this.baseUrl}/api/settings/channels/${this.channelId}${path}`;
+  }
+
+  async createChannelConfig(channel: Channel): Promise<Channel> {
+    return axios.post(`${this.baseUrl}/api/settings/channels`, channel, {
+      headers: this.headers()
+    });
+  }
+
+  async updateChannelConfig(channel: Channel): Promise<Channel> {
+    return axios.put(
+      this.buildBroadcasterUrl('/'),
+      { channel },
+      {
+        headers: this.headers()
+      }
+    );
+  }
+
+  async setShipStatus(id: number, enabled: boolean): Promise<Ship> {
+    return axios.put(
+      this.buildBroadcasterUrl(`/ships/${id}/enabled`),
+      { enabled },
+      {
+        headers: this.headers()
+      }
+    );
   }
 
   async broadcasterGetChannel(): Promise<Channel> {

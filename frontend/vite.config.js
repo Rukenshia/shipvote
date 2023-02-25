@@ -10,6 +10,10 @@ const config = {
       $src: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
       $lib: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'lib')
     }
+  },
+
+  server: {
+    cors: true
   }
 };
 

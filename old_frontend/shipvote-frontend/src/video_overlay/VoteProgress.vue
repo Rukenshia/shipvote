@@ -1,10 +1,12 @@
 <template>
   <div class="vote-progress" v-if="sortedShips.length > 0">
     <div class="progress-ship" v-for="ship in sortedShips" :key="ship.id">
-      {{ship.name}} ({{ship.votes}} vote{{ship.votes === 1 ? '' : 's'}})
+      {{ ship.name }} ({{ ship.votes }} vote{{ ship.votes === 1 ? '' : 's' }})
       <mdc-linear-progress
         accent
-        :progress="ship.votes / totalVotes > 1.0 ? 1.0 : ship.votes / totalVotes"
+        :progress="
+          ship.votes / totalVotes > 1.0 ? 1.0 : ship.votes / totalVotes
+        "
       ></mdc-linear-progress>
     </div>
   </div>
@@ -35,9 +37,9 @@ export default {
         return -1;
       });
 
-      return sorted.slice(0, 5).filter(s => s.votes > 0);
-    }
-  }
+      return sorted.slice(0, 5).filter((s) => s.votes > 0);
+    },
+  },
 };
 </script>
 

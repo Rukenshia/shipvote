@@ -50,12 +50,17 @@ if (dev && browser) {
     authHandlers.forEach((fn) =>
       fn({
         token,
-        channelId: '1',
-        userId: '1'
+        channelId: '1234',
+        userId: '2'
       })
     );
 
-    window.Twitch.ext.send('broadcast', 'application/json', { message: 'test' });
+    setTimeout(() => {
+      window.Twitch.ext.send('broadcast', 'application/json', {
+        type: 'vote_status',
+        data: { id: 6, status: 'open' }
+      });
+    }, 500);
   };
 
   setTimeout(window.simulateTwitch, 100);

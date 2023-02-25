@@ -15,7 +15,9 @@
 channel =
   Backend.Repo.insert!(%Backend.Stream.Channel{
     inserted_at: date,
-    wows_username: "AlongUsernameForTests"
+    wows_username: "AlongUsernameForTests",
+    wows_realm: "eu",
+    wows_account_id: 123_456_789
   })
 
 ships = [

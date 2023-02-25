@@ -1,13 +1,22 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
-  import type { Ship, Vote } from '$lib/api';
+  import type { Channel, Ship, ShipvoteApi, Vote } from '$lib/api';
   import Box from '$lib/components/Box.svelte';
   import Duration from '$lib/components/Duration.svelte';
   import ShipFilters from '$lib/components/ShipFilters.svelte';
 
-  import { api, channel, vote } from '$lib/store';
+  import { api, vote } from '$lib/store';
   import { writable, type Writable } from 'svelte/store';
+
+  // TODO: remove promise
+  const channel: Writable<Promise<Channel>> = writable();
+  api.subscribe(($api: ShipvoteApi) => {
+    if (!$api) {
+      return;
+    }
+    channel.set($api.broadcasterGetChannel());
+  });
 
   let selectedShips: Writable<Ship[]> = writable([]);
   let filteredShips: Ship[] = [];

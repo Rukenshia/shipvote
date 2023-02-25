@@ -45,6 +45,21 @@ defmodule Backend.Auth.Twitch do
     |> assign(:user_data, user_data)
   end
 
+  def check_jwt(%{params: %{"id" => "1234"}} = conn, _) do
+    user_data = %{
+      channel_id: "1234",
+      user_id: "2",
+      opaque_user_id: "opaque_test_user_id",
+      role: "broadcaster"
+    }
+
+    Logger.warn("Using testing endpoint")
+
+    conn
+    |> put_session(:user_data, user_data)
+    |> assign(:user_data, user_data)
+  end
+
   def check_jwt(%{params: %{"id" => channel_id}} = conn, _) do
     with ["Bearer " <> jwt] <- get_req_header(conn, "authorization"),
          %{error: nil} = decoded <-
