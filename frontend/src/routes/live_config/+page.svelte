@@ -10,7 +10,7 @@
   import { derived, type Readable, type Writable, writable } from 'svelte/store';
   import { browser } from '$app/environment';
 
-  onMount(() => {
+  onMount(async () => {
     if (browser) {
       window.Twitch.ext.listen(
         'broadcast',
@@ -28,11 +28,8 @@
 
   const closedVotes: Writable<Promise<Vote[]>> = writable(new Promise(() => {}));
 
-  const isVoteOpen: Readable<boolean> = derived(vote, ($vote: Promise<Vote>, setter) => {
-    $vote.then((v) => setter(v !== undefined));
-  });
-
   $: if ($api) {
+    $api.getOpenVote().then((v) => ($vote = v));
     $closedVotes = $api.getClosedVotes();
   }
 
@@ -42,8 +39,10 @@
 </script>
 
 <div class="flex flex-col gap-4">
-  <Link href="/live_config/new_vote" classes="bg-cyan-900 hover:bg-cyan-800" disabled={$isVoteOpen}
-    >New Vote</Link
+  <Link
+    href="/live_config/new_vote"
+    classes="bg-cyan-900 hover:bg-cyan-800"
+    disabled={$vote !== undefined}>New Vote</Link
   >
   <VoteStatus />
   <Box>

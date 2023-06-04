@@ -5,6 +5,7 @@
   import ChannelShips from '$lib/components/ChannelShips.svelte';
   import type { Channel, ShipvoteApi } from '$lib/api';
   import { writable, type Writable } from 'svelte/store';
+  import Notification from '$lib/components/Notification.svelte';
 
   const channel: Writable<Channel> = writable();
   let exists = false;
@@ -18,7 +19,7 @@
   });
 
   let wows_username = '';
-  let wows_realm = '';
+  let wows_realm = 'eu';
 
   onMount(async () => {
     channel.subscribe(async ($channel) => {
@@ -52,6 +53,12 @@
 </script>
 
 <div class="flex flex-col gap-4">
+  {#if !exists}
+    <Notification type="info" title="No configuration found">
+      <p>Please enter your World of Warships account information below to get started</p>
+    </Notification>
+  {/if}
+
   {#if $channel}
     <Box title="Settings">
       <form action="#" method="GET">
@@ -62,6 +69,7 @@
               id="channel-name"
               type="text"
               bind:value={wows_username}
+              placeholder="Your WoWS username"
               class="border rounded px-2 py-1 bg-cyan-900 border-gray-800"
             />
           </div>
@@ -98,7 +106,8 @@
               id="channel-name"
               type="text"
               bind:value={wows_username}
-              class="border rounded px-2 py-1 bg-cyan-900 border-gray-800"
+              placeholder="Your WoWS username"
+              class="border placeholder-cyan-700/90 rounded px-2 py-1 bg-cyan-900 border-gray-800"
             />
           </div>
           <div class="flex flex-col gap-2">

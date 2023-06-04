@@ -49,19 +49,23 @@ export class ShipvoteApi {
   }
 
   async createChannelConfig(channel: Channel): Promise<Channel> {
-    return axios.post(`${this.baseUrl}/api/settings/channels`, channel, {
-      headers: this.headers()
-    });
+    return axios
+      .post(`${this.baseUrl}/api/settings/channels`, channel, {
+        headers: this.headers()
+      })
+      .then((res: AxiosResponse) => res.data.data);
   }
 
   async updateChannelConfig(channel: Channel): Promise<Channel> {
-    return axios.put(
-      this.buildBroadcasterUrl('/'),
-      { channel },
-      {
-        headers: this.headers()
-      }
-    );
+    return axios
+      .put(
+        this.buildBroadcasterUrl('/'),
+        { channel },
+        {
+          headers: this.headers()
+        }
+      )
+      .then((res: AxiosResponse) => res.data.data);
   }
 
   async setShipStatus(id: number, enabled: boolean): Promise<Ship> {

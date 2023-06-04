@@ -1,6 +1,5 @@
 import { derived, get, readable, type Writable, writable } from 'svelte/store';
 import { ShipvoteApi, type Vote } from './api';
-import type { Channel } from './api';
 
 export const channelId = writable(null);
 
@@ -26,3 +25,5 @@ export const warships = derived(api, async ($api: ShipvoteApi) => {
   // Turn list into map of [id: string]: ship
   return ships.reduce((acc, ship) => ({ ...acc, [ship.id]: ship }), {});
 });
+
+export const vote: Writable<Vote> = writable(null);
