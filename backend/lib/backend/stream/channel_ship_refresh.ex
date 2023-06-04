@@ -32,6 +32,7 @@ defmodule Backend.Stream.ChannelShipRefresh do
 
   def do_work(channel, state) do
     Logger.error("ChannelShipRefresh.do_work for channel_id=#{channel.id}")
+
     try do
       case Stream.update_channel_ships(channel) do
         {:ok, _} ->
@@ -42,7 +43,7 @@ defmodule Backend.Stream.ChannelShipRefresh do
             "ChannelShipRefresh: updating failed for channel #{channel.id}: #{inspect(e)}"
           )
       end
-    catch
+    rescue
       e ->
         Logger.error("ChannelShipRefresh failed: #{inspect(e)}")
     end
