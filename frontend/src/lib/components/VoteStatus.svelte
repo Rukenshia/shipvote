@@ -4,11 +4,19 @@
   import VoteResults from './VoteResults.svelte';
   import Box from './Box.svelte';
   import type { Vote } from '$lib/api';
+  import { dev } from '$app/environment';
 
   async function closeVote() {
     await $api.closeVote($vote.id);
 
     $api.getOpenVote().then((v: Vote) => ($vote = v));
+
+    if (dev) {
+      window.Twitch.ext.send('broadcast', 'application/json', {
+        type: 'vote_status',
+        data: { id: $vote.id, status: 'closed' }
+      });
+    }
   }
 </script>
 
@@ -41,7 +49,7 @@
 
     <div>
       {#if $vote && $vote.status === 'open'}
-        <VoteResults votes={$vote.then((vote) => vote.votes)} />
+        <VoteResults votes={$vote.votes} />
       {/if}
     </div>
   </Box>

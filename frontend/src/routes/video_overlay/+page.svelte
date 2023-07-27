@@ -1,8 +1,12 @@
 <script lang="ts">
-  import type { Channel, Vote } from '$lib/api';
-  import { api, vote } from '$lib/store';
+  import { dev } from '$app/environment';
+  import type { Channel, Ship, Vote } from '$lib/api';
+  import VoteForShip from '$lib/components/VoteForShip.svelte';
+  import VoteProgressOverlay from '$lib/components/VoteProgressOverlay.svelte';
+  import { api, vote, warships } from '$lib/store';
   import { onMount } from 'svelte';
   import { writable, type Writable } from 'svelte/store';
+  import { scale } from 'svelte/transition';
 
   let channel: Writable<Channel> = writable();
   api.subscribe(async ($api) => {
@@ -12,6 +16,8 @@
 
     $channel = await $api.getChannelInfo();
   });
+
+  let hidden = false;
 
   interface VoteStatusMessage {
     id: number;
@@ -39,7 +45,6 @@
   });
 
   async function handlePubSubMessage(message: Message) {
-    console.log(message);
     switch (message.type) {
       case 'vote_status': {
         const data = message.data as VoteStatusMessage;
@@ -68,25 +73,57 @@
       }
     }
   }
+
+  if (dev) {
+    setInterval(async () => {
+      if (!$api) {
+        return;
+      }
+
+      if ($vote && $vote.status === 'open') {
+        $vote = await $api.getVote($vote.id);
+
+        if ($vote.status === 'closed') {
+          window.Twitch.ext.send('broadcast', 'application/json', {
+            type: 'vote_status',
+            data: { id: $vote.id, status: 'closed' }
+          });
+
+          return;
+        }
+
+        window.Twitch.ext.send('broadcast', 'application/json', {
+          type: 'vote_progress',
+          data: { id: $vote.id, voted_ships: $vote.votes }
+        });
+
+        return;
+      }
+
+      $vote = await $api.getOpenVote();
+      console.log($vote);
+    }, 1000);
+  }
 </script>
 
-{#if $vote}
-  <div class="p-48">
-    <div class="relative group">
-      <div
-        class="absolute -inset-1 bg-gradient-to-r from-cyan-200 to-cyan-400 rounded-lg blur opacity-100 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
-      />
-      <div class="bg-cyan-900 text-white p-8 rounded-lg drop-shadow-lg">
-        <h1 class="text-2xl font-bold">Vote Status</h1>
-        <p class="text-lg">Vote ID: {$vote.id}</p>
-        <p class="text-lg">Status: {$vote.status}</p>
-        <p class="text-lg">Ships:</p>
-        <ul class="list-disc list-inside">
-          {#each Object.entries($vote.votes) as [ship, votes]}
-            <li class="text-lg">{ship}: {votes}</li>
-          {/each}
-        </ul>
+{#await $warships then $warships}
+  {#if $vote}
+    {#if $vote.status === 'open'}
+      <div class="fixed left-0 top-0">
+        <VoteProgressOverlay {vote} warships={$warships} />
       </div>
-    </div>
-  </div>
-{/if}
+      {#if !hidden}
+        <div class="flex h-screen w-full">
+          <div in:scale out:scale class="relative group max-w-2xl m-auto">
+            <div
+              class="absolute -inset-1 bg-gradient-to-r from-cyan-200 to-cyan-400 rounded-lg blur opacity-100 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+            />
+            <div class="bg-cyan-900 text-white p-4 rounded-lg drop-shadow-lg">
+              <VoteForShip vote={$vote} warships={$warships} close={() => (hidden = true)} />
+            </div>
+          </div>
+        </div>
+      {/if}
+    {/if}
+  {/if}
+{/await}

@@ -54,13 +54,6 @@ if (dev && browser) {
         userId: '2'
       })
     );
-
-    setTimeout(() => {
-      window.Twitch.ext.send('broadcast', 'application/json', {
-        type: 'vote_status',
-        data: { id: 6, status: 'open' }
-      });
-    }, 500);
   };
 
   setTimeout(window.simulateTwitch, 100);

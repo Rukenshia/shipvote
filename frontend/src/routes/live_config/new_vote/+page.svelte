@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { dev } from '$app/environment';
   import { goto } from '$app/navigation';
 
   import type { Channel, Ship, ShipvoteApi, Vote } from '$lib/api';
@@ -43,6 +44,13 @@
   async function openVote() {
     $vote = $api.openVote($selectedShips.map((s) => s.id));
     await goto('/live_config/');
+
+    if (dev) {
+      window.Twitch.ext.send('broadcast', 'application/json', {
+        type: 'vote_status',
+        data: { id: $vote.id, status: 'open' }
+      });
+    }
   }
 </script>
 

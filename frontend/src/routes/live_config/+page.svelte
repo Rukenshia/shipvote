@@ -8,7 +8,7 @@
   import Box from '$lib/components/Box.svelte';
   import type { Vote } from '$lib/api';
   import { derived, type Readable, type Writable, writable } from 'svelte/store';
-  import { browser } from '$app/environment';
+  import { browser, dev } from '$app/environment';
 
   onMount(async () => {
     if (browser) {
@@ -34,7 +34,30 @@
   }
 
   function handlePubSubMessage(data: object) {
-    console.log(data);
+    // console.log(data);
+  }
+
+  let intv;
+  if (dev) {
+    if (intv) {
+      clearInterval(intv);
+    }
+    console.log('set interval');
+    intv = setInterval(async () => {
+      if (!$api) {
+        return;
+      }
+      $vote = await $api.getOpenVote();
+
+      if (!$vote) {
+        return;
+      }
+
+      window.Twitch.ext.send('broadcast', 'application/json', {
+        type: 'vote_progress',
+        data: { id: $vote.id, voted_ships: $vote.voted_ships }
+      });
+    }, 1000);
   }
 </script>
 

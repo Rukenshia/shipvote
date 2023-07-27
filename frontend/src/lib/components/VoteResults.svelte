@@ -2,7 +2,7 @@
   import { derived } from 'svelte/store';
   import { warships } from '../store';
 
-  export let votes: Promise<object>;
+  export let votes: { [key: string]: number };
 
   const ships = derived(warships, async ($warships) => {
     if (!$warships) {
@@ -10,8 +10,7 @@
     }
 
     const currentWarships = await $warships;
-    const votedShips = await votes;
-    return Object.entries(votedShips)
+    return Object.entries(votes)
       .map(([key, value]) => {
         return {
           ...currentWarships[key],
