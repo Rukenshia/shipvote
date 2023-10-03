@@ -1,0 +1,14 @@
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-cyan-950 rounded-lg;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-cyan-300/50 rounded-lg;
+}

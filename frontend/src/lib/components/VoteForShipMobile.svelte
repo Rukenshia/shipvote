@@ -7,8 +7,6 @@
   export let vote: Vote;
   export let warships: { [key: string]: Ship };
 
-  export let close: () => void;
-
   let filteredShips: Ship[] = vote.ships.map((id) => warships[`${id}`]);
   let showFilters = false;
 
@@ -18,21 +16,20 @@
   }));
 
   async function voteForShip(ship: Ship) {
-    close();
     await $api.voteForShip(vote.id, ship.id);
   }
 </script>
 
-<div class="flex flex-col gap-4">
-  <div class="flex gap-4">
-    <h2 class="text-lg font-bold">Cast your vote</h2>
+<div class="flex flex-col gap-4 text-white">
+  <div class="flex items-center justify-center gap-8">
+    <h2 class="text-xl font-bold flex-grow">Cast your vote</h2>
     <button
-      class="bg-cyan-800 rounded hover:bg-cyan-700 px-2 py-0.5 flex gap-2 items-center"
+      class="bg-cyan-800 rounded hover:bg-cyan-700 px-4 py-2 flex gap-2 items-center justify-center text-xl"
       class:bg-cyan-700={showFilters}
       on:click={() => (showFilters = !showFilters)}
     >
       <svg
-        class="w-4 h-4"
+        class="w-8 h-8"
         fill="none"
         stroke="currentColor"
         stroke-width="1.5"
@@ -48,24 +45,9 @@
       </svg>
       <span class="text-md">Filters</span>
     </button>
-    <div class="flex-grow" />
-    <button
-      class="bg-cyan-800 rounded hover:bg-cyan-700 px-2 py-0.5 flex items-center"
-      on:click={() => close()}
-    >
-      <svg
-        class="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.5"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
   </div>
+
+
 
   {#if showFilters}
     <div in:slide out:slide>
@@ -73,15 +55,19 @@
     </div>
   {/if}
 
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+  <div class="grid grid-cols-1 divide-y divide-cyan-800">
     {#each filteredShips as ship}
       <button
-        class="flex bg-cyan-800 hover:bg-cyan-700 rounded p-2 flex-col items-center truncate min-w-min"
+        class="py-6 flex gap-4 items-end truncate"
         on:click={() => voteForShip(ship)}
       >
         <img class="w-auto h-8" alt={ship.name} src={ship.image} />
-        <span class="text-xs sm:text-sm flex-grow truncate">
+        <span class="text-md sm:text-lg truncate flex-grow text-left">
           {ship.name}
+        </span>
+        <span class="text-md sm:text-lg text-cyan-400/50">
+          {votedShips.find((vs) => vs.ship.id === ship.id).votes}
+          votes
         </span>
       </button>
     {/each}

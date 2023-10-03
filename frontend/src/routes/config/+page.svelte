@@ -8,6 +8,7 @@
   import Notification from '$lib/components/Notification.svelte';
 
   const channel: Writable<Channel> = writable();
+  let loading = true;
   let exists = false;
 
   api.subscribe(async ($api: ShipvoteApi) => {
@@ -15,7 +16,11 @@
       return;
     }
 
+    loading = true;
+
     channel.set(await $api.broadcasterGetChannel());
+
+    loading = false;
   });
 
   let wows_username = '';
@@ -53,6 +58,11 @@
 </script>
 
 <div class="flex flex-col gap-4">
+  {#if loading}
+    <Notification type="info" title="Loading">
+      <p>Please wait while we load your configuration</p>
+    </Notification>
+  {:else}
   {#if !exists}
     <Notification type="info" title="No configuration found">
       <p>Please enter your World of Warships account information below to get started</p>
@@ -131,5 +141,6 @@
         >
       </form>
     </Box>
+  {/if}
   {/if}
 </div>

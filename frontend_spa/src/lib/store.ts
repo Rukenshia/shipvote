@@ -1,6 +1,8 @@
 import { derived, get, readable, type Writable, writable, type Readable } from 'svelte/store';
 import { ShipvoteApi, type Ship, type Vote } from './api';
 
+const dev = import.meta.env.DEV;
+
 export const channelId = writable(null);
 
 export const api = readable(null, (set) => {
@@ -9,9 +11,14 @@ export const api = readable(null, (set) => {
 
     const token = data.token;
 
-    const api = new ShipvoteApi('http://localhost:4000', token, get(channelId));
+    const api = new ShipvoteApi(
+      dev ? 'http://localhost:4000' : 'https://shipvote.in.fkn.space'
+      , token, get(channelId));
+
+    console.log('instancing api');
     set(api);
   });
+  console.log('api is null');
   return null;
 });
 
