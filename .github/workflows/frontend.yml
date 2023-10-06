@@ -22,9 +22,6 @@ jobs:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-    outputs:
-      archive: frontend/assets.zip
-
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -36,3 +33,7 @@ jobs:
       - run: npm ci
       - run: make build
       - run: make assets.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: assets.zip
+          path: frontend/assets.zip
