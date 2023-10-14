@@ -73,6 +73,12 @@
 
       <ExpandableBox title="Changelog">
         <div class="flex flex-col gap-2">
+          <h3 class="font-bold text-xl">v3.0.1</h3>
+          <div class="text-gray-400 prose">
+            <p>
+              Fixed a bug where there were too many HTTP requests to the Shipvote server.
+            </p>
+          </div>
           <h3 class="font-bold text-xl">v3.0.0</h3>
           <div class="text-gray-400 prose">
             <p>
