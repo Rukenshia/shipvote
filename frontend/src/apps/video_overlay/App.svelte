@@ -17,6 +17,8 @@
   onMount(() => {
     registerPubSubHandler();
 
+    let loadingChannel = false;
+
     window.Twitch.ext.onContext(async (data, changed) => {
       if (data.game !== "World of Warships") {
         console.log("game is not WoWS");
@@ -24,6 +26,11 @@
       }
 
       if (!$channel) {
+        if (loadingChannel) {
+          return;
+        }
+
+        loadingChannel = true;
         console.info("Starting Shipvote session");
 
         if (!$api) {

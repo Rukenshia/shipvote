@@ -7,7 +7,7 @@ declare global {
 }
 
 if (dev) {
-  const token = 'aFakeToken';
+  const token = "aFakeToken";
 
   const authHandlers = [];
   const contextHandlers = [];
@@ -37,36 +37,36 @@ if (dev) {
         const targetListeners = listeners.get(target) || [];
 
         let payload = message;
-        if (contentType === 'application/json') {
+        if (contentType === "application/json") {
           payload = btoa(JSON.stringify(message));
         }
 
         targetListeners.forEach((listener) => {
           listener(target, contentType, payload);
         });
-      }
-    }
+      },
+    },
   };
 
   window.simulateTwitch = () => {
     authHandlers.forEach((fn) =>
       fn({
         token,
-        channelId: '1234',
-        userId: '2'
-      })
+        channelId: "1234",
+        userId: "2",
+      }),
     );
 
     contextHandlers.forEach((fn) =>
       fn({
-        theme: 'dark',
-        language: 'en',
-        game: 'World of Warships',
-      })
+        theme: "dark",
+        language: "en",
+        game: "World of Warships",
+      }),
     );
   };
 
   setTimeout(window.simulateTwitch, 100);
 }
 
-export { };
+export {};
