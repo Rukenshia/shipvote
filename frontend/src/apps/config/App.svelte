@@ -84,7 +84,7 @@
 
     {#if $channel}
       <Box title="Settings">
-        <form action="#" method="GET">
+        <form>
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <label for="channel-name">WoWS Username</label>

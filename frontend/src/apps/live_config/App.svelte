@@ -19,8 +19,17 @@
   } from "svelte/store";
   import CreatorBanner from "../../lib/components/CreatorBanner.svelte";
   import ExpandableBox from "../../lib/components/ExpandableBox.svelte";
+  import Notification from "../../lib/components/Notification.svelte";
 
   let showNewVote = false;
+
+  const channel = derived(api, ($api, set) => {
+    if (!$api) {
+      return;
+    }
+
+    set($api.broadcasterGetChannel());
+  });
 
   onMount(() => {
     registerPubSubHandler();
@@ -50,7 +59,11 @@
   }
 </script>
 
-<div class="flex flex-col gap-4" transition:slide={{ duration: 300 }}>
+<div class="flex flex-col gap-4">
+{#await $channel}
+  load
+{:then channel}
+  <div class="flex flex-col gap-4" class:hidden={!channel} transition:slide={{ duration: 300 }}>
   {#if showNewVote}
     <NewVote
       on:back={() => (showNewVote = false)}
@@ -71,13 +84,20 @@
         <VoteHistory votes={closedVotes} />
       </Box>
 
-      <ExpandableBox title="Changelog">
+      <ExpandableBox>
+        <div slot="title" class="flex gap-2">
+          <h2>Changelog</h2>
+          <div class="bg-gray-900 flex items-center rounded-lg text-cyan-100 px-2 text-xs">
+            {import.meta.env.VITE_APP_VERSION}
+          </div>
+        </div>
         <div class="flex flex-col gap-2">
           <h3 class="font-bold text-xl">v3.0.1</h3>
           <div class="text-gray-400 prose">
-            <p>
-              Fixed a bug where there were too many HTTP requests to the Shipvote server.
-            </p>
+            <ul>
+              <li>Fixed a bug where channels could not be configured</li>
+              <li>Fixed a bug where there were too many HTTP requests to the Shipvote server.</li>
+            </ul>
           </div>
           <h3 class="font-bold text-xl">v3.0.0</h3>
           <div class="text-gray-400 prose">
@@ -95,9 +115,24 @@
           </div>
         </div>
       </ExpandableBox>
-      <Box>
-        <CreatorBanner />
-      </Box>
     </div>
   {/if}
+</div>
+{:catch e}
+  {#if e.response && e.response.status === 404}
+    <Notification type="info" title="No configuration found">
+      <p>
+        Please visit the "Extensions" page and set up the Shipvote
+        extension for your channel
+      </p>
+    </Notification>
+  {:else}
+  <Notification type="error" title="Error">
+    <p>Could not load channel configuration</p>
+  </Notification>
+  {/if}
+{/await}
+<Box>
+  <CreatorBanner />
+</Box>
 </div>

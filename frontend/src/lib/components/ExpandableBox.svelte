@@ -20,7 +20,7 @@
         d={expanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
       />
     </svg>
-    {title}
+    <slot name="title">{title}</slot>
   </button>
   {#if expanded}
     <div in:slide out:slide class="mt-4">
