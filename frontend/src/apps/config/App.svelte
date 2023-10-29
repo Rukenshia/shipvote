@@ -20,7 +20,11 @@
 
     loading = true;
 
+    try {
     channel.set(await $api.broadcasterGetChannel());
+    } catch (e) {
+      console.error(e);
+    }
 
     loading = false;
   });
