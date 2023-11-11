@@ -4,7 +4,7 @@ defmodule Backend.Stream.ChannelShipRefresh do
 
   alias Backend.Stream
 
-  def start_link do
+  def start_link(_) do
     GenServer.start_link(__MODULE__, %{})
   end
 
@@ -51,9 +51,6 @@ defmodule Backend.Stream.ChannelShipRefresh do
     {:noreply, state}
   end
 
-  @doc """
-  Schedule all available channels.
-  """
   defp schedule() do
     # schedule all channels
     Stream.list_channels()

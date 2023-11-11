@@ -22,7 +22,7 @@ defmodule BackendWeb.ChannelControllerTest do
   }
   @invalid_attrs %{id: "1", wows_username: nil, wows_realm: nil, wows_account_id: nil}
 
-  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+  @secret_key Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_secret_key]
               |> Base.decode64!()
 
   def fixture(:channel) do

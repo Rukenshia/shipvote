@@ -6,7 +6,7 @@ defmodule Backend.Twitch.VoteProgress do
   alias Backend.Stream.Vote
   alias Backend.Twitch
 
-  @enabled Application.get_env(:backend, Backend.VoteProgress)[:enabled]
+  @enabled Application.compile_env(:backend, Backend.VoteProgress)[:enabled]
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: :vote_progress)
@@ -38,7 +38,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:add_vote, vote_id}, state) do
-    Logger.warn("Twitch.VoteProgress: Adding vote #{vote_id}")
+    Logger.warning("Twitch.VoteProgress: Adding vote #{vote_id}")
 
     publish_vote_status(vote_id)
 
@@ -56,7 +56,7 @@ defmodule Backend.Twitch.VoteProgress do
   end
 
   def handle_cast({:remove_vote, vote_id}, state) do
-    Logger.warn("Twitch.VoteProgress: Removing vote #{vote_id}")
+    Logger.warning("Twitch.VoteProgress: Removing vote #{vote_id}")
 
     publish_vote_status(vote_id)
 
@@ -96,16 +96,16 @@ defmodule Backend.Twitch.VoteProgress do
              status: vote.status
            }) do
         {:error, e} ->
-          Logger.warn(
+          Logger.warning(
             "Twitch.VoteProgress.publish_vote_status: failed for vote_id=#{vote_id}: #{inspect(e)}"
           )
 
         _ ->
-          Logger.warn("Twitch.VoteProgress.publish_vote_status: sent for vote_id=#{vote_id}")
+          Logger.warning("Twitch.VoteProgress.publish_vote_status: sent for vote_id=#{vote_id}")
       end
     else
       _ ->
-        Logger.warn(
+        Logger.warning(
           "Twitch.VoteProgress.publish_vote_status: unknown or unregistered vote #{vote_id}"
         )
     end
@@ -125,7 +125,7 @@ defmodule Backend.Twitch.VoteProgress do
                end)
            }) do
         {:error, e} ->
-          Logger.warn(
+          Logger.warning(
             "Twitch.VoteProgress.publish_vote_progress: failed for vote_id=#{vote_id}: #{inspect(e)}"
           )
 
@@ -134,11 +134,14 @@ defmodule Backend.Twitch.VoteProgress do
       end
     else
       %Vote{status: "closed"} ->
-        Logger.warn("Twitch.VoteProgress.publish_vote_progress: removing closed vote #{vote_id}")
+        Logger.warning(
+          "Twitch.VoteProgress.publish_vote_progress: removing closed vote #{vote_id}"
+        )
+
         GenServer.cast(self(), {:remove_vote, vote_id})
 
       _ ->
-        Logger.warn(
+        Logger.warning(
           "Twitch.VoteProgress.publish_vote_progress: unknown or unregistered vote #{vote_id}"
         )
     end

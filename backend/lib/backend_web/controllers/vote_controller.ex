@@ -119,7 +119,7 @@ defmodule BackendWeb.VoteController do
         |> render("show.json", %{vote: vote})
 
       {:error, e} ->
-        Logger.warn("VoteController.create.insert_failed=#{inspect(e)}")
+        Logger.warning("VoteController.create.insert_failed=#{inspect(e)}")
 
         conn
         |> put_status(:bad_request)
@@ -151,7 +151,7 @@ defmodule BackendWeb.VoteController do
         |> json(%{ok: false, message: "Not found"})
 
       {:error, e} ->
-        Logger.warn("VoteController.set_status.update_failed=#{inspect(e)}")
+        Logger.warning("VoteController.set_status.update_failed=#{inspect(e)}")
 
         conn
         |> put_status(:bad_request)
@@ -181,7 +181,7 @@ defmodule BackendWeb.VoteController do
           |> json(%{ok: true})
 
         {:error, e} ->
-          Logger.warn("VoteController.vote_for_ship.failed=#{inspect(e)}")
+          Logger.warning("VoteController.vote_for_ship.failed=#{inspect(e)}")
 
           conn
           |> put_status(:bad_request)

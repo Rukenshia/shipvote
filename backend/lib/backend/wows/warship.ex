@@ -27,7 +27,7 @@ defmodule Backend.Wows.Warship do
       tier: data["tier"],
       premium:
         data["is_premium"] || data["is_special"] ||
-          (data["tier"] != 10 && Map.size(data["next_ships"]) == 0),
+          (data["tier"] != 10 && Kernel.map_size(data["next_ships"]) == 0),
       nation: data["nation"],
       type: data["type"],
       image: data["images"]["small"]

@@ -1,13 +1,14 @@
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
-  use Appsignal.Phoenix
+  # use Appsignal.Phoenix
   require Logger
 
   def log_ip(conn, _) do
     conn.remote_ip
-    |> Tuple.to_list
+    |> Tuple.to_list()
     |> Enum.join(".")
-    |> Logger.info
+    |> Logger.info()
+
     conn
   end
 
@@ -19,12 +20,11 @@ defmodule BackendWeb.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  plug(Plug.Static,
+  plug Plug.Static,
     at: "/",
     from: :backend,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
-  )
+    only: ~w(assets fonts images favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

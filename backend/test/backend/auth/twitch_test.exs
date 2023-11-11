@@ -4,7 +4,7 @@ defmodule Backend.Auth.TwitchTest do
 
   alias Backend.Auth.Twitch
 
-  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+  @secret_key Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_secret_key]
               |> Base.decode64!()
 
   @session Plug.Session.init(

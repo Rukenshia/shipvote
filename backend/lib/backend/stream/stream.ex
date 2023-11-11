@@ -236,7 +236,7 @@ defmodule Backend.Stream do
       Logger.debug("update_channel_ships.inserting.ships=#{ships |> length}")
 
       # insert ships that don't exist
-      for ship <- Enum.filter(ships, fn s -> not (s.id in current_ship_ids) end) do
+      for ship <- Enum.filter(ships, fn s -> s.id not in current_ship_ids end) do
         Logger.debug("update_channel_ships.inserting.channel_id=#{channel.id},ship=#{ship.id}")
 
         %Backend.Stream.ChannelShip{}
@@ -249,7 +249,7 @@ defmodule Backend.Stream do
       end
 
       # remove ships that we don't need
-      for ship <- Enum.filter(current_ships, fn s -> not (s.ship_id in ship_ids) end) do
+      for ship <- Enum.filter(current_ships, fn s -> s.ship_id not in ship_ids end) do
         ship
         |> Repo.delete!()
       end

@@ -1,11 +1,8 @@
 defmodule BackendWeb.PageController do
-  use Phoenix.Controller
-
   require Logger
+  use BackendWeb, :controller
 
   action_fallback BackendWeb.FallbackController
-
-  use BackendWeb, :controller
 
   import Ecto.Query, only: [from: 2]
 

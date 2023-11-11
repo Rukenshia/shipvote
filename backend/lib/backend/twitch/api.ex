@@ -1,9 +1,9 @@
 defmodule Backend.Twitch.Api do
   require Logger
 
-  @client_id Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_client_id]
+  @client_id Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_client_id]
 
-  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+  @secret_key Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_secret_key]
               |> Base.decode64!()
 
   @doc """

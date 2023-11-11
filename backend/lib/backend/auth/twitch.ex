@@ -3,7 +3,7 @@ defmodule Backend.Auth.Twitch do
   import Plug.Conn
   import Phoenix.Controller, only: [json: 2]
 
-  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+  @secret_key Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_secret_key]
               |> Base.decode64!()
 
   def init(options), do: options
@@ -38,7 +38,7 @@ defmodule Backend.Auth.Twitch do
       role: "broadcaster"
     }
 
-    Logger.warn("Using testing endpoint")
+    Logger.warning("Using testing endpoint")
 
     conn
     |> put_session(:user_data, user_data)
@@ -53,7 +53,7 @@ defmodule Backend.Auth.Twitch do
       role: "broadcaster"
     }
 
-    Logger.warn("Using testing endpoint")
+    Logger.warning("Using testing endpoint")
 
     conn
     |> put_session(:user_data, user_data)
@@ -101,7 +101,7 @@ defmodule Backend.Auth.Twitch do
         |> halt()
 
       [] ->
-        Logger.warn("check_jwt.no_authorization_header")
+        Logger.warning("check_jwt.no_authorization_header")
 
         conn
         |> put_status(:unauthorized)
@@ -109,7 +109,7 @@ defmodule Backend.Auth.Twitch do
         |> halt()
 
       x ->
-        Logger.warn(inspect(x))
+        Logger.warning(inspect(x))
 
         conn
         |> put_status(:unauthorized)
@@ -119,7 +119,7 @@ defmodule Backend.Auth.Twitch do
   end
 
   def check_jwt(conn, _) do
-    Logger.warn("check_jwt.no_id_param=#{inspect(conn.params)}")
+    Logger.warning("check_jwt.no_id_param=#{inspect(conn.params)}")
 
     conn
     |> put_status(:unauthorized)

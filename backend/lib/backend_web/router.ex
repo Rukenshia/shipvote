@@ -3,7 +3,9 @@ defmodule BackendWeb.Router do
   import Plug.BasicAuth
   import Phoenix.LiveDashboard.Router
 
-  @basic_auth_password Application.get_env(:backend, BackendWeb.Endpoint)[:basic_auth_password]
+  @basic_auth_password Application.compile_env(:backend, BackendWeb.Endpoint)[
+                         :basic_auth_password
+                       ]
 
   require Logger
 
@@ -51,7 +53,6 @@ defmodule BackendWeb.Router do
     get("/votes", VoteController, :all)
 
     scope("/channels/:id") do
-
       get("/", ChannelController, :show_public_info)
 
       get("/votes", VoteController, :index)

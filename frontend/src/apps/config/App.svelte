@@ -84,7 +84,7 @@
 
     {#if $channel}
       <Box title="Settings">
-        <form>
+        <form on:submit={(e) => { e.preventDefault(); }}>
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <label for="channel-name">WoWS Username</label>
@@ -121,7 +121,7 @@
       <ChannelShips on:update={updateShips} {channel} />
     {:else}
       <Box title="Setup">
-        <form action="#" method="GET">
+        <form on:submit={(e) => { e.preventDefault(); }}>
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <label for="channel-name">WoWS Username</label>

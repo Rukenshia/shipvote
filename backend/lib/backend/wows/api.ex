@@ -1,7 +1,7 @@
 defmodule Backend.Wows.Api do
   require Logger
 
-  @application Application.get_env(:backend, Backend.Wows.Api)[:application]
+  @application Application.compile_env(:backend, Backend.Wows.Api)[:application]
   @ship_fields "is_premium,images.small,nation,ship_id,tier,type,name,description,is_special,next_ships"
 
   def get_warships(page, ships) do
@@ -85,6 +85,7 @@ defmodule Backend.Wows.Api do
         case data["data"]["#{account_id}"] do
           nil ->
             {:error, "Player deleted"}
+
           _ ->
             {:ok, data["data"]["#{account_id}"] |> Enum.map(fn e -> e["ship_id"] end)}
         end

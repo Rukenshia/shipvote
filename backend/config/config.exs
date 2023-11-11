@@ -3,19 +3,22 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-use Mix.Config
+import Config
 
 config :phoenix, :json_library, Jason
 
+config :esbuild,
+  version: "0.12.18",
+  default: [
+    args:
+      ~w(js/app.js --bundle --target=es2016 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
 config :backend, BackendWeb.Endpoint,
   live_view: [signing_salt: "SXGmFxy6zcy0csSKhKkORSf8c0"],
-  basic_auth_password: "fantasma",
-  instrumenters: [Appsignal.Phoenix.Instrumenter]
-
-# Template settings for appsignal
-config :phoenix, :template_engines,
-  eex: Appsignal.Phoenix.Template.EExEngine,
-  exs: Appsignal.Phoenix.Template.ExsEngine
+  basic_auth_password: "fantasma"
 
 config :backend, Backend.VoteProgress, enabled: true
 

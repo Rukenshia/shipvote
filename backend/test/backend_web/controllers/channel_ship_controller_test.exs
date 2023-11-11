@@ -5,7 +5,7 @@ defmodule BackendWeb.ChannelShipControllerTest do
   alias Backend.Stream.ChannelShip
   alias BackendWeb.Router.Helpers, as: Routes
 
-  @secret_key Application.get_env(:backend, BackendWeb.UserSocket)[:twitch_secret_key]
+  @secret_key Application.compile_env(:backend, Backend.Twitch.Api)[:twitch_secret_key]
               |> Base.decode64!()
 
   @create_attrs %{

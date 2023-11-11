@@ -23,7 +23,7 @@ defmodule BackendWeb.ChannelController do
   def create(conn, %{"wows_username" => username, "wows_realm" => realm} = channel_params) do
     case Stream.get_channel(channel_params |> Map.get("id")) do
       %Channel{} ->
-        Logger.warn(
+        Logger.warning(
           "channel_controller.create.reroute_to_update channel_id=#{Map.get(channel_params, "id")}"
         )
 
@@ -74,37 +74,48 @@ defmodule BackendWeb.ChannelController do
   end
 
   def show_public_info(conn, %{"id" => id}) do
+    channel =
+      case ConCache.get(:channel_cache, id) do
+        nil ->
+          Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{
+            "channel_id" => id,
+            "result" => "miss"
+          })
 
-    channel = case ConCache.get(:channel_cache, id) do
-      nil ->
-        Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{ "channel_id" => id, "result" => "miss" })
+          item =
+            case Repo.get(Channel, id) do
+              %Channel{} = c ->
+                # get the last opened vote
+                last_vote =
+                  from(v in Backend.Stream.Vote,
+                    where: v.channel_id == ^c.id,
+                    select: v.inserted_at,
+                    order_by: [desc: v.id],
+                    limit: 1
+                  )
+                  |> Repo.one()
 
-        item = case Repo.get(Channel, id) do
-          %Channel{} = c ->
-            # get the last opened vote
-            last_vote =
-              from(v in Backend.Stream.Vote,
-                where: v.channel_id == ^c.id,
-                select: v.inserted_at,
-                order_by: [desc: v.id],
-                limit: 1
-              )
-              |> Repo.one()
-            %ConCache.Item{value: {c |> Repo.preload(:ships), last_vote}, ttl: :timer.seconds(30)}
+                %ConCache.Item{
+                  value: {c |> Repo.preload(:ships), last_vote},
+                  ttl: :timer.seconds(30)
+                }
 
-          nil ->
-            %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
-        end
+              nil ->
+                %ConCache.Item{value: :not_found, ttl: :timer.seconds(30)}
+            end
 
-        :ok = ConCache.put(:channel_cache, id, item)
+          :ok = ConCache.put(:channel_cache, id, item)
 
-        item.value
+          item.value
 
-      item ->
-        Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{ "channel_id" => id, "result" => "hit" })
+        item ->
+          Appsignal.increment_counter("channel_public_info_missed_cache", 1, %{
+            "channel_id" => id,
+            "result" => "hit"
+          })
 
-        item
-    end
+          item
+      end
 
     case channel do
       {%Channel{} = channel, last_vote} ->
@@ -173,8 +184,8 @@ defmodule BackendWeb.ChannelController do
         |> json(%{ok: false, message: "Player not found"})
 
       {:error, changeset} ->
-        Logger.warn("channel.update.failed.changeset")
-        Logger.warn(inspect(changeset))
+        Logger.warning("channel.update.failed.changeset")
+        Logger.warning(inspect(changeset))
 
         conn
         |> put_status(:bad_request)

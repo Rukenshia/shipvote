@@ -17,6 +17,8 @@ defmodule BackendWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: BackendWeb
@@ -28,8 +30,9 @@ defmodule BackendWeb do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/backend_web/templates",
-                        namespace: BackendWeb
+      use Phoenix.View,
+        root: "lib/backend_web/templates",
+        namespace: BackendWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]

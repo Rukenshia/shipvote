@@ -6,7 +6,7 @@ defmodule Backend.Wows.BackgroundRefresh do
 
   import Ecto.Query, only: [from: 2]
 
-  def start_link do
+  def start_link(_) do
     GenServer.start_link(__MODULE__, %{})
   end
 
@@ -52,7 +52,7 @@ defmodule Backend.Wows.BackgroundRefresh do
 
     {deleted_ships, _} =
       from(s in Backend.Wows.Warship,
-        where: not (s.id in ^ids)
+        where: s.id not in ^ids
       )
       |> Repo.delete_all()
 

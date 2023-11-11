@@ -1,5 +1,7 @@
-use Mix.Config
+import Config
 
 config :appsignal, :config,
+  otp_app: :backend,
   name: "shipvote",
-  env: Mix.env
+  env: Mix.env(),
+  active: true

@@ -36,7 +36,7 @@ defmodule Backend.Stream.BackgroundVoteClose do
     |> Enum.each(fn vote ->
       case Stream.change_vote_status(vote.id, "closed") do
         {:error, e} ->
-          Logger.warn("Could not close old vote #{vote.id}: #{e}")
+          Logger.warning("Could not close old vote #{vote.id}: #{e}")
 
         _ ->
           nil

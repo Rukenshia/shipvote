@@ -61,7 +61,6 @@
 
 <div class="flex flex-col gap-4">
 {#await $channel}
-  load
 {:then channel}
   <div class="flex flex-col gap-4" class:hidden={!channel} transition:slide={{ duration: 300 }}>
   {#if showNewVote}
