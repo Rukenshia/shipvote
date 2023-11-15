@@ -1,5 +1,5 @@
-import axios from 'axios';
-import type { AxiosResponse } from 'axios';
+import axios from "axios";
+import type { AxiosResponse } from "axios";
 
 export interface Ship {
   id: number;
@@ -27,16 +27,22 @@ export interface Vote {
   status: string;
   ships: number[];
   votes: { [id: number]: number };
+  started_at: Date;
+  ends_at?: Date;
   updated_at: Date;
 }
 
 export class ShipvoteApi {
-  constructor(private baseUrl: string, private token: string, private channelId: string) { }
+  constructor(
+    private baseUrl: string,
+    private token: string,
+    private channelId: string,
+  ) {}
 
   headers() {
     return {
-      'Content-Type': 'application/json',
-      authorization: `Bearer ${this.token}`
+      "Content-Type": "application/json",
+      authorization: `Bearer ${this.token}`,
     };
   }
 
@@ -51,7 +57,7 @@ export class ShipvoteApi {
   async createChannelConfig(channel: Channel): Promise<Channel> {
     return axios
       .post(`${this.baseUrl}/api/settings/channels`, channel, {
-        headers: this.headers()
+        headers: this.headers(),
       })
       .then((res: AxiosResponse) => res.data.data);
   }
@@ -59,11 +65,11 @@ export class ShipvoteApi {
   async updateChannelConfig(channel: Channel): Promise<Channel> {
     return axios
       .put(
-        this.buildBroadcasterUrl('/'),
+        this.buildBroadcasterUrl("/"),
         { channel },
         {
-          headers: this.headers()
-        }
+          headers: this.headers(),
+        },
       )
       .then((res: AxiosResponse) => res.data.data);
   }
@@ -73,20 +79,20 @@ export class ShipvoteApi {
       this.buildBroadcasterUrl(`/ships/${id}/enabled`),
       { enabled },
       {
-        headers: this.headers()
-      }
+        headers: this.headers(),
+      },
     );
   }
 
   async broadcasterGetChannel(): Promise<Channel> {
     return axios
-      .get(this.buildBroadcasterUrl('/'), { headers: this.headers() })
+      .get(this.buildBroadcasterUrl("/"), { headers: this.headers() })
       .then((res: AxiosResponse) => res.data.data);
   }
 
   async getChannelInfo(): Promise<Channel> {
     return axios
-      .get(this.buildUrl('/'), { headers: this.headers() })
+      .get(this.buildUrl("/"), { headers: this.headers() })
       .then((res: AxiosResponse) => res.data.data);
   }
 
@@ -98,36 +104,44 @@ export class ShipvoteApi {
 
   async getWarships(ids: number[]): Promise<Ship[]> {
     return this.getAllWarships().then((ships: Ship[]) =>
-      ships.filter((s: Ship) => ids.includes(s.id))
+      ships.filter((s: Ship) => ids.includes(s.id)),
     );
   }
 
   async getOpenVote(): Promise<Vote> {
     return axios
-      .get(this.buildUrl('/votes?status=open'), { headers: this.headers() })
-      .then((res: AxiosResponse) => (res.data.data.length > 0 ? res.data.data[0] : undefined));
+      .get(this.buildUrl("/votes?status=open"), { headers: this.headers() })
+      .then((res: AxiosResponse) =>
+        res.data.data.length > 0 ? res.data.data[0] : undefined,
+      );
   }
 
   async getClosedVotes(): Promise<Vote[]> {
     return axios
-      .get(this.buildUrl('/votes?status=closed'), { headers: this.headers() })
+      .get(this.buildUrl("/votes?status=closed"), { headers: this.headers() })
       .then((res: AxiosResponse) => res.data.data);
   }
 
   async getVote(id: number, full = true): Promise<Vote> {
     return axios
       .get(this.buildUrl(`/votes/${id}?full=${full}`), {
-        headers: this.headers()
+        headers: this.headers(),
       })
       .then((res: AxiosResponse) => res.data.data);
   }
 
-  async openVote(ships: number[]): Promise<Vote> {
+  async openVote(ships: number[], duration = undefined): Promise<Vote> {
+    let end_date = undefined;
+    if (duration) {
+      const now = new Date();
+      end_date = new Date(now.getTime() + duration * 60000);
+      end_date = end_date.toISOString();
+    }
     return axios
       .post(
-        this.buildUrl('/votes'),
-        { vote: { ships, status: 'open' } },
-        { headers: this.headers() }
+        this.buildUrl("/votes"),
+        { vote: { ships, status: "open", scheduled_end: end_date } },
+        { headers: this.headers() },
       )
       .then((res: AxiosResponse) => res.data.data);
   }
@@ -136,8 +150,8 @@ export class ShipvoteApi {
     return axios
       .patch(
         this.buildUrl(`/votes/${voteId}/status`),
-        { status: 'closed' },
-        { headers: this.headers() }
+        { status: "closed" },
+        { headers: this.headers() },
       )
       .then((res: AxiosResponse) => res.data.data);
   }
@@ -146,7 +160,7 @@ export class ShipvoteApi {
     return axios.post(
       this.buildUrl(`/votes/${voteId}/submit`),
       { ship_id: shipId },
-      { headers: this.headers() }
+      { headers: this.headers() },
     );
   }
 }

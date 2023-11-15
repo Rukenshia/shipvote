@@ -5,6 +5,7 @@
   import VoteResults from "./VoteResults.svelte";
   import Box from "./Box.svelte";
   import type { Vote } from "../api";
+  import RemainingVoteTime from "./RemainingVoteTime.svelte";
 
   const dev = import.meta.env.DEV;
   const dispatch = createEventDispatcher();
@@ -37,10 +38,10 @@
     </span>
 
     {#if $vote && $vote.status === "open"}
-      <div class="flex justify-around mt-2">
+      <div class="mt-2 flex flex-col justify-around gap-2 px-4">
         <button
           on:click={() => closeVote()}
-          class="px-8 py-4 rounded-md active:bg-cyan-600 active:ring-2 active:ring-cyan-400 transition font-medium"
+          class="rounded-md px-8 py-4 font-medium transition active:bg-cyan-600 active:ring-2 active:ring-cyan-400"
           class:text-gray-800={$vote !== undefined}
           class:text-gray-200={$vote === undefined}
           class:bg-gray-700={$vote === undefined}
@@ -48,6 +49,13 @@
           class:hover:bg-cyan-400={$vote !== undefined}
           disabled={$vote === undefined}>Close vote</button
         >
+
+        {#if vote.ends_at}
+          <RemainingVoteTime
+            started_at={$vote.created_at}
+            ends_at={$vote.ends_at}
+          />
+        {/if}
       </div>
     {/if}
 

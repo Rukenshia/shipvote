@@ -79,7 +79,25 @@ defmodule Backend.Twitch.VoteProgress do
     ConCache.get_or_store(:vote_progress_cache, "open_votes", fn ->
       []
     end)
-    |> Enum.each(&publish_vote_progress/1)
+    |> Enum.map(fn vote_id ->
+      publish_vote_status(vote_id)
+
+      vote_id
+    end)
+    |> Enum.filter(fn vote_id ->
+      with vote = %Vote{} <- Stream.get_cached_vote(vote_id) do
+        vote.status == "open" && vote.scheduled_end != nil &&
+          DateTime.compare(vote.scheduled_end, DateTime.utc_now()) == :lt
+      else
+        _ ->
+          false
+      end
+    end)
+    |> Enum.each(fn vote_id ->
+      Logger.warning("Twitch.VoteProgress: closing vote #{vote_id} because it expired")
+      Backend.Stream.change_vote_status(vote_id, "closed")
+      GenServer.cast(self(), {:remove_vote, vote_id})
+    end)
 
     Logger.info("Twitch.VoteProgress.handle_info.done")
 
@@ -101,7 +119,7 @@ defmodule Backend.Twitch.VoteProgress do
           )
 
         _ ->
-          Logger.warning("Twitch.VoteProgress.publish_vote_status: sent for vote_id=#{vote_id}")
+          Logger.info("Twitch.VoteProgress.publish_vote_status: sent for vote_id=#{vote_id}")
       end
     else
       _ ->

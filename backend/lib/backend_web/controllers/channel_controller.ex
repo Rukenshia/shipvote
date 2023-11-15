@@ -1,6 +1,5 @@
 defmodule BackendWeb.ChannelController do
   require Logger
-  import Ecto.Query, only: [from: 2]
 
   use BackendWeb, :controller
 
@@ -17,7 +16,7 @@ defmodule BackendWeb.ChannelController do
 
   def index(conn, _params) do
     channels = Stream.list_channels()
-    render(conn, "index.json", channels: channels)
+    render(conn, :index, channels: channels)
   end
 
   def create(conn, %{"wows_username" => username, "wows_realm" => realm} = channel_params) do
@@ -37,7 +36,7 @@ defmodule BackendWeb.ChannelController do
           conn
           |> put_status(:created)
           |> put_resp_header("location", Routes.channel_path(conn, :show, channel))
-          |> render("show.json", channel: channel |> load_ships())
+          |> render(:show, channel: channel |> load_ships())
         else
           {:error, "Player not found"} ->
             conn
@@ -64,7 +63,7 @@ defmodule BackendWeb.ChannelController do
     with %Backend.Stream.Channel{} = channel <-
            Stream.get_channel(id)
            |> Repo.preload(:ships) do
-      render(conn, "show.json", channel: channel |> load_ships())
+      render(conn, :show, channel: channel |> load_ships())
     else
       nil ->
         conn
@@ -85,18 +84,8 @@ defmodule BackendWeb.ChannelController do
           item =
             case Repo.get(Channel, id) do
               %Channel{} = c ->
-                # get the last opened vote
-                last_vote =
-                  from(v in Backend.Stream.Vote,
-                    where: v.channel_id == ^c.id,
-                    select: v.inserted_at,
-                    order_by: [desc: v.id],
-                    limit: 1
-                  )
-                  |> Repo.one()
-
                 %ConCache.Item{
-                  value: {c |> Repo.preload(:ships), last_vote},
+                  value: c |> Repo.preload(:ships),
                   ttl: :timer.seconds(30)
                 }
 
@@ -118,41 +107,8 @@ defmodule BackendWeb.ChannelController do
       end
 
     case channel do
-      {%Channel{} = channel, last_vote} ->
-        if is_nil(last_vote) do
-          channel = Map.merge(channel, %{vote_progress_delay: 2500, vote_status_delay: 30000})
-          conn |> render("show.public.json", %{channel: channel})
-        else
-          now = DateTime.utc_now()
-
-          diff = NaiveDateTime.diff(now, last_vote)
-
-          polling_times =
-            case diff do
-              # had a vote today
-              diff when diff in 0..(60 * 60 * 24) ->
-                %{
-                  vote_status_delay: 7500,
-                  vote_progress_delay: 4000
-                }
-
-              # had a vote yesterday
-              diff when diff in 0..(60 * 60 * 24 * 2) ->
-                %{
-                  vote_status_delay: 15000,
-                  vote_progress_delay: 5000
-                }
-
-              _ ->
-                %{
-                  vote_status_delay: 30000,
-                  vote_progress_delay: 5000
-                }
-            end
-
-          channel = Map.merge(channel, polling_times)
-          conn |> render("show.public.json", %{channel: channel})
-        end
+      %Channel{} = channel ->
+        conn |> render(:show_public, channel: channel)
 
       :not_found ->
         conn |> put_status(:not_found) |> json(%{ok: false, message: "Not found"})
@@ -176,7 +132,7 @@ defmodule BackendWeb.ChannelController do
            Stream.update_channel(channel, Map.delete(channel_params, "wows_account_id")),
          {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
       ConCache.delete(:channel_cache, id)
-      render(conn, "show.json", channel: channel |> load_ships())
+      render(conn, :show, channel: channel |> load_ships())
     else
       {:error, "Player not found"} ->
         conn

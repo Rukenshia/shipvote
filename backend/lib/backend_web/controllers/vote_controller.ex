@@ -127,17 +127,11 @@ defmodule BackendWeb.VoteController do
     end
   end
 
-  def set_status(conn, %{"id" => channel_id, "vote_id" => vote_id, "status" => status}) do
+  def set_status(conn, %{"vote_id" => vote_id, "status" => status}) do
     vote_id = String.to_integer(vote_id)
 
     case Stream.change_vote_status(vote_id, status) do
       {:ok, vote} ->
-        ConCache.delete(:vote_cache, "vote_#{vote.id}")
-        ConCache.delete(:vote_cache, "index_status_#{channel_id}_open")
-        ConCache.delete(:vote_cache, "index_status_#{channel_id}_closed")
-        ConCache.delete(:vote_cache, "all_status_open")
-        ConCache.delete(:vote_cache, "index_#{channel_id}")
-
         if status == "closed" do
           GenServer.cast(:vote_progress, {:remove_vote, vote.id})
         end

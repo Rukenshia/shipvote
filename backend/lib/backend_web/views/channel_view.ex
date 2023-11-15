@@ -1,38 +1,34 @@
 defmodule BackendWeb.ChannelView do
   use BackendWeb, :view
-  alias BackendWeb.ChannelView
+  require Logger
 
-  def render("index.json", %{channels: channels}) do
-    %{data: render_many(channels, ChannelView, "channel.json")}
+  def index(%{channels: channels}) do
+    %{data: channels |> Enum.map(fn c -> show(%{channel: c}) end)}
   end
 
-  def render("show.json", %{channel: channel}) do
-    %{data: render_one(channel, ChannelView, "channel.json")}
-  end
-
-  def render("show.public.json", %{channel: channel}) do
-    %{data: render_one(channel, ChannelView, "channel.public.json")}
-  end
-
-  def render("channel.public.json", %{channel: channel}) do
+  def show(%{channel: channel}) do
     %{
-      id: channel.id,
-      vote_status_delay: channel.vote_status_delay,
-      vote_progress_delay: channel.vote_progress_delay,
-      ships: []
+      data:
+        %{
+          id: channel.id,
+          wows_username: channel.wows_username,
+          wows_account_id: channel.wows_account_id,
+          wows_realm: channel.wows_realm,
+          ships: []
+        }
+        |> render_ships(channel)
     }
-    |> render_ships(channel)
   end
 
-  def render("channel.json", %{channel: channel}) do
+  def show_public(%{channel: channel}) do
     %{
-      id: channel.id,
-      wows_username: channel.wows_username,
-      wows_account_id: channel.wows_account_id,
-      wows_realm: channel.wows_realm,
-      ships: []
+      data:
+        %{
+          id: channel.id,
+          ships: []
+        }
+        |> render_ships(channel)
     }
-    |> render_ships(channel)
   end
 
   defp render_ships(data, channel) do

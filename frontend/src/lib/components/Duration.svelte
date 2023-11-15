@@ -1,7 +1,7 @@
 <script>
   export let options = [null, 1, 5, 15, 20, 30];
 
-  let selected = null;
+  export let selected = null;
 </script>
 
 <div>
@@ -14,12 +14,12 @@
     <div class="grid grid-cols-3 gap-3 sm:grid-cols-6">
       {#each options as option}
         <label
-          class="border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium sm:flex-1 cursor-pointer transition focus:outline-none border-zinc-400 text-gray-50 hover:text-gray-900 hover:bg-zinc-200 active:ring-2 active:ring-offset-2 active:ring-gray-500"
-          class:bg-gray-500={selected === option}
+          class="flex cursor-pointer items-center justify-center rounded-md border border-cyan-400 px-3 py-3 text-sm font-medium text-gray-50 transition hover:bg-cyan-500 hover:text-gray-900 focus:outline-none active:ring-2 active:ring-gray-500 active:ring-offset-2 sm:flex-1"
+          class:bg-cyan-700={selected === option}
           class:border-transparent={selected === option}
           class:text-white={selected === option}
           class:hover:text-white={selected === option}
-          class:hover:bg-gray-400={selected === option}
+          class:hover:bg-cyan-700={selected === option}
         >
           <input
             checked={selected === option}

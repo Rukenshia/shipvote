@@ -32,7 +32,7 @@ config :backend, BackendWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
-config :backend, Backend.VoteProgress, enabled: false
+config :backend, Backend.VoteProgress, enabled: true
 
 # Watch static and templates for browser reloading.
 config :backend, BackendWeb.Endpoint,
@@ -63,5 +63,3 @@ config :backend, Backend.Repo,
   pool_size: 10
 
 import_config "dev.secret.exs"
-
-config :appsignal, :config, active: true

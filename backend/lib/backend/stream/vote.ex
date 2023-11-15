@@ -6,6 +6,7 @@ defmodule Backend.Stream.Vote do
     belongs_to(:channel, Backend.Stream.Channel)
     field(:ships, {:array, :integer})
     field(:status, :string)
+    field(:scheduled_end, :utc_datetime)
 
     has_many(:votes, Backend.Stream.VotedShip)
 
@@ -15,7 +16,7 @@ defmodule Backend.Stream.Vote do
   @doc false
   def changeset(vote, attrs) do
     vote
-    |> cast(attrs, [:channel_id, :ships, :status, :inserted_at])
+    |> cast(attrs, [:channel_id, :ships, :status, :scheduled_end, :inserted_at])
     |> validate_required([:channel_id, :ships, :status])
   end
 

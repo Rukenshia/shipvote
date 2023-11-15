@@ -40,7 +40,9 @@ defmodule Backend.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.7.0"},
+      {:appsignal, "~> 2.0"},
       {:appsignal_phoenix, "~> 2.0"},
+      {:appsignal_plug, "~> 2.0"},
       {:phoenix_view, "~> 2.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_dashboard, "~> 0.7.2"},

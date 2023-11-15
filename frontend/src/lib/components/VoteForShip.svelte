@@ -2,6 +2,7 @@
   import type { Ship, Vote } from "../api";
   import { api } from "../store";
   import ShipFilters from "./ShipFilters.svelte";
+  import RemainingVoteTime from "./RemainingVoteTime.svelte";
   import { slide } from "svelte/transition";
 
   export let vote: Vote;
@@ -23,7 +24,7 @@
     });
 
     shipsByTier = new Map(
-      [...shipsByTier.entries()].sort((a, b) => a[0] - b[0])
+      [...shipsByTier.entries()].sort((a, b) => a[0] - b[0]),
     );
   }
 
@@ -43,15 +44,15 @@
 </script>
 
 <div class="flex flex-col gap-4 pr-4">
-  <div class="flex gap-4">
+  <div class="flex items-center gap-4">
     <h2 class="text-lg font-bold">Cast your vote</h2>
     <button
-      class="bg-cyan-700 rounded hover:bg-cyan-600 px-2 py-0.5 flex gap-2 items-center"
+      class="flex items-center gap-2 rounded bg-cyan-700 px-2 py-0.5 hover:bg-cyan-600"
       class:bg-cyan-600={showFilters}
       on:click={() => (showFilters = !showFilters)}
     >
       <svg
-        class="w-4 h-4"
+        class="h-4 w-4"
         fill="none"
         stroke="currentColor"
         stroke-width="1.5"
@@ -67,13 +68,25 @@
       </svg>
       <span class="text-md">Filters</span>
     </button>
-    <div class="flex-grow" />
+
+    {#if vote.ends_at}
+      <div class="flex-grow">
+        <RemainingVoteTime
+          vertical_padding={1}
+          started_at={vote.created_at}
+          ends_at={vote.ends_at}
+        />
+      </div>
+    {:else}
+      <div class="flex-grow" />
+    {/if}
+
     <button
-      class="bg-cyan-700 rounded hover:bg-cyan-600 px-2 py-0.5 flex items-center"
+      class="flex items-center rounded bg-cyan-700 px-2 py-0.5 hover:bg-cyan-600"
       on:click={() => close()}
     >
       <svg
-        class="w-4 h-4"
+        class="h-4 w-4"
         fill="none"
         stroke="currentColor"
         stroke-width="1.5"
@@ -97,20 +110,20 @@
   {/if}
 
   {#each shipsByTier.entries() as [tier, ships]}
-    <div class="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-4 gap-2">
+    <div class="grid grid-cols-4 gap-2 sm:grid-cols-4 lg:grid-cols-4">
       <span
-        class="col-span-full text-xs font-bold flex items-center gap-2 text-cyan-100"
+        class="col-span-full flex items-center gap-2 text-xs font-bold text-cyan-100"
       >
         Tier {romanize(tier)}
-        <span class="border-t flex-grow" />
+        <span class="flex-grow border-t" />
       </span>
       {#each ships as ship}
         <button
-          class="flex bg-cyan-700 hover:bg-cyan-600 rounded pr-2 pb-1 items-end truncate min-w-min transition-colors"
+          class="flex min-w-min items-end truncate rounded bg-cyan-700 pb-1 pr-2 transition-colors hover:bg-cyan-600"
           on:click={() => voteForShip(ship)}
         >
-          <img class="w-auto h-6" alt={ship.name} src={ship.image} />
-          <span class="text-xs sm:text-sm flex-grow truncate">
+          <img class="h-6 w-auto" alt={ship.name} src={ship.image} />
+          <span class="flex-grow truncate text-xs sm:text-sm">
             {ship.name}
           </span>
         </button>

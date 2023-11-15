@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 WorkingDirectory=/opt/shipvote
 ExecStart=/opt/shipvote/bin/backend start
+ExecStartPre=/opt/shipvote/bin/migrate
 Restart=on-failure
 RestartSec=5
 EnvironmentFile=/opt/shipvote/shipvote.env

@@ -5,6 +5,7 @@ cd /tmp/shipvote_src
 # build release
 export MIX_ENV=prod
 mix assets.deploy
+mix phx.gen.release
 mix release
 
 # extract release

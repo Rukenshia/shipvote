@@ -19,6 +19,10 @@ defmodule BackendWeb.VoteView do
       channel_id: vote.channel_id,
       status: vote.status,
       votes: %{},
+      ends_at: vote.scheduled_end,
+      created_at:
+        vote.inserted_at
+        |> DateTime.from_naive!("Etc/UTC"),
       updated_at: vote.updated_at
     }
     |> render_voted_ships(vote)
@@ -31,6 +35,10 @@ defmodule BackendWeb.VoteView do
       status: vote.status,
       ships: vote.ships,
       votes: %{},
+      ends_at: vote.scheduled_end,
+      created_at:
+        vote.inserted_at
+        |> DateTime.from_naive!("Etc/UTC"),
       updated_at: vote.updated_at
     }
     |> render_voted_ships(vote)

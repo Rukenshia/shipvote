@@ -5,6 +5,7 @@ defmodule Backend.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
+    Appsignal.Logger.Handler.add("phoenix")
     features = get_features()
 
     # Define workers and child supervisors to be supervised
@@ -12,8 +13,15 @@ defmodule Backend.Application do
       [
         # Start the Ecto repository
         Supervisor.child_spec({Backend.Repo, []}, id: :backend_repo),
+        # Start PubSub
+        Supervisor.child_spec(
+          {Phoenix.PubSub, [name: Backend.PubSub, adapter: Phoenix.PubSub.PG2]},
+          id: :pubsub
+        ),
         # Start the endpoint when the application starts
-        Supervisor.child_spec({BackendWeb.Endpoint, []}, id: :backend_web),
+        Supervisor.child_spec({BackendWeb.Endpoint, [pubsub_server: Backend.PubSub]},
+          id: :backend_web
+        ),
         # Start your own worker by calling: Backend.Worker.start_link(arg1, arg2, arg3)
         # worker(Backend.Worker, [arg1, arg2, arg3]),
         Supervisor.child_spec(
@@ -89,7 +97,7 @@ defmodule Backend.Application do
 
           features ++
             [
-              Supervisor.child_spec({Backend.Wows.ChannelShipRefresh, []},
+              Supervisor.child_spec({Backend.Stream.ChannelShipRefresh, []},
                 id: :channel_ship_refresh
               )
             ]

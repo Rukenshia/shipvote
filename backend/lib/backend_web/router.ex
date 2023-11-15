@@ -1,5 +1,6 @@
 defmodule BackendWeb.Router do
   use BackendWeb, :router
+  use Appsignal.Plug
   import Plug.BasicAuth
   import Phoenix.LiveDashboard.Router
 
@@ -18,7 +19,7 @@ defmodule BackendWeb.Router do
   end
 
   pipeline :admin do
-    plug :basic_auth, username: "elsenor", password: @basic_auth_password
+    plug(:basic_auth, username: "elsenor", password: @basic_auth_password)
   end
 
   pipeline :verify_jwt do
@@ -38,7 +39,7 @@ defmodule BackendWeb.Router do
 
       get("/", PageController, :metrics)
       get("/channels/:id", PageController, :channel_metrics)
-      live_dashboard "/dashboard", metrics: BackendWeb.Telemetry
+      live_dashboard("/dashboard", metrics: BackendWeb.Telemetry)
     end
 
     get("/_health", PageController, :health)

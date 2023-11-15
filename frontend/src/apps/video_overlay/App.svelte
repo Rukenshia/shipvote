@@ -4,24 +4,25 @@
   import CreatorBanner from "../../lib/components/CreatorBanner.svelte";
   import VoteForShip from "../../lib/components/VoteForShip.svelte";
   import VoteProgressOverlay from "../../lib/components/VoteProgressOverlay.svelte";
-  import { registerPubSubHandler, fakePubSubVoting } from "../../lib/pubsub";
+  import { PubSubHandler, fakePubSubVoting } from "../../lib/pubsub";
   import { api, vote, warships } from "../../lib/store";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { writable, type Writable } from "svelte/store";
   import { scale } from "svelte/transition";
 
   let channel: Writable<Channel> = writable();
 
   let hidden = false;
+  const pubSubHandler = new PubSubHandler();
 
   onMount(() => {
-    registerPubSubHandler();
+    pubSubHandler.init();
 
     let loadingChannel = false;
 
     window.Twitch.ext.onContext(async (data, changed) => {
       if (data.game !== "World of Warships") {
-        console.log("game is not WoWS");
+        // console.log("game is not WoWS");
         return;
       }
 
@@ -49,6 +50,10 @@
     return () => {};
   });
 
+  onDestroy(() => {
+    pubSubHandler.deinit();
+  });
+
   vote.subscribe(($vote) => {
     if (!$vote) {
       // reset hidden flag as we haven't voted if there is no vote
@@ -66,13 +71,13 @@
       </div>
       {#if !hidden}
         <div
-          class="h-full flex items-center justify-center py-16 overflow-hidden"
+          class="flex h-full items-center justify-center overflow-hidden py-16"
           in:scale={{ duration: 300 }}
           out:scale={{ duration: 300 }}
         >
-          <div class="relative max-w-2xl w-full text-white">
+          <div class="relative w-full max-w-2xl text-white">
             <div
-              class="h-full z-20 p-4 pt-2 relative bg-gradient-to-b from-cyan-800 to-cyan-950 rounded-xl opacity-80 hover:opacity-100 transition-all duration-300"
+              class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 p-4 pt-2 opacity-80 transition-all duration-300 hover:opacity-100"
             >
               <div class="max-h-64 overflow-y-auto">
                 <VoteForShip
@@ -82,14 +87,14 @@
                 />
 
                 <div
-                  class="opacity-50 mt-4 bg-cyan-950 px-2 py-1 text-xs rounded-lg"
+                  class="mt-4 rounded-lg bg-cyan-950 px-2 py-1 text-xs opacity-50"
                 >
                   <CreatorBanner />
                 </div>
               </div>
             </div>
             <div
-              class="absolute -inset-1 rounded-md blur-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 z-10"
+              class="absolute -inset-1 z-10 rounded-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 blur-md"
             />
           </div>
         </div>

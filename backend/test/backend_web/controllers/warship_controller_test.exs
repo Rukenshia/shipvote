@@ -40,7 +40,7 @@ defmodule BackendWeb.WarshipControllerTest do
 
   describe "create warship" do
     test "renders warship when data is valid", %{conn: conn} do
-      conn = post conn, warship_path(conn, :create), warship: @create_attrs
+      conn = post(conn, warship_path(conn, :create), warship: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, warship_path(conn, :show, id))
@@ -57,7 +57,7 @@ defmodule BackendWeb.WarshipControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post conn, warship_path(conn, :create), warship: @invalid_attrs
+      conn = post(conn, warship_path(conn, :create), warship: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -66,7 +66,7 @@ defmodule BackendWeb.WarshipControllerTest do
     setup [:create_warship]
 
     test "renders warship when data is valid", %{conn: conn, warship: %Warship{id: id} = warship} do
-      conn = put conn, warship_path(conn, :update, warship), warship: @update_attrs
+      conn = put(conn, warship_path(conn, :update, warship), warship: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, warship_path(conn, :show, id))
@@ -83,7 +83,7 @@ defmodule BackendWeb.WarshipControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, warship: warship} do
-      conn = put conn, warship_path(conn, :update, warship), warship: @invalid_attrs
+      conn = put(conn, warship_path(conn, :update, warship), warship: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
@@ -95,9 +95,9 @@ defmodule BackendWeb.WarshipControllerTest do
       conn = delete(conn, warship_path(conn, :delete, warship))
       assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
+      assert_error_sent(404, fn ->
         get(conn, warship_path(conn, :show, warship))
-      end
+      end)
     end
   end
 

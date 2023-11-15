@@ -23,6 +23,7 @@
 
   let selectedShips: Writable<Ship[]> = writable([]);
   let filteredShips: Ship[] = [];
+  let duration: number;
 
   function addShips(ships: Ship[]) {
     $selectedShips = [
@@ -47,7 +48,10 @@
   }
 
   async function openVote() {
-    $vote = await $api.openVote($selectedShips.map((s) => s.id));
+    $vote = await $api.openVote(
+      $selectedShips.map((s) => s.id),
+      duration,
+    );
     dispatch("vote_opened");
 
     if (dev) {
@@ -62,12 +66,12 @@
 <div class="flex flex-col gap-8">
   <div>
     <a
-      class="text-gray-300 hover:bg-gray-800 rounded hover:drop-shadow-xl transition font-medium p-4 inline-flex items-center gap-2"
+      class="inline-flex items-center gap-2 rounded p-4 font-medium text-gray-300 transition hover:bg-gray-800 hover:drop-shadow-xl"
       href="#live_config"
       on:click={() => dispatch("back")}
     >
       <svg
-        class="w-4 h-4 mt-0.5"
+        class="mt-0.5 h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -90,23 +94,16 @@
         <Box>There is already an open vote</Box>
       {:else}
         <Box>
-          <h2 class="text-gray-200 text-xl font-medium">New Vote</h2>
+          <h2 class="text-xl font-medium text-gray-200">New Vote</h2>
 
-          <div class="relative">
-            <div class="p-4"><Duration /></div>
-            <div
-              class="absolute left-0 top-0 w-full h-full bg-gray-800/90 rounded flex items-center justify-center"
-            >
-              <div>Coming (back) soon</div>
-            </div>
-          </div>
+          <div class="p-4"><Duration bind:selected={duration} /></div>
 
-          <div class="mt-8 flex justify-around items-center">
+          <div class="mt-8 flex items-center justify-around">
             <button
               on:click={() => openVote()}
-              class="px-8 py-4 rounded-md {$selectedShips.length
+              class="rounded-md px-8 py-4 {$selectedShips.length
                 ? 'hover:bg-cyan-400 active:bg-cyan-600 active:ring-2 active:ring-cyan-400'
-                : 'text-cyan-200/50'} transition font-medium"
+                : 'text-cyan-200/50'} font-medium transition"
               class:text-gray-800={$selectedShips.length}
               class:bg-cyan-900={!$selectedShips.length}
               class:bg-cyan-500={$selectedShips.length}
@@ -123,7 +120,7 @@
           {#if filteredShips.length}
             <button
               on:click={() => addShips(filteredShips)}
-              class="text-gray-200 px-4 py-2 rounded-md bg-cyan-800/50 hover:text-gray-100 hover:bg-cyan-700 transition font-medium"
+              class="rounded-md bg-cyan-800/50 px-4 py-2 font-medium text-gray-200 transition hover:bg-cyan-700 hover:text-gray-100"
             >
               {#if filteredShips.length === 1}
                 Add {filteredShips[0].name}
@@ -134,9 +131,9 @@
           {/if}
           <button
             on:click={() => removeAllShips()}
-            class="text-gray-300 px-4 py-2 rounded-md bg-zinc-700 {$selectedShips.length
-              ? 'hover:text-gray-100 hover:bg-cyan-500'
-              : ''} transition font-medium"
+            class="rounded-md bg-zinc-700 px-4 py-2 text-gray-300 {$selectedShips.length
+              ? 'hover:bg-cyan-500 hover:text-gray-100'
+              : ''} font-medium transition"
             class:text-gray-500={!$selectedShips.length}
             class:bg-transparent={!$selectedShips.length}
             disabled={!$selectedShips.length}>Remove all</button
@@ -147,20 +144,20 @@
           {#each filteredShips as ship}
             <Box>
               <div class="flex items-center gap-4">
-                <img class="w-16 h-10" alt={ship.name} src={ship.image} />
-                <span class="text-lg flex-grow">
+                <img class="h-10 w-16" alt={ship.name} src={ship.image} />
+                <span class="flex-grow text-lg">
                   {ship.name}
                 </span>
                 {#if $selectedShips.find((s) => s.id === ship.id)}
                   <button
-                    class="bg-cyan-900 drop-shadow-sm hover:bg-cyan-700 transition font-medium py-2 px-4 rounded"
+                    class="rounded bg-cyan-900 px-4 py-2 font-medium drop-shadow-sm transition hover:bg-cyan-700"
                     on:click={() => removeShip(ship)}
                   >
                     -
                   </button>
                 {:else}
                   <button
-                    class="bg-cyan-900 drop-shadow-sm hover:bg-cyan-700 transition font-medium py-2 px-4 rounded"
+                    class="rounded bg-cyan-900 px-4 py-2 font-medium drop-shadow-sm transition hover:bg-cyan-700"
                     on:click={() => addShip(ship)}
                   >
                     +

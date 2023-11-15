@@ -299,6 +299,12 @@ defmodule Backend.Stream do
            |> Vote.status_changeset(%{"status" => status})
            |> Repo.update() do
         {:ok, vote} ->
+          ConCache.delete(:vote_cache, "vote_#{vote.id}")
+          ConCache.delete(:vote_cache, "index_status_#{vote.channel_id}_open")
+          ConCache.delete(:vote_cache, "index_status_#{vote.channel_id}_closed")
+          ConCache.delete(:vote_cache, "all_status_open")
+          ConCache.delete(:vote_cache, "index_#{vote.channel_id}")
+
           {:ok, vote}
 
         {:error, e} ->

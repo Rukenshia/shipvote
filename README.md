@@ -73,4 +73,3 @@ This section describes interactions with the `backend` and third party APIs.
 #### Twitch Video Overlay
 
 ![Twitch Video Overlay Sequence Diagram](docs/video_overlay.svg)
-

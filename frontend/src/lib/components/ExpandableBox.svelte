@@ -2,17 +2,17 @@
   import Box from "./Box.svelte";
   import { slide } from "svelte/transition";
 
-  export let title: string;
+  export let title: string = "";
 
   let expanded = false;
 </script>
 
 <Box>
   <button
-    class="flex items-center gap-2 cursor-pointer"
+    class="flex cursor-pointer items-center gap-2"
     on:click={() => (expanded = !expanded)}
   >
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
         stroke-linecap="round"
         stroke-linejoin="round"

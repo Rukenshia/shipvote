@@ -38,8 +38,3 @@ upload-key:
 connect-db:
 	$(MAKE) REGION=${REGION} INSTANCE_ID=${DB_INSTANCE_ID} AVAILABILITY_ZONE=${DB_AZ} SSH_USER=bitnami upload-key
 	ssh -i ${HOME}/.ssh/chrstphrsn_aws_rsa bitnami@${DB_IP}
-
-
-.PHONY: base-images
-base-images:
-	packer build ./ami.backend.base.json
