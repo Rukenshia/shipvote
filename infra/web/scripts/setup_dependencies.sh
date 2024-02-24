@@ -22,5 +22,6 @@ asdf global erlang latest
 asdf global elixir latest
 asdf global nodejs latest
 
+# copy tailsclae key
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up --auth-key file:/tmp/tailscale.key
+cp /tmp/tailscale.key /opt/shipvote/tailscale.key

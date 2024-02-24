@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# start tailscale
+sudo tailscale up --auth-key file:/opt/shipvote/tailscale.key
+
+
 # get cert
 echo -e "$(aws ssm get-parameter --region eu-central-1 --name /shipvote/ssl/cert.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_cert.pem
 echo -e "$(aws ssm get-parameter --region eu-central-1  --name /shipvote/ssl/privkey.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_privkey.pem
