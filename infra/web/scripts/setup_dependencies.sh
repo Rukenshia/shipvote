@@ -21,3 +21,6 @@ wait
 asdf global erlang latest
 asdf global elixir latest
 asdf global nodejs latest
+
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up --auth-key file:/tmp/tailscale.key

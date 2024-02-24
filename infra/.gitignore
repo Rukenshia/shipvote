@@ -1,3 +1,4 @@
 certs
 manifest.json
 web/static/appsignal-agent.conf
+web/static/tailscale.key

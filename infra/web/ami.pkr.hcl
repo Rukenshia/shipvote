@@ -52,6 +52,11 @@ build {
     source      = "static/shipvote.env"
   }
 
+  provisioner "file" {
+    destination = "/tmp/tailscale.key"
+    source = "static/tailscale.key"
+  }
+
   provisioner "shell" {
     # run as root
     execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
