@@ -80,7 +80,8 @@ defmodule Backend.Twitch.VoteProgress do
       []
     end)
     |> Enum.map(fn vote_id ->
-      publish_vote_status(vote_id)
+      # FIXME: publish vote progress after we closed votes we no longer want to publish
+      publish_vote_progress(vote_id)
 
       vote_id
     end)
