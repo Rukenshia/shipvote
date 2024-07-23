@@ -6,9 +6,9 @@
   import Duration from "../components/Duration.svelte";
   import ShipFilters from "../components/ShipFilters.svelte";
 
-  import { api, vote } from "../store";
+  import { api, shipsInPreviousVote, vote } from "../store";
   import { writable, type Writable } from "svelte/store";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -21,7 +21,7 @@
     channel.set($api.broadcasterGetChannel());
   });
 
-  let selectedShips: Writable<Ship[]> = writable([]);
+  let selectedShips: Writable<Ship[]> = writable();
   let filteredShips: Ship[] = [];
   let duration: number;
 
@@ -48,6 +48,8 @@
   }
 
   async function openVote() {
+    shipsInPreviousVote.set($selectedShips.map((s) => s.id));
+
     $vote = await $api.openVote(
       $selectedShips.map((s) => s.id),
       duration,
@@ -61,6 +63,19 @@
       });
     }
   }
+
+  onMount(async () => {
+    channel.subscribe(async ($channel) => {
+      if (!$channel) {
+        return;
+      }
+
+      $selectedShips = (await $channel).ships.filter((s: Ship) =>
+        $shipsInPreviousVote.find((previousShipId) => previousShipId === s.id),
+      );
+    });
+    $selectedShips = [];
+  });
 </script>
 
 <div class="flex flex-col gap-8">

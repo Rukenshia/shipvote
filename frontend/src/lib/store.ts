@@ -1,5 +1,5 @@
 import { derived, get, readable, type Writable, writable, type Readable } from 'svelte/store';
-import { ShipvoteApi, type Ship, type Vote } from './api';
+import { ShipvoteApi, type Ship, type Vote, type ShipId } from './api';
 
 const dev = import.meta.env.DEV;
 
@@ -37,3 +37,13 @@ export const warships: Readable<Promise<{ [key: string]: Ship }>> = derived(
 );
 
 export const vote: Writable<Vote> = writable(null);
+
+export const shipsInPreviousVote: Writable<ShipId[]> = writable([], (set) => {
+  // load from localstorage
+  const ships = JSON.parse(localStorage.getItem('shipsInPreviousVote') || '[]');
+  set(ships);
+});
+
+shipsInPreviousVote.subscribe((ships) => {
+  localStorage.setItem('shipsInPreviousVote', JSON.stringify(ships));
+});

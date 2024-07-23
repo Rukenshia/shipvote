@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { AxiosResponse } from "axios";
 
+export type ShipId = number;
 export interface Ship {
-  id: number;
+  id: ShipId;
   name: string;
   nation: string;
   type: string;
@@ -37,7 +38,7 @@ export class ShipvoteApi {
     private baseUrl: string,
     private token: string,
     private channelId: string,
-  ) {}
+  ) { }
 
   headers() {
     return {
