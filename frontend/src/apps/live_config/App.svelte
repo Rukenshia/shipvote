@@ -136,6 +136,9 @@
                     The most recently used ships for your vote are now saved in
                     the backend so that it resets less often for you
                   </li>
+                  <li>
+                    You can now submit feedback directly from the extension
+                  </li>
                 </ul>
               </div>
               <h3 class="text-xl font-bold">v3.1.0</h3>
