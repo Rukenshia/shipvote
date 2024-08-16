@@ -20,8 +20,9 @@
   import CreatorBanner from "../../lib/components/CreatorBanner.svelte";
   import ExpandableBox from "../../lib/components/ExpandableBox.svelte";
   import Notification from "../../lib/components/Notification.svelte";
+  import VideoOverlaySettings from "../../lib/components/VideoOverlaySettings.svelte";
 
-  let showNewVote = false;
+  let currentOverlay: "new_vote" | "settings" | null = null;
 
   const pubSubHandler = new PubSubHandler();
 
@@ -56,15 +57,20 @@
   );
 
   $: if ($api) {
-    $api.getOpenVote().then((v) => ($vote = v));
+    $api.getOpenVote().then((v: any) => ($vote = v));
     $closedVotes = $api.getClosedVotes();
   }
 
   function navigate(e: CustomEvent<{ name: string }>) {
     e.preventDefault();
 
-    if (e.detail.name === "new_vote") {
-      showNewVote = true;
+    switch (e.detail.name) {
+      case "new_vote":
+        currentOverlay = "new_vote";
+        break;
+      case "settings":
+        currentOverlay = "settings";
+        break;
     }
   }
 
@@ -92,11 +98,19 @@
       class:hidden={!channel}
       transition:slide={{ duration: 300 }}
     >
-      {#if showNewVote}
-        <NewVote
-          on:back={() => (showNewVote = false)}
-          on:vote_opened={() => (showNewVote = false)}
-        />
+      {#if currentOverlay !== null}
+        {#if currentOverlay === "new_vote"}
+          <NewVote
+            on:back={() => (currentOverlay = null)}
+            on:vote_opened={() => (currentOverlay = null)}
+          />
+        {/if}
+        {#if currentOverlay === "settings"}
+          <VideoOverlaySettings
+            on:back={() => (currentOverlay = null)}
+            {channel}
+          />
+        {/if}
       {:else}
         <div transition:slide={{ duration: 100 }} class="flex flex-col gap-4">
           {#if $vote === undefined || $vote === null || $vote.status === "closed"}
@@ -115,6 +129,16 @@
             <VoteHistory votes={closedVotes} />
           </Box>
 
+          <Link on:navigate={navigate} name="settings">
+            <div class="flex gap-2">
+              <span
+                class="inline-flex items-center rounded-md bg-cyan-400/10 px-2 py-1 text-xs font-medium text-cyan-400 ring-1 ring-inset ring-cyan-400/30"
+                >New</span
+              >
+              <span>Settings</span>
+            </div>
+          </Link>
+
           <ExpandableBox>
             <div slot="title" class="flex gap-2">
               <h2>Changelog</h2>
@@ -128,6 +152,10 @@
               <h3 class="text-xl font-bold">v3.2.0</h3>
               <div class="prose text-gray-400">
                 <ul>
+                  <li>
+                    Added a Settings page where you can configure the overlay
+                    position for desktop viewers
+                  </li>
                   <li>
                     Cleaned up some UI elements to make it easier to interact
                     with votes

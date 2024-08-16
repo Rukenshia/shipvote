@@ -16,6 +16,7 @@ export interface Ship {
 
 export interface Channel {
   id: number;
+  overlay_position: string;
   wows_username?: string;
   wows_account_id?: number;
   wows_realm?: string;

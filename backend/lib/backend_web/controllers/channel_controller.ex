@@ -8,6 +8,8 @@ defmodule BackendWeb.ChannelController do
   alias Backend.Stream.Channel
   alias BackendWeb.Router.Helpers, as: Routes
 
+  alias Backend.Twitch.Api
+
   action_fallback(BackendWeb.FallbackController)
 
   defp find_account_id(username, realm) do
@@ -132,6 +134,12 @@ defmodule BackendWeb.ChannelController do
            Stream.update_channel(channel, Map.delete(channel_params, "wows_account_id")),
          {:ok, %Channel{} = channel} <- Stream.update_channel_ships(channel) do
       ConCache.delete(:channel_cache, id)
+
+      # notify active clients
+      Twitch.Api.broadcast_message(channel.id, "channel_update", %{
+        overlay_position: channel.overlay_position
+      })
+
       render(conn, :show, channel: channel |> load_ships())
     else
       {:error, "Player not found"} ->

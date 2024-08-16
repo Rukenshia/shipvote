@@ -1,6 +1,6 @@
 <script lang="ts">
   export let hover = false;
-  export let title = undefined;
+  export let title: string | undefined = undefined;
 
   export let colorClasses = "bg-gray-800 text-gray-100";
 </script>

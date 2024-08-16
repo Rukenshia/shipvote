@@ -14,6 +14,7 @@ defmodule BackendWeb.ChannelView do
           wows_username: channel.wows_username,
           wows_account_id: channel.wows_account_id,
           wows_realm: channel.wows_realm,
+          overlay_position: channel.overlay_position,
           ships: []
         }
         |> render_ships(channel)
@@ -28,6 +29,7 @@ defmodule BackendWeb.ChannelView do
           wows_username: channel.wows_username,
           wows_account_id: channel.wows_account_id,
           wows_realm: channel.wows_realm,
+          overlay_position: channel.overlay_position,
           ships: [],
           recent_ships: recent_ships
         }
@@ -40,6 +42,7 @@ defmodule BackendWeb.ChannelView do
       data:
         %{
           id: channel.id,
+          overlay_position: channel.overlay_position,
           ships: []
         }
         |> render_ships(channel)

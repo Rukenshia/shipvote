@@ -43,6 +43,16 @@
       }
     });
 
+    pubSubHandler.addEventListener("channel_update", (e: any) => {
+      if (e.detail.overlay_position) {
+        console.log(
+          "channel update. changed overlay position to",
+          e.detail.overlay_position,
+        );
+        $channel.overlay_position = e.detail.overlay_position;
+      }
+    });
+
     if (dev) {
       return fakePubSubVoting();
     }
@@ -66,7 +76,13 @@
 {#await $warships then $warships}
   {#if $vote}
     {#if $vote.status === "open"}
-      <div class="fixed left-0 top-0">
+      <div
+        class="fixed"
+        class:left-0={$channel.overlay_position.endsWith("left")}
+        class:right-0={$channel.overlay_position.endsWith("right")}
+        class:top-0={$channel.overlay_position.startsWith("top")}
+        class:bottom-0={$channel.overlay_position.startsWith("bottom")}
+      >
         <VoteProgressOverlay {vote} warships={$warships} />
       </div>
       {#if !hidden}

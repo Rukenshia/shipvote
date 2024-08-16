@@ -12,9 +12,13 @@ interface VoteProgressMessage {
   voted_ships: { [key: number]: number };
 }
 
+interface ChannelUpdateMessage {
+  overlay_position: string;
+}
+
 interface Message {
-  type: "vote_status" | "vote_progress";
-  data: VoteStatusMessage | VoteProgressMessage;
+  type: "vote_status" | "vote_progress" | "channel_update";
+  data: VoteStatusMessage | VoteProgressMessage | ChannelUpdateMessage;
 }
 
 export class PubSubHandler extends EventTarget {
@@ -105,7 +109,11 @@ export class PubSubHandler extends EventTarget {
           ...currentVote,
           votes: message.data.voted_ships,
         }));
-        this.dispatchEvent(new Event("vote_progress"));
+        this.dispatchEvent(new CustomEvent("vote_progress"));
+      case "channel_update":
+        this.dispatchEvent(new CustomEvent("channel_update", {
+          detail: message.data,
+        }));
     }
   }
 }
