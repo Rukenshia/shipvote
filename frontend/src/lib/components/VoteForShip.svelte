@@ -10,7 +10,9 @@
 
   export let close: () => void;
 
-  let filteredShips: Ship[] = vote.ships.map((id) => warships[`${id}`]);
+  let filteredShips: Ship[] = vote.ships
+    .map((id) => warships[`${id}`])
+    .filter((ship) => ship !== undefined);
   let showFilters = false;
 
   let shipsByTier: Map<number, Ship[]> = new Map();
@@ -28,10 +30,12 @@
     );
   }
 
-  const votedShips = vote.ships.map((id) => ({
-    ship: warships[`${id}`] as Ship,
-    votes: vote.votes[id] || 0,
-  }));
+  const votedShips = vote.ships
+    .map((id) => ({
+      ship: warships[`${id}`] as Ship,
+      votes: vote.votes[id] || 0,
+    }))
+    .filter((vs) => vs.ship !== undefined);
 
   async function voteForShip(ship: Ship) {
     close();

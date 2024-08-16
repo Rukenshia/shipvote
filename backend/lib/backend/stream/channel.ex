@@ -11,7 +11,7 @@ defmodule Backend.Stream.Channel do
     field(:wows_account_id, :integer)
     field(:wows_realm, :string)
 
-    field(:overlay_position, Ecto.Enum, values: [:top_left, :top_right, :bottom_left, :bottom_right], default: :top_left)
+    field(:overlay_position, Ecto.Enum, values: [:top_left, :top_right], default: :top_left)
 
     field(:vote_status_delay, :integer, virtual: true)
     field(:vote_progress_delay, :integer, virtual: true)
@@ -37,7 +37,7 @@ defmodule Backend.Stream.Channel do
   def changeset(channel, attrs) do
     channel
     |> cast(attrs, [:id, :wows_username, :wows_account_id, :wows_realm, :overlay_position])
-    |> validate_required([:id, :wows_username, :wows_account_id, :wows_realm, :overlay_position])
+    |> validate_required([:id, :wows_username, :wows_account_id, :wows_realm])#, :overlay_position])
     |> validate_inclusion(:wows_realm, ["ru", "eu", "na", "asia"])
     |> unique_constraint(:id, name: :channels_pkey)
   end

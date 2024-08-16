@@ -13,16 +13,48 @@
   let channel: Writable<Channel> = writable();
 
   let hidden = false;
+  let gameIsWows = false;
   const pubSubHandler = new PubSubHandler();
 
   onMount(() => {
     pubSubHandler.init();
 
     let loadingChannel = false;
+    let hasContext = false;
+
+    api.subscribe(async ($api) => {
+      if (!$api) {
+        return;
+      }
+
+      if (loadingChannel) {
+        return;
+      }
+
+      if (hasContext && !gameIsWows) {
+        console.log("game is not wows, not getting channel info");
+        return;
+      }
+
+      loadingChannel = true;
+
+      console.info("starting shipvote session after api became available");
+
+      console.log($api);
+
+      $channel = await $api.getChannelInfo();
+    });
 
     window.Twitch.ext.onContext(async (data, changed) => {
+      hasContext = true;
+      gameIsWows = data.game === "World of Warships";
+
       if (data.game !== "World of Warships") {
         // console.log("game is not WoWS");
+        return;
+      }
+      if (!$api) {
+        console.error("Game is WoWS, but API is not available");
         return;
       }
 
@@ -33,11 +65,6 @@
 
         loadingChannel = true;
         console.info("Starting Shipvote session");
-
-        if (!$api) {
-          console.error("Game is WoWS, but API is not available");
-          return;
-        }
 
         $channel = await $api.getChannelInfo();
       }
@@ -73,48 +100,50 @@
   });
 </script>
 
-{#await $warships then $warships}
-  {#if $vote}
-    {#if $vote.status === "open"}
-      <div
-        class="fixed"
-        class:left-0={$channel.overlay_position.endsWith("left")}
-        class:right-0={$channel.overlay_position.endsWith("right")}
-        class:top-0={$channel.overlay_position.startsWith("top")}
-        class:bottom-0={$channel.overlay_position.startsWith("bottom")}
-      >
-        <VoteProgressOverlay {vote} warships={$warships} />
-      </div>
-      {#if !hidden}
+{#if $channel}
+  {#await $warships then $warships}
+    {#if $vote}
+      {#if $vote.status === "open"}
         <div
-          class="flex h-full items-center justify-center overflow-hidden py-16"
-          in:scale={{ duration: 300 }}
-          out:scale={{ duration: 300 }}
+          class="fixed"
+          class:left-0={$channel.overlay_position.endsWith("left")}
+          class:right-0={$channel.overlay_position.endsWith("right")}
+          class:top-0={$channel.overlay_position.startsWith("top")}
+          class:bottom-0={$channel.overlay_position.startsWith("bottom")}
         >
-          <div class="relative w-full max-w-2xl text-white">
-            <div
-              class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 p-4 pt-2 opacity-80 transition-all duration-300 hover:opacity-100"
-            >
-              <div class="max-h-64 overflow-y-auto">
-                <VoteForShip
-                  vote={$vote}
-                  warships={$warships}
-                  close={() => (hidden = true)}
-                />
+          <VoteProgressOverlay {vote} warships={$warships} />
+        </div>
+        {#if !hidden}
+          <div
+            class="flex h-full items-center justify-center overflow-hidden py-16"
+            in:scale={{ duration: 300 }}
+            out:scale={{ duration: 300 }}
+          >
+            <div class="relative w-full max-w-2xl text-white">
+              <div
+                class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 p-4 pt-2 opacity-80 transition-all duration-300 hover:opacity-100"
+              >
+                <div class="max-h-64 overflow-y-auto">
+                  <VoteForShip
+                    vote={$vote}
+                    warships={$warships}
+                    close={() => (hidden = true)}
+                  />
 
-                <div
-                  class="mt-4 rounded-lg bg-cyan-950 px-2 py-1 text-xs opacity-50"
-                >
-                  <CreatorBanner />
+                  <div
+                    class="mt-4 rounded-lg bg-cyan-950 px-2 py-1 text-xs opacity-50"
+                  >
+                    <CreatorBanner />
+                  </div>
                 </div>
               </div>
+              <div
+                class="absolute -inset-1 z-10 rounded-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 blur-md"
+              />
             </div>
-            <div
-              class="absolute -inset-1 z-10 rounded-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 blur-md"
-            />
           </div>
-        </div>
+        {/if}
       {/if}
     {/if}
-  {/if}
-{/await}
+  {/await}
+{/if}

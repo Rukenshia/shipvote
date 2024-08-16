@@ -12,10 +12,10 @@
   let channelUpdateFeedback = "";
 
   const options = [
-    ["top_left", "Top Left"],
-    ["top_right", "Top Right"],
-    ["bottom_left", "Bottom Left"],
-    ["bottom_right", "Bottom Right"],
+    ["top_left", "Top Left", true],
+    ["top_right", "Top Right", true],
+    ["bottom_left", "Bottom Left", false],
+    ["bottom_right", "Bottom Right", false],
   ];
 
   async function changeOverlayPosition(position: string) {
@@ -67,17 +67,25 @@
     <h2 class="text-lg font-normal">Overlay Position</h2>
 
     <div class="grid content-center max-w-xl grid-cols-2 gap-4 px-8">
-      {#each options as [position, label]}
+      {#each options as [position, label, available]}
         <button
-          class="w-full aspect-square col-span-1 hover:bg-cyan-700 transition text-gray-200 px-4 py-2 rounded
-          active:bg-cyan-600 active:ring-2
+          class="w-full aspect-square flex flex-col gap-2 items-center justify-center col-span-1 transition text-gray-200 px-4 py-2 rounded
           ring-cyan-400"
+          disabled={!available}
+          class:hover:cursor-not-allowed={!available}
+          class:active:bg-cyan-600={available}
+          class:active:ring-2={available}
+          class:hover:bg-cyan-700={available}
+          class:bg-cyan-950={!available}
           class:bg-cyan-800={overlayPosition === position}
           class:bg-cyan-900={overlayPosition !== position}
           class:ring-2={overlayPosition === position}
           on:click={() => (overlayPosition = position)}
         >
           {label}
+          {#if !available}
+            <span class="text-xs text-cyan-400">not available</span>
+          {/if}
         </button>
       {/each}
     </div>

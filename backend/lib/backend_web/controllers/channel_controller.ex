@@ -136,7 +136,7 @@ defmodule BackendWeb.ChannelController do
       ConCache.delete(:channel_cache, id)
 
       # notify active clients
-      Twitch.Api.broadcast_message(channel.id, "channel_update", %{
+      Backend.Twitch.Api.broadcast_message(channel.id, "channel_update", %{
         overlay_position: channel.overlay_position
       })
 
