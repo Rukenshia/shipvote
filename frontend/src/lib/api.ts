@@ -157,6 +157,14 @@ export class ShipvoteApi {
       .then((res: AxiosResponse) => res.data.data);
   }
 
+  async sendFeedback(feedback: string): Promise<void> {
+    return axios.post(
+      this.buildBroadcasterUrl("/feedback"),
+      { feedback: { channelId: this.channelId, message: feedback } },
+      { headers: this.headers() },
+    );
+  }
+
   voteForShip(voteId: number, shipId: number): Promise<void> {
     return axios.post(
       this.buildUrl(`/votes/${voteId}/submit`),

@@ -1,10 +1,23 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
 
+  const colorClassesMap = {
+    default: "text-gray-100 bg-gray-800",
+    primary:
+      "text-emerald-50 bg-size-100 font-normal tracking-widest bg-gradient-to-b from-emerald-500 to-emerald-700 hover:bg-size-110",
+  };
+
+  const disabledClassesMap = {
+    default: "text-gray-400 bg-gray-700",
+    primary: "text-emerald-400 bg-emerald-900",
+  };
+
   export let name: string;
-  export let classes: string;
-  export let disabledClasses: string = "";
   export let disabled: boolean = false;
+  export let role: "default" | "primary" = "default";
+
+  let classes = colorClassesMap[role];
+  let disabledClasses = disabledClassesMap[role];
 
   const dispatch = createEventDispatcher();
 
@@ -15,11 +28,10 @@
 
 <button
   on:click={navigate}
-  class="text-gray-100 bg-gray-800 overflow-hidden drop-shadow-xl rounded-lg px-4 py-5 sm:p-6 transition {disabled
+  class="overflow-hidden drop-shadow-xl rounded-lg px-4 py-5 sm:p-6 transition-all duration-250 {disabled
     ? disabledClasses
     : classes}"
   class:hover:cursor-pointer={!disabled}
-  class:hover:bg-gray-700={!disabled}
   {disabled}
 >
   <div class="flex space-around items-center gap-4">

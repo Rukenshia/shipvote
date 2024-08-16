@@ -63,7 +63,7 @@ defmodule BackendWeb.ChannelController do
     with %Backend.Stream.Channel{} = channel <-
            Stream.get_channel(id)
            |> Repo.preload(:ships) do
-      render(conn, :show, channel: channel |> load_ships())
+      render(conn, :show, channel: channel |> load_ships(), recent_ships: Channel.most_recently_used_ships(channel))
     else
       nil ->
         conn

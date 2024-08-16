@@ -78,6 +78,8 @@ defmodule BackendWeb.Router do
 
       resources("/channels", ChannelController, except: [:index, :new, :edit])
 
+      post("/channels/:id/feedback", FeedbackController, :create)
+
       put(
         "/channels/:id/ships/:ship_id/enabled",
         ChannelShipController,

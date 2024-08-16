@@ -1,10 +1,12 @@
 <script lang="ts">
   export let hover = false;
   export let title = undefined;
+
+  export let colorClasses = "bg-gray-800 text-gray-100";
 </script>
 
 <div
-  class="text-gray-100 bg-gray-800 overflow-hidden drop-shadow-xl rounded-lg p-4 sm:p-6"
+  class="{colorClasses} overflow-hidden drop-shadow-xl rounded-lg p-4 sm:p-6"
   class:hover:bg-gray-700={hover}
   class:transition={hover}
   class:hover:cursor-pointer={hover}

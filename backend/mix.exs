@@ -54,16 +54,16 @@ defmodule Backend.Mixfile do
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.7"},
-      {:httpoison, "~> 1.4"},
+      {:httpoison, "~> 2.2"},
       {:joken, "~> 1.5.0"},
       {:cors_plug, "~> 2.0"},
       {:jason, "~> 1.1"},
       {:poison, "~> 3.1"},
-      {:con_cache, "~> 0.13.0"},
+      {:con_cache, "~> 1.1.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:mock, "~> 0.3", only: :test},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 0.5"},
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller, "~> 1.1"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
     ]
   end

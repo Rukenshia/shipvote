@@ -1,6 +1,10 @@
 defmodule Backend.Stream.Channel do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
+
+  alias Backend.Stream.{ChannelShip, Vote}
+  alias Backend.Repo
 
   schema "channels" do
     field(:wows_username, :string)
@@ -13,6 +17,18 @@ defmodule Backend.Stream.Channel do
     has_many(:ships, Backend.Stream.ChannelShip)
     has_many(:votes, Backend.Stream.Vote)
     timestamps()
+  end
+
+  def most_recent_vote(channel) do
+    from(v in Vote, where: v.channel_id == ^channel.id, order_by: [desc: v.inserted_at], limit: 1)
+    |> Repo.one()
+  end
+
+  def most_recently_used_ships(channel) do
+    case most_recent_vote(channel) do
+      nil -> []
+      vote -> vote.ships
+    end
   end
 
   @doc false

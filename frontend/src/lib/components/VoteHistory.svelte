@@ -32,23 +32,33 @@
                       };
                     })
                     .sort((a, b) =>
-                      a.votes > b.votes ? -1 : a.votes === b.votes ? 0 : 1
+                      a.votes > b.votes ? -1 : a.votes === b.votes ? 0 : 1,
                     ) // Sort votes from high to low
                     .slice(0, 4), // Limit to top three ships
                 };
               })
-              .sort((a, b) => (a.id > b.id ? -1 : 1))
+              .sort((a, b) => (a.id > b.id ? -1 : 1)),
           );
         });
     }
   }
 </script>
 
-<h2 class="text-xl mt-2"><slot name="title">Previous Votes</slot></h2>
+<h2 class="text-xl -mt-2"><slot name="title">Previous Votes</slot></h2>
 
 {#await $votes}
   loading...
 {:then}
+  {#if $voteStats.length === 0}
+    <div
+      class="m-4 relative block w-full rounded-lg border-2 border-dashed hover:border-gray-300 p-12 text-center border-gray-400"
+    >
+      <span class="mt-2 block text-base text-gray-400"
+        >No votes yet. Click on "New Vote" to create one</span
+      >
+    </div>
+  {/if}
+
   <div transition:slide>
     {#each $voteStats as vote}
       <div class="p-2">
@@ -62,6 +72,11 @@
           </div>
         </h5>
         <div class="px-4 grid grid-cols-2 gap-2 items-center">
+          {#if vote.votedShips.length === 0}
+            <div class="flex items">
+              <span class="text-gray-500">No ships voted</span>
+            </div>
+          {/if}
           {#if vote.votedShips.length > 0}
             <div
               class="bg-gray-700 hover:bg-gray-600 transition

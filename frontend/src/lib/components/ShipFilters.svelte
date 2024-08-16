@@ -18,18 +18,26 @@
 
   let shipName = "";
 
+  let changed = false;
+
   $: {
     filteredShips = ships
       .filter((ship) =>
         shipName
           ? ship.name.toLowerCase().includes(shipName.toLowerCase())
-          : true
+          : true,
       )
       .filter(
-        (ship) => selectedNation === "all" || ship.nation === selectedNation
+        (ship) => selectedNation === "all" || ship.nation === selectedNation,
       )
       .filter((ship) => selectedTier === "all" || ship.tier === selectedTier)
       .filter((ship) => selectedType === "all" || ship.type === selectedType);
+
+    changed =
+      selectedNation !== "all" ||
+      selectedTier !== "all" ||
+      selectedType !== "all" ||
+      shipName !== "";
   }
 
   function resetAllFilters() {
@@ -46,10 +54,16 @@
   <div class="flex items-center gap-2">
     <h2 class="text-cyan-100 text-xl font-medium">Filters</h2>
     <button
-      class="bg-cyan-600 text-xs drop-shadow-sm hover:bg-cyan-700 transition font-medium py-0.5 px-1 rounded"
+      class="text-xs drop-shadow-sm transition font-medium py-0.5 px-1 rounded"
+      disabled={!changed}
+      class:text-cyan-600={!changed}
+      class:text-cyan-300={changed}
+      class:bg-cyan-600={changed}
+      class:bg-cyan-950={!changed}
+      class:hover:bg-cyan-700={changed}
       on:click={resetAllFilters}
       ><svg
-        class="h-6 w-6 text-cyan-300"
+        class="h-6 w-6"
         fill="inherit"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"

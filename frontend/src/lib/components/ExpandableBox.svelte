@@ -3,11 +3,12 @@
   import { slide } from "svelte/transition";
 
   export let title: string = "";
+  export let colorClasses: string | undefined = undefined;
 
   let expanded = false;
 </script>
 
-<Box>
+<Box {colorClasses}>
   <button
     class="flex cursor-pointer items-center gap-2"
     on:click={() => (expanded = !expanded)}

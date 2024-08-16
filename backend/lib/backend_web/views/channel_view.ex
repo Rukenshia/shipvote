@@ -20,6 +20,21 @@ defmodule BackendWeb.ChannelView do
     }
   end
 
+  def show(%{channel: channel, recent_ships: recent_ships}) do
+    %{
+      data:
+        %{
+          id: channel.id,
+          wows_username: channel.wows_username,
+          wows_account_id: channel.wows_account_id,
+          wows_realm: channel.wows_realm,
+          ships: [],
+          recent_ships: recent_ships
+        }
+        |> render_ships(channel)
+    }
+  end
+
   def show_public(%{channel: channel}) do
     %{
       data:

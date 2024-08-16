@@ -25,17 +25,11 @@
   }
 </script>
 
-<main>
+{#if $vote && $vote.status === "open"}
   <Box>
     The vote is currently
 
-    <span class="font-medium">
-      {#if $vote}
-        open
-      {:else}
-        closed
-      {/if}
-    </span>
+    <span class="font-medium"> open </span>
 
     {#if $vote && $vote.status === "open"}
       <div class="mt-2 flex flex-col justify-around gap-2 px-4">
@@ -65,4 +59,4 @@
       {/if}
     </div>
   </Box>
-</main>
+{/if}

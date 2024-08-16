@@ -1,18 +1,19 @@
 <script lang="ts">
   export let hover = false;
-  export let title = undefined;
-  export let type: 'info' | 'error' | 'success' = 'info';
+  export let title: string | undefined = undefined;
+  export let type: "info" | "error" | "success" = "info";
 
   const colors = {
-    info: 'bg-cyan-800 text-cyan-100',
-    error: 'text-red-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-500/80 to-red-700/80',
-    success: 'bg-emerald-500 text-emerald-100'
+    info: "bg-cyan-800 text-cyan-100",
+    error:
+      "text-red-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-500/80 to-red-700/80",
+    success: "bg-emerald-500 text-emerald-100",
   };
 
   const titleColors = {
-    info: 'text-cyan-50',
-    error: 'text-red-50',
-    success: 'text-emerald-50'
+    info: "text-cyan-50",
+    error: "text-red-50",
+    success: "text-emerald-50",
   };
 
   $: color = colors[type];
