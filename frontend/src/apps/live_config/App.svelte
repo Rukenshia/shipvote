@@ -96,7 +96,7 @@
     <div
       class="flex flex-col gap-4"
       class:hidden={!channel}
-      transition:slide={{ duration: 300 }}
+      transition:slide|global={{ duration: 300 }}
     >
       {#if currentOverlay !== null}
         {#if currentOverlay === "new_vote"}
@@ -112,7 +112,7 @@
           />
         {/if}
       {:else}
-        <div transition:slide={{ duration: 100 }} class="flex flex-col gap-4">
+        <div transition:slide|global={{ duration: 100 }} class="flex flex-col gap-4">
           {#if $vote === undefined || $vote === null || $vote.status === "closed"}
             <Link
               on:navigate={navigate}
@@ -236,7 +236,7 @@
               >
 
               {#if feedbackStatus}
-                <div in:slide out:slide>
+                <div in:slide|global out:slide|global>
                   {#if feedbackStatus === "error"}
                     <div class="text-red-200">
                       Error sending feedback. Please contact me on Discord!

@@ -59,7 +59,7 @@
     </div>
   {/if}
 
-  <div transition:slide>
+  <div transition:slide|global>
     {#each $voteStats as vote}
       <div class="p-2">
         <h5 class="text-md font-medium text-gray-100">

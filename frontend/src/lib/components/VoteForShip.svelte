@@ -108,7 +108,7 @@
   </div>
 
   {#if showFilters}
-    <div in:slide out:slide>
+    <div in:slide|global out:slide|global>
       <ShipFilters ships={votedShips.map((vs) => vs.ship)} bind:filteredShips />
     </div>
   {/if}

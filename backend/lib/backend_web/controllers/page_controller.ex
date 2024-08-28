@@ -2,7 +2,7 @@ defmodule BackendWeb.PageController do
   require Logger
   use BackendWeb, :controller
 
-  action_fallback BackendWeb.FallbackController
+  action_fallback(BackendWeb.FallbackController)
 
   import Ecto.Query, only: [from: 2]
 
@@ -13,7 +13,7 @@ defmodule BackendWeb.PageController do
   alias Backend.Repo
 
   def index(conn, _params) do
-    text(conn, "tbd")
+    render(conn, "index.html")
   end
 
   def health(conn, _params) do

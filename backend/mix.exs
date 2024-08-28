@@ -45,7 +45,7 @@ defmodule Backend.Mixfile do
       {:appsignal_plug, "~> 2.0"},
       {:phoenix_view, "~> 2.0"},
       {:phoenix_html, "~> 3.0"},
-      {:phoenix_live_dashboard, "~> 0.7.2"},
+      {:phoenix_live_dashboard, "~> 0.8.4"},
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.0"},
@@ -64,6 +64,8 @@ defmodule Backend.Mixfile do
       {:mock, "~> 0.3", only: :test},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.1"},
+      {:phoenix_live_view, "~> 0.20"},
+      {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
     ]
   end

@@ -1,0 +1,17 @@
+version: '3'
+
+includes:
+  backend:
+    taskfile: ./backend/Taskfile.yml
+    dir: ./backend
+
+tasks:
+  run:
+    interactive: true
+    deps:
+      - run-frontend
+      - backend:run
+
+  run-frontend:
+    cmds:
+      - cd frontend && npm run dev

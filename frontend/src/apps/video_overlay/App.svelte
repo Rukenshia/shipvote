@@ -116,8 +116,8 @@
         {#if !hidden}
           <div
             class="flex h-full items-center justify-center overflow-hidden py-16"
-            in:scale={{ duration: 300 }}
-            out:scale={{ duration: 300 }}
+            in:scale|global={{ duration: 300 }}
+            out:scale|global={{ duration: 300 }}
           >
             <div class="relative w-full max-w-2xl text-white">
               <div

@@ -24,7 +24,7 @@
     <slot name="title">{title}</slot>
   </button>
   {#if expanded}
-    <div in:slide out:slide class="mt-4">
+    <div in:slide|global out:slide|global class="mt-4">
       <slot />
     </div>
   {/if}
