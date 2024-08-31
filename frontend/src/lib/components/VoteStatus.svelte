@@ -27,9 +27,6 @@
 
 {#if $vote && $vote.status === "open"}
   <Box>
-    <div class="flex items-center justify-around">
-      <h2 class="text-2xl font-semibold"></h2>
-    </div>
     <div class="mt-2 flex flex-col justify-around gap-2 px-4">
       <button
         on:click={() => closeVote()}
