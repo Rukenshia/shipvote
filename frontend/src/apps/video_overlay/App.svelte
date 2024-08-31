@@ -115,7 +115,7 @@
         </div>
         {#if !hidden}
           <div
-            class="flex h-full items-center justify-center overflow-hidden py-16"
+            class="flex h-full items-center justify-center overflow-hidden py-[5rem]"
             in:scale|global={{ duration: 300 }}
             out:scale|global={{ duration: 300 }}
           >
@@ -123,7 +123,7 @@
               <div
                 class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 p-4 pt-2 opacity-80 transition-all duration-300 hover:opacity-100"
               >
-                <div class="max-h-64 overflow-y-auto">
+                <div class="overflow-y-auto">
                   <VoteForShip
                     vote={$vote}
                     warships={$warships}

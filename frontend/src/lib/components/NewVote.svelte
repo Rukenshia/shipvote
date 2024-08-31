@@ -21,7 +21,7 @@
     channel.set($api.broadcasterGetChannel());
   });
 
-  let selectedShips: Writable<Ship[]> = writable();
+  let selectedShips: Writable<Ship[]> = writable([]);
   let filteredShips: Ship[] = [];
   let filteredUnaddedShips: Ship[] = [];
 
@@ -72,18 +72,11 @@
     }
   }
 
-  onMount(async () => {
-    channel.subscribe(async ($channel) => {
-      if (!$channel) {
-        return;
-      }
-
-      $selectedShips = (await $channel).ships.filter((s: Ship) =>
-        $shipsInPreviousVote.find((previousShipId) => previousShipId === s.id),
-      );
-    });
-    $selectedShips = [];
-  });
+  async function selectShipsFromPreviousVote() {
+    $selectedShips = (await $channel).ships.filter((s: Ship) =>
+      $shipsInPreviousVote.find((previousShipId) => previousShipId === s.id),
+    );
+  }
 </script>
 
 <div class="flex flex-col gap-8">
@@ -140,16 +133,24 @@
 
       <div class="sticky bottom-0 flex justify-between">
         {#if filteredUnaddedShips.length}
-          <button
-            on:click={() => addShips(filteredUnaddedShips)}
-            class="rounded-md bg-cyan-800/50 px-4 py-2 font-medium text-gray-200 transition hover:bg-cyan-700 hover:text-gray-100"
-          >
-            {#if filteredUnaddedShips.length === 1}
-              Add {filteredShips[0].name}
-            {:else}
-              Add {filteredUnaddedShips.length} Ships
-            {/if}
-          </button>
+          <div class="flex items-center gap-4">
+            <button
+              on:click={() => addShips(filteredUnaddedShips)}
+              class="rounded-md bg-cyan-800/50 px-4 py-2 font-medium text-gray-200 transition hover:bg-cyan-700 hover:text-gray-100"
+            >
+              {#if filteredUnaddedShips.length === 1}
+                Add {filteredShips[0].name}
+              {:else}
+                Add {filteredUnaddedShips.length} Ships
+              {/if}
+            </button>
+            <button
+              on:click={() => selectShipsFromPreviousVote()}
+              class="rounded-md bg-gray-600/50 px-4 py-2 font-medium text-gray-200 transition hover:bg-gray-700 hover:text-gray-100"
+              >Add {$shipsInPreviousVote.length} from previous vote</button
+            >
+            >
+          </div>
         {/if}
         <button
           on:click={() => removeAllShips()}
@@ -184,14 +185,12 @@
                 {#if $selectedShips.find((s) => s.id === ship.id)}
                   <button
                     class="rounded bg-cyan-950 px-4 py-2 font-medium drop-shadow-sm transition hover:bg-cyan-700"
-                    on:click={() => removeShip(ship)}
                   >
                     -
                   </button>
                 {:else}
                   <button
                     class="rounded bg-cyan-900 px-4 py-2 font-medium drop-shadow-sm transition hover:bg-cyan-700"
-                    on:click={() => addShip(ship)}
                   >
                     +
                   </button>

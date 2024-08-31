@@ -163,6 +163,7 @@
                   </li>
                   <li>Fixed the sorting of tiers in all filters</li>
                   <li>Improved styling for ship selection</li>
+                  <li>Fixed a bug where votes would not update on mobile</li>
                 </ul>
               </div>
 

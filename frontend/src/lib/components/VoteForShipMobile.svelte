@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Ship, Vote } from "../api";
+  import { ShipTypes, Tiers } from "../filters";
   import { api } from "../store";
   import ShipFilters from "./ShipFilters.svelte";
   import { slide } from "svelte/transition";
@@ -10,13 +11,29 @@
   let filteredShips: Ship[] = vote.ships.map((id) => warships[`${id}`]);
   let showFilters = false;
 
-  const votedShips = vote.ships.map((id) => ({
-    ship: warships[`${id}`] as Ship,
-    votes: vote.votes[id] || 0,
-  }));
+  interface VotedShip {
+    ship: Ship;
+    votes: number;
+  }
+
+  let votedShips: VotedShip[] = [];
+  let topThree: VotedShip[] = [];
+
+  $: {
+    votedShips = vote.ships.map((id) => ({
+      ship: warships[`${id}`] as Ship,
+      votes: vote.votes[id] || 0,
+    }));
+    topThree = votedShips.sort((a, b) => b.votes - a.votes).slice(0, 3);
+    console.log("votedShips refreshed");
+  }
 
   async function voteForShip(ship: Ship) {
     await $api.voteForShip(vote.id, ship.id);
+  }
+
+  function getTopThreePosition(ship: Ship) {
+    return topThree.findIndex((vs) => vs.ship.id === ship.id) + 1;
   }
 </script>
 
@@ -56,16 +73,34 @@
   <div class="grid grid-cols-1 divide-y divide-cyan-800">
     {#each filteredShips as ship}
       <button
-        class="py-6 flex gap-4 items-end truncate"
+        class="py-6 flex gap-4 items-center truncate"
         on:click={() => voteForShip(ship)}
       >
         <img class="w-auto h-8" alt={ship.name} src={ship.image} />
         <span class="text-md sm:text-lg truncate flex-grow text-left">
-          {ship.name}
+          <div class="flex flex-col gap-0">
+            <span>{ship.name}</span>
+            <span class="text-xs text-cyan-600"
+              >Tier {Tiers[ship.tier]} {ShipTypes[ship.type] || ship.type}</span
+            >
+          </div>
         </span>
         <span class="text-md sm:text-lg text-cyan-400/50">
-          {votedShips.find((vs) => vs.ship.id === ship.id).votes}
-          votes
+          <div class="flex items-center gap-0.5">
+            {votedShips.find((vs) => vs.ship.id === ship.id).votes}
+            vote{votedShips.find((vs) => vs.ship.id === ship.id).votes === 1
+              ? ""
+              : "s"}
+            {#if getTopThreePosition(ship) === 1}
+              <span class="text-2xl">🥇</span>
+            {:else if getTopThreePosition(ship) === 2}
+              <span class="text-2xl">🥈</span>
+            {:else if getTopThreePosition(ship) === 3}
+              <span class="text-2xl">🥉</span>
+            {:else}
+              <span class="text-2xl">{getTopThreePosition(ship)}</span>
+            {/if}
+          </div>
         </span>
       </button>
     {/each}

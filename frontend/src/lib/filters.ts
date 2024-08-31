@@ -16,7 +16,7 @@ export const Nations: Record<string, string>
 };
 
 export const Tiers: string[] = [
-  'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', '⭐︎'
+  '?', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', '⭐︎'
 ];
 
 export const ShipTypes: Record<string, string> = {
