@@ -2,25 +2,55 @@
   <div class="min-w-full min-h-[50vh] absolute">
     <div class="w-full h-full absolute top-0 left-0" id="wallpaper"></div>
     <div class="w-full h-full absolute top-0 left-0 bg-black opacity-50"></div>
-    <div class="w-full h-full absolute top-0 left-0 bg-gradient-to-b from-transparent via-cyan-900/70 to-cyan-900"></div>
+    <div class="w-full h-full absolute top-0 left-0 bg-gradient-to-b from-transparent via-cyan-900/70 to-cyan-900">
+    </div>
   </div>
 
   <div class="pointer-events-none z-10 absolute bottom-0 right-0 overflow-hidden">
-    <div class="-mr-[24rem] -mb-[20rem] w-[48rem] h-[80rem] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-950 via-transparent to-transparent"></div>
+    <div class="-mr-[24rem] -mb-[20rem] w-[48rem] h-[80rem] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-950 via-transparent to-transparent">
+    </div>
   </div>
   <div class="pointer-events-none z-10 absolute bottom-0 left-0 overflow-hidden opacity-90">
-    <div class="-ml-[24rem] -mb-[24rem] w-[48rem] h-[48rem] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-950 via-transparent to-transparent"></div>
+    <div class="-ml-[24rem] -mb-[24rem] w-[48rem] h-[48rem] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-cyan-950 via-transparent to-transparent">
+    </div>
   </div>
 
   <div class="w-full h-[25vh] absolute top-0 left-0 flex justify-center items-center">
     <div class="w-1/2">
-      <h1 class="text-center text-6xl text-white font-bold drop-shadow-2xl uppercase">Configuration Guide</h1>
-      <h2 class="text-center text-xl text-cyan-50 drop-shadow-2xl">Learn how to set up and use the Shipvote Extension</h2>
+      <h1 class="text-center text-6xl text-white font-bold drop-shadow-2xl uppercase">
+        Configuration Guide
+      </h1>
+      <h2 class="text-center text-xl text-cyan-50 drop-shadow-2xl">
+        Learn how to set up and use the Shipvote Extension
+      </h2>
     </div>
   </div>
 
   <div class="container mx-auto px-4 pt-[30vh] pb-8 relative z-20">
     <div class="flex flex-col gap-8 max-w-3xl mx-auto">
+      <div class="bg-cyan-800 border-l-4 border-cyan-300 p-4 mb-8 rounded-r-lg shadow-md">
+        <div class="flex items-center">
+          <svg
+            class="w-6 h-6 text-cyan-300 mr-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            >
+            </path>
+          </svg>
+          <p class="text-cyan-100 font-semibold">
+            This page is a guide for Streamers. As a Viewer, you don't need to do anything other than vote for the ship you want to see!
+          </p>
+        </div>
+      </div>
+
       <p class="text-lg">
         First of all, thank you for using this extension! This extension was built with streamers and viewers in mind, so if you have any
         ideas on how to improve this extension, reach out to me!
@@ -28,18 +58,53 @@
 
       <p class="text-lg">
         To get started, you will need to head over to twitch and
-        <a href="https://www.twitch.tv/ext/1n8nhpxd3p623wla18px8l8smy0ym7" class="text-cyan-300 hover:text-cyan-100 underline">install the extension.</a>
+        <a
+          href="https://www.twitch.tv/ext/1n8nhpxd3p623wla18px8l8smy0ym7"
+          class="text-cyan-300 hover:text-cyan-100 underline"
+        >
+          install the extension.
+        </a>
       </p>
+
+      <div class="mt-4 mx-auto">
+        <a
+          target="_blank"
+          href="https://www.twitch.tv/ext/1n8nhpxd3p623wla18px8l8smy0ym7"
+          class="inline-flex items-center px-6 py-3 text-lg font-semibold text-cyan-900 bg-cyan-100 rounded-full shadow-lg hover:bg-cyan-200 transition-colors duration-300 ease-in-out group"
+        >
+          <span class="mr-2">Install Extension</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-cyan-700 group-hover:rotate-45 transition-transform duration-300 ease-in-out"
+          >
+            <circle cx="12" cy="5" r="3"></circle>
+            <line x1="12" y1="22" x2="12" y2="8"></line>
+            <path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>
+          </svg>
+        </a>
+      </div>
 
       <p class="text-lg">
         Make sure to hit the <strong class="font-semibold">Configure</strong>
-        button.
+        button after installing the extension.
         This will lead you to a screen where you have to put in your World of Warships
         <strong class="font-semibold">Username</strong>
         and <strong class="font-semibold">Server</strong>
       </p>
 
-      <img src={static_path(@conn, "/images/shipvote_configuration.jpg")} alt="Shipvote Configuration" class="w-full max-w-2xl mx-auto rounded-lg shadow-lg" />
+      <img
+        src={static_path(@conn, "/images/shipvote_configuration.jpg")}
+        alt="Shipvote Configuration"
+        class="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
+      />
 
       <p class="text-lg">
         Once you hit the "Save" button, a list with all of your researched ships should appear. The data is retrieved from the
@@ -47,56 +112,102 @@
       </p>
 
       <p class="text-lg">
-        If you have some ships that you don't want your viewers to vote for, you can disable them on this screen as well. Just hit the "DISABLE" button
-        on the right side of the ship name.
+        If you have some ships that you don't want your viewers to vote for, you can disable them on this screen as well. Press the "Disable" button
+        on the right side of the ship name. Click on "Enable" to enable the ship again.
       </p>
 
       <p class="text-lg">
-        You can close the window now and head over to https://twitch.tv/<strong class="font-semibold">YOURNAME</strong>/dashboard/extensions/manage.
+        You can close the window now and head over to https://twitch.tv/<strong class="font-semibold">YOURNAME</strong>/dashboard/extensions/manage or by navigating
+        to your Twitch Creator Dashboard -> Extensions -> My Extensions.
       </p>
 
-      <img src={static_path(@conn, "/images/shipvote_twitch_config.png")} alt="Twitch Configuration" class="w-full max-w-2xl mx-auto rounded-lg shadow-lg" />
+      <img
+        src={static_path(@conn, "/images/shipvote_twitch_config.jpg")}
+        alt="Twitch Configuration"
+        class="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
+      />
 
-      <p class="text-lg">Click the "Activate" button and then on "Set as Overlay 1". You're now all set!</p>
+      <p class="text-lg">
+        Click the "Activate" button and then on "Set as Overlay 1". You're now all set!
+      </p>
 
-      <h2 class="block text-4xl font-bold mt-16 text-center uppercase">Controlling the extension during a stream</h2>
-      <hr class="border-t-2 border-cyan-500 w-1/2 mx-auto mb-8">
+      <h2 class="block text-4xl font-bold mt-16 text-center uppercase">
+        Controlling the extension during a stream
+      </h2>
+      <hr class="border-t-2 border-cyan-500 w-1/2 mx-auto mb-8" />
 
       <div class="space-y-6">
         <p class="text-lg">
-          You can open the configuration by navigating to https://twitch.tv/<strong class="font-semibold">YOURNAME</strong>/dashboard/live.
+          You can open the live voting controls by navigating to https://twitch.tv/<strong class="font-semibold">YOURNAME</strong>/dashboard/live or by navigating
+          to your Twitch Creator Dashboard -> Stream Manager -> Click on "WoWS Shipvote" in the Quick Actions section.
         </p>
 
-        <h3 class="text-2xl font-bold mt-12 mb-6">Configuring and starting votes</h3>
-        <hr class="border-t-2 border-cyan-500 w-1/4 mb-6">
+        <h3 class="text-2xl font-bold mt-12 mb-6">Live Controls</h3>
+        <hr class="border-t-2 border-cyan-500 w-1/4 mb-6" />
 
-        <img src={static_path(@conn, "/images/shipvote_live_config_closed.png")} alt="Live Configuration Closed" class="w-full max-w-md mx-auto rounded-lg shadow-lg" />
+        <img
+          src={static_path(@conn, "/images/shipvote_live_config.jpg")}
+          alt="Live Configuration Closed"
+          class="w-full max-w-md mx-auto rounded-lg shadow-lg"
+        />
 
         <p class="text-lg">
-          The box at the top always shows you the current status of your vote. The button is used to open or close a vote.
+          The live controls are the heart of the extension for you. Here, you can see the current status of your vote, the results of previous votes, and
+          provide feedback for the extension. You can also view the changelog to find out what's new.
         </p>
+
+        <h4 class="text-xl font-bold mt-12 mb-6">Opening a Vote</h4>
 
         <p class="text-lg">
-          You need to add ships to a vote. This can be done using the "Ship selection" section. You can either add ships by using a filter, for example
-          <em class="font-italic">Nation: france</em>
-          to add all french ships.
-          You can narrow this down by also requiring a specific tier, like
-          <em class="font-italic">Nation: france, Tier: VII</em>
-          which will add all french tier 7 ships. Press the "Add X ships" button to add the ships.
+          To open a vote, press the "New Vote" button. This will open a new page where you can configure the vote.
         </p>
+
+        <img
+          src={static_path(@conn, "/images/shipvote_new_vote.jpg")}
+          alt="New Vote Configuration"
+          class="w-full max-w-md mx-auto rounded-lg shadow-lg"
+        />
 
         <p class="text-lg">
-          Further down, you see a list of all your ships. You can use the search bar to add or remove a specific ship by its name.
+          You can select a time limit for the vote, after which it will be closed automatically.
+          <br /><br />
+          You can select ships manually by clicking the "+" and "-" buttons on individual ships or filter them by nation, tier, and ship class. Press the "Add X ships" button to add all ships currently visible in the list at the bottom.
+          <br /><br />Once you are done, press the "Start vote with X ships" button to start the vote.
         </p>
 
-        <p class="text-lg">Use the <em class="font-italic">Reset</em> button to reset your vote configuration.</p>
+        <h4 class="text-xl font-bold mt-12 mb-6">During the Vote</h4>
 
-        <h3 class="text-2xl font-bold mt-12 mb-6">During the vote</h3>
-        <hr class="border-t-2 border-cyan-500 w-1/4 mb-6">
+        <img
+          src={static_path(@conn, "/images/shipvote_live_config_active_vote.jpg")}
+          alt="Live Configuration Active Vote"
+          class="w-full max-w-md mx-auto rounded-lg shadow-lg"
+        />
 
-        <img src={static_path(@conn, "/images/shipvote_live_config_open.png")} alt="Live Configuration Open" class="w-full max-w-md mx-auto rounded-lg shadow-lg" />
+        <p class="text-lg">
+          While the vote is active, you can see the current results. You can close the vote at any time by pressing the "Close vote" button.
+        </p>
 
-        <p class="text-lg">Below the vote status box, you can see the current vote results and participants.</p>
+        <h4 class="text-xl font-bold mt-12 mb-6">Previous Votes</h4>
+
+        <img
+          src={static_path(@conn, "/images/shipvote_live_config_previous_votes.jpg")}
+          alt="Previous Votes"
+          class="w-full max-w-md mx-auto rounded-lg shadow-lg"
+        />
+
+        <p class="text-lg">
+          The previous votes section shows the top three voted ships of the last five votes.
+        </p>
+
+        <h3 class="text-2xl font-bold mt-12 mb-6">Feedback</h3>
+        <hr class="border-t-2 border-cyan-500 w-1/4 mb-6" />
+
+        <p class="text-lg pb-60">
+          You can use the "Feedback" section of the live controls to provide feedback directly to me. You can also use this for reporting bugs or requesting features.
+          Alternatively, you can reach out to me on Discort at <code>Rukenshia#4396</code>
+          or <code>rukenshia</code>
+          on Twitch.
+        </p>
       </div>
     </div>
   </div>

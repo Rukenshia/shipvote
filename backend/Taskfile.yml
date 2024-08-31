@@ -4,6 +4,6 @@ tasks:
   run:
     interactive: true
     cmds:
-      - docker-compose up -d
-      - defer: docker-compose down
+      # - docker-compose up -d
+      # - defer: docker-compose down
       - mix phx.server

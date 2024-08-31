@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Shipvote Twitch Extension</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Shipvote Twitch Extension</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-            body {
-                font-family: 'Noto Sans', sans-serif;
-                color: #2e2e2e;
+      body {
+          font-family: 'Noto Sans', sans-serif;
+          color: #2e2e2e;
 
-                font-size: 16px;
-            }
+          font-size: 16px;
+      }
 
-            h1, h2, h3, h4, h5, h6 {
-                font-family: 'Roboto Condensed', sans-serif;
-            }
+      h1, h2, h3, h4, h5, h6 {
+          font-family: 'Roboto Condensed', sans-serif;
+      }
 
-            #wallpaper {
-                background-image: url('<%= static_path(@conn, "/images/wallpaper.jpeg") %>');
-                background-size: cover;
-                background-position: bottom;
-                background-repeat: no-repeat;
+      #wallpaper {
+          background-image: url('<%= static_path(@conn, "/images/wallpaper.jpeg") %>');
+          background-size: cover;
+          background-position: bottom;
+          background-repeat: no-repeat;
 
-            }
-        </style>
-        <script src="https://cdn.tailwindcss.com?plugins=typography,aspect-ratio,line-clamp,container-queries"></script>
-    </head>
-    <body class="h-full min-h-screen">
-        <%= @inner_content %>
-    </body>
+      }
+    </style>
+    <script
+      src="https://cdn.tailwindcss.com?plugins=typography,aspect-ratio,line-clamp,container-queries"
+    >
+    </script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body class="h-full min-h-screen">
+    <%= @inner_content %>
+  </body>
 </html>
