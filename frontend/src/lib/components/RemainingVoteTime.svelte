@@ -69,8 +69,10 @@
       <span class="font-medium">Vote ends in</span>
       <span class="trim">
         {#if remaining_minutes > 0}
-          {remaining_minutes} minutes
-        {:else}{remaining_seconds % 60} seconds
+          {remaining_minutes} minute{remaining_minutes > 1 ? "s" : ""}{" "}
+        {:else}{remaining_seconds % 60} second{remaining_seconds % 60 > 1
+            ? "s"
+            : ""}
         {/if}
       </span>
     {/if}

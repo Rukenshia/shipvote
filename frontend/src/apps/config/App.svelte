@@ -8,6 +8,7 @@
   import type { Channel, ShipvoteApi } from "../../lib/api";
   import { writable, type Writable } from "svelte/store";
   import Notification from "../../lib/components/Notification.svelte";
+  import { slide } from "svelte/transition";
 
   const channel: Writable<Channel> = writable();
   let loading = true;
@@ -21,7 +22,7 @@
     loading = true;
 
     try {
-    channel.set(await $api.broadcasterGetChannel());
+      channel.set(await $api.broadcasterGetChannel());
     } catch (e) {
       console.error(e);
     }
@@ -45,21 +46,26 @@
     });
   });
 
+  let channelCreateOrUpdatePromise: Promise<Channel>;
+
   async function updateConfig() {
-    $channel = await $api.updateChannelConfig({
+    channelCreateOrUpdatePromise = $api.updateChannelConfig({
       ...$channel,
       wows_username,
       wows_realm,
     });
+    $channel = await channelCreateOrUpdatePromise;
   }
 
   async function createConfig() {
-    $channel = await $api.createChannelConfig({
+    channelCreateOrUpdatePromise = $api.createChannelConfig({
       id: $channelId,
       wows_username,
       wows_realm,
       ships: [],
     });
+
+    $channel = await channelCreateOrUpdatePromise;
   }
 
   async function updateShips({ detail: ships }) {
@@ -84,7 +90,11 @@
 
     {#if $channel}
       <Box title="Settings">
-        <form on:submit={(e) => { e.preventDefault(); }}>
+        <form
+          on:submit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <label for="channel-name">WoWS Username</label>
@@ -118,10 +128,26 @@
         </form>
       </Box>
 
+      {#await channelCreateOrUpdatePromise}
+        <div transition:slide={{ duration: 300 }}>
+          <Notification type="info" title="Saving">
+            <p>Please wait while we save your configuration</p>
+          </Notification>
+        </div>
+      {:catch e}
+        <Notification type="error" title="Error">
+          <p>Could not save configuration: {e.message}</p>
+        </Notification>
+      {/await}
+
       <ChannelShips on:update={updateShips} {channel} />
     {:else}
       <Box title="Setup">
-        <form on:submit={(e) => { e.preventDefault(); }}>
+        <form
+          on:submit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-2">
               <label for="channel-name">WoWS Username</label>
@@ -154,6 +180,18 @@
           >
         </form>
       </Box>
+
+      {#await channelCreateOrUpdatePromise}
+        <div transition:slide={{ duration: 300 }}>
+          <Notification type="info" title="Saving">
+            <p>Please wait while we save your configuration</p>
+          </Notification>
+        </div>
+      {:catch e}
+        <Notification type="error" title="Error">
+          <p>Could not save configuration: {e.message}</p>
+        </Notification>
+      {/await}
     {/if}
   {/if}
 

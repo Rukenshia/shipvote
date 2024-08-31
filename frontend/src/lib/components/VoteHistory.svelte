@@ -50,12 +50,14 @@
   loading...
 {:then}
   {#if $voteStats.length === 0}
-    <div
-      class="m-4 relative block w-full rounded-lg border-2 border-dashed hover:border-gray-300 p-12 text-center border-gray-400"
-    >
-      <span class="mt-2 block text-base text-gray-400"
-        >No votes yet. Click on "New Vote" to create one</span
+    <div class="px-4 pt-4">
+      <div
+        class="relative block w-full rounded-lg border-2 border-dashed hover:border-gray-300 p-12 text-center border-gray-400"
       >
+        <span class="mt-2 block text-base text-gray-400"
+          >No votes yet. Click on "New Vote" to create one</span
+        >
+      </div>
     </div>
   {/if}
 

@@ -1,8 +1,17 @@
 <script lang="ts">
   export let name: string;
-  export let options: string[];
+  export let options: string[] | { value: string; label: string }[];
 
-  let allOptions = ["all", ...options];
+  let allOptions: { value: string; label: string }[] = [
+    { value: "all", label: "all" },
+    ...options.map((option) => {
+      if (typeof option === "string") {
+        return { value: option, label: option };
+      }
+
+      return option;
+    }),
+  ];
   export let value = allOptions[0];
 </script>
 
@@ -17,7 +26,7 @@
     bind:value
   >
     {#each allOptions as option}
-      <option>{option}</option>
+      <option value={option.value}>{option.label}</option>
     {/each}
   </select>
 </div>

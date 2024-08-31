@@ -1,17 +1,31 @@
 <script lang="ts">
   import type { Ship } from "../api";
+  import { Nations, Tiers, ShipTypes } from "../filters";
   import Filter from "./Filter.svelte";
 
   export let ships: Ship[] = [];
   export let filteredShips: Ship[] = [];
 
-  let nations = [...new Set(ships.map((ship) => ship.nation)).values()].sort();
+  let nations = [...new Set(ships.map((ship) => ship.nation)).values()]
+    .map((nation: string) => ({
+      value: nation,
+      label: Nations[nation] || nation,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
   let selectedNation = "all";
   let tiers = [...new Set(ships.map((ship) => ship.tier)).values()]
     .sort()
-    .reverse();
+    .reverse()
+    .map((tier: any) => ({
+      value: tier,
+      label: Tiers[tier],
+    }));
   let selectedTier = "all";
   let types = [...new Set(ships.map((ship) => ship.type)).values()]
+    .map((type: string) => ({
+      value: type,
+      label: ShipTypes[type] || type,
+    }))
     .sort()
     .reverse();
   let selectedType = "all";

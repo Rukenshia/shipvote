@@ -112,7 +112,10 @@
           />
         {/if}
       {:else}
-        <div transition:slide|global={{ duration: 100 }} class="flex flex-col gap-4">
+        <div
+          transition:slide|global={{ duration: 100 }}
+          class="flex flex-col gap-4"
+        >
           {#if $vote === undefined || $vote === null || $vote.status === "closed"}
             <Link
               on:navigate={navigate}
@@ -149,6 +152,20 @@
               </div>
             </div>
             <div class="flex flex-col gap-2">
+              <h3 class="text-xl font-bold">v3.3.0</h3>
+              <div class="prose text-gray-400">
+                <ul>
+                  <li>
+                    Fixed a bug where remaining vote time was not displayed
+                  </li>
+                  <li>
+                    Added visual indicator while saving the main config page
+                  </li>
+                  <li>Fixed the sorting of tiers in all filters</li>
+                  <li>Improved styling for ship selection</li>
+                </ul>
+              </div>
+
               <h3 class="text-xl font-bold">v3.2.0</h3>
               <div class="prose text-gray-400">
                 <ul>
