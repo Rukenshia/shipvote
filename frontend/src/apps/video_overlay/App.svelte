@@ -115,31 +115,39 @@
         </div>
         {#if !hidden}
           <div
-            class="flex h-full items-center justify-center overflow-hidden py-[5rem]"
-            in:scale|global={{ duration: 300 }}
-            out:scale|global={{ duration: 300 }}
+            class="fixed inset-0 flex items-center justify-center pointer-events-none"
           >
-            <div class="relative w-full max-w-2xl text-white">
-              <div
-                class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 p-4 pt-2 opacity-80 transition-all duration-300 hover:opacity-100"
-              >
-                <div class="overflow-y-auto">
-                  <VoteForShip
-                    vote={$vote}
-                    warships={$warships}
-                    close={() => (hidden = true)}
-                  />
-
+            <div
+              class="w-full max-w-2xl h-[calc(100%-10rem)] my-[5rem] flex items-center justify-center pointer-events-auto"
+              in:scale|global={{ duration: 300 }}
+              out:scale|global={{ duration: 300 }}
+            >
+              <div class="relative w-full h-full text-white">
+                <div
+                  class="relative z-20 h-full rounded-xl bg-gradient-to-b from-cyan-800 to-cyan-950 opacity-80 transition-all duration-300 hover:opacity-100"
+                  id="vote-for-ship"
+                >
                   <div
-                    class="mt-4 rounded-lg bg-cyan-950 px-2 py-1 text-xs opacity-50"
+                    class="h-full flex flex-col space-between overflow-y-auto p-4 pt-2"
                   >
-                    <CreatorBanner />
+                    <div class="flex-grow">
+                      <VoteForShip
+                        vote={$vote}
+                        warships={$warships}
+                        close={() => (hidden = true)}
+                      />
+                    </div>
+                    <div
+                      class="flex-shrink mt-4 rounded-lg bg-cyan-950 px-2 py-1 text-xs opacity-50"
+                    >
+                      <CreatorBanner />
+                    </div>
                   </div>
                 </div>
+                <div
+                  class="absolute -inset-1 z-10 rounded-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 blur-md"
+                />
               </div>
-              <div
-                class="absolute -inset-1 z-10 rounded-md bg-gradient-to-br from-blue-500/50 via-sky-800/60 to-cyan-600/50 blur-md"
-              />
             </div>
           </div>
         {/if}
