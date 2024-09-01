@@ -15,7 +15,7 @@
     </div>
   </div>
 
-  <div class="w-full pt-32">
+  <div class="w-full pt-32 2xl:h-[30vh]">
     <div class="w-3/4 mx-auto">
       <h1 class="text-center text-3xl sm:text-4xl lg:text-6xl text-white font-bold drop-shadow-2xl uppercase">
         World of Warships Shipvote Extension
@@ -26,16 +26,23 @@
     </div>
   </div>
 
-  <div class="w-full min-h-screen flex flex-col space-between">
-    <div class="grid grid-cols-1 lg:grid-cols-6">
-      <div class="col-span-1 lg:col-start-2 lg:col-span-4 py-8 px-8">
-        <div class="relative w-full h-full">
-          <video class="w-full h-full object-cover rounded-lg" autoplay muted loop playsinline>
+  <div class="w-full min-h-[calc(100vh-30vh)]
+    flex flex-col space-between">
+    <div class="flex-grow grid grid-cols-1 lg:grid-cols-6 2xl:grid-cols-12">
+      <div class="col-span-1 lg:col-start-2 lg:col-span-4 2xl:col-start-2 2xl:col-span-4 py-6 lg:py-8 px-8">
+        <div class="w-full h-full lg:h-[25rem] 2xl:h-[30rem]">
+          <video
+            class="mx-auto w-auto h-full rounded-[6px] relative"
+            autoplay
+            muted
+            loop
+            playsinline
+          >
             <source src={static_path(@conn, "/videos/viewer_perspective.webm")} type="video/webm" />
           </video>
         </div>
       </div>
-      <div class="col-span-1 lg:col-start-2 lg:col-span-4 flex-grow flex flex-col gap-16 pb-16 text-cyan-50 drop-shadow">
+      <div class="col-span-1 lg:col-start-2 lg:col-span-4 2xl:col-start-auto 2xl:col-span-6 flex-grow flex flex-col gap-16 text-cyan-50 drop-shadow">
         <div class="relative px-8 sm:px-16 flex flex-col gap-4">
           <h2 class="text-4xl font-bold uppercase">
             What is the Shipvote Extension?
@@ -47,20 +54,6 @@
             Whenever the streamer feels like it, they can start a vote for their viewers to choose which ship they should play next. Which ships are available
             for voting is based on their ships in port, but the streamer can also disable ships they don't want to play.
             <br /> Every viewer gets one vote. Voting is possible via Desktop, iOS and Android.
-          </p>
-        </div>
-
-        <div class="relative px-8 sm:px-16 flex flex-col gap-4">
-          <h2 class="text-4xl font-bold uppercase">How much does it cost?</h2>
-
-          <p class="text-lg">
-            The Shipvote Extension is free to use for both streamers and viewers. There are no ads, no subscriptions, no nothing.
-            <br />
-            The only thing you need is a Twitch account and a World of Warships account. If you'd like to support me for this project,
-            you can <a
-              href="https://www.buymeacoffee.com/rukenshia"
-              class="text-cyan-100 underline"
-            >buy me a coffee</a>.
           </p>
         </div>
 
@@ -107,10 +100,22 @@
             </ul>
           </p>
         </div>
+
+        <div class="relative px-8 sm:px-16 flex flex-col gap-4">
+          <h2 class="text-4xl font-bold uppercase">Does it cost anything?</h2>
+
+          <p class="text-lg">
+            The Shipvote Extension is free to use. You only need a Twitch and World of Warships account. If you'd like to support me for this project,
+            you can <a
+              href="https://www.buymeacoffee.com/rukenshia"
+              class="text-cyan-100 underline"
+            >buy me a coffee</a>.
+          </p>
+        </div>
       </div>
     </div>
 
-    <div class="flex-shrink text-center relative text-cyan-600 text-xs">
+    <div class="flex-shrink text-center relative text-cyan-600 text-xs pt-8">
       The Shipvote Extension is a project by Rukenshia (Discord: Rukenshia#4396). This project is not affiliated with Wargaming.net
     </div>
   </div>
