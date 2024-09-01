@@ -15,3 +15,13 @@ tasks:
   run-frontend:
     cmds:
       - cd frontend && npm run dev
+
+  connect:
+    interactive: true
+    env:
+      AWS_REGION: eu-central-1
+      AWS_PAGER: ""
+    cmds:
+      - |
+        instance_id=$(aws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --filter "Name=tag:Name,Values=shipvote" --output text)
+        aws ssm start-session --target $instance_id --document-name AWS-StartInteractiveCommand --parameters command="bash -l"
