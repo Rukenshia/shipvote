@@ -1,6 +1,6 @@
 <script lang="ts">
   export let name: string;
-  export let options: string[] | { value: string; label: string }[];
+  export let options: string[] | { value: any; label: string }[];
 
   let allOptions: { value: string; label: string }[] = [
     { value: "all", label: "all" },
@@ -12,7 +12,7 @@
       return option;
     }),
   ];
-  export let value = allOptions[0];
+  export let value = allOptions[0].value;
 </script>
 
 <div class="flex-auto">

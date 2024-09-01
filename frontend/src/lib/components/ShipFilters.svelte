@@ -13,14 +13,15 @@
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
   let selectedNation = "all";
+
   let tiers = [...new Set(ships.map((ship) => ship.tier)).values()]
-    .sort()
+    .sort((a: number, b: number) => a - b)
     .reverse()
     .map((tier: any) => ({
       value: tier,
       label: Tiers[tier],
     }));
-  let selectedTier = "all";
+  let selectedTier: string | number = "all";
   let types = [...new Set(ships.map((ship) => ship.type)).values()]
     .map((type: string) => ({
       value: type,

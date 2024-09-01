@@ -7,7 +7,7 @@ export interface Ship {
   name: string;
   nation: string;
   type: string;
-  tier: string;
+  tier: number;
   premium: boolean;
   image: string;
 
