@@ -161,7 +161,7 @@
                   <li>
                     Added visual indicator while saving the main config page
                   </li>
-                  <li>Fixed the sorting of tiers in all filters</li>
+                  <li>Improved filtering and sorting of filters</li>
                   <li>Improved styling for ship selection</li>
                   <li>Fixed a bug where votes would not update on mobile</li>
                 </ul>
