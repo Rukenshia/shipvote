@@ -3,15 +3,16 @@ DB_INSTANCE_ID := $(shell aws --region ${REGION} ec2 describe-instances --filter
 DB_AZ := $(shell aws --region ${REGION} ec2 describe-instances --filters 'Name=tag:Name,Values=shipvote-db' 'Name=instance-state-name,Values=running' --output text --query 'Reservations[*].Instances[*].Placement.AvailabilityZone')
 DB_IP := $(shell aws --region ${REGION} ec2 describe-instances --filters 'Name=tag:Name,Values=shipvote-db' 'Name=instance-state-name,Values=running' --output text --query 'Reservations[*].Instances[*].NetworkInterfaces[*].Association.PublicDnsName')
 SSH_USER ?= ec2-user
+INSTANCE_ID := $(shell aws --region ${REGION} ec2 describe-instances --filters 'Name=tag:Name,Values=shipvote' 'Name=instance-state-name,Values=running' --output text --query 'Reservations[*].Instances[*].InstanceId')
 
 export AWS_DEFAULT_REGION=${REGION}
 
 .PHONY: cert
 cert:
-	certbot certonly --config-dir ~/.certbot --logs-dir ~/.certbot --work-dir ~/.certbot \
-		--text --email svc-shipvote@ruken.pw \
-		--agree-tos --manual -d shipvote.in.fkn.space \
-		--preferred-challenges dns
+	poetry run certbot certonly --config-dir ~/.certbot --logs-dir ~/.certbot --work-dir ~/.certbot \
+		--dns-route53 \
+		--email svc-shipvote@ruken.pw \
+		--agree-tos -d shipvote.in.fkn.space
 
 .PHONY: upload
 upload:
@@ -19,11 +20,10 @@ upload:
 	aws ssm put-parameter --overwrite --type String --name /shipvote/ssl/privkey.pem --value file://$$HOME/.certbot/live/shipvote.in.fkn.space/privkey.pem
 	aws ssm put-parameter --overwrite --type String --name /shipvote/ssl/chain.pem --value file://$$HOME/.certbot/live/shipvote.in.fkn.space/chain.pem
 
-.PHONY: use-cert
-use-cert:
-	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/cert.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_cert.pem
-	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/privkey.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_privkey.pem
-	echo -e "$$(aws ssm get-parameter --name /shipvote/ssl/chain.pem --query Parameter.Value | sed 's/"//g')" > /opt/shipvote_chain.pem
+.PHONY: terminate-instance
+terminate-instance:
+	aws ec2 terminate-instances --instance-ids ${INSTANCE_ID}
+
 
 .PHONY: upload-key
 upload-key:

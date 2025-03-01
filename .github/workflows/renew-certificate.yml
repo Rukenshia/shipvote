@@ -1,0 +1,48 @@
+name: Renew SSL Certificate
+
+on:
+  schedule:
+    # Run once a month (on the 1st at 3:30 AM UTC)
+    - cron: '30 3 1 * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  renew-cert:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::140298420637:role/GithubActions
+          aws-region: eu-central-1
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make python3-pip
+          pip install poetry
+          pip install certbot-dns-route53
+
+      - name: Renew certificate
+        working-directory: ./infra
+        run: |
+          make cert
+
+      - name: Upload new certificate
+        working-directory: ./infra
+        run: |
+          make upload
+
+      - name: Terminate the temporary instance
+        working-directory: ./infra
+        run: |
+          make terminate-instance
